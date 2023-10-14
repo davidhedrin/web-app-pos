@@ -232,6 +232,7 @@
               <label class="form-label mb-0" for="selectMethodPayment">Metode Pembayaran:</label>
               <select v-model="selectMethodPayment" class="form-select mb-0" :class="{'border-red' : invalidMetodePembayaran}" v-on:change="onChangeSelectedMetodeBayar" id="selectMethodPayment">
                 <option value="">Pilih Metode Bayar</option>
+                <option :value="metodeBayarCash.id">{{ metodeBayarCash.nama }}</option>
                 <optgroup label="Transfer Bank">
                   <option v-for="metode in dataMetodeBayarTF" :value="metode.id">{{ metode.nama }}</option>
                 </optgroup>
@@ -424,6 +425,7 @@
                   Tambah Metode
                 </button>
                 <div class="dropdown-menu py-0" aria-labelledby="btnGroupTambahMetode">
+                  <a class="dropdown-item" v-on:click="addMoreMetodeBayar(metodeBayarCash)" href="javascript:void(0)">{{ metodeBayarCash.nama }}</a>
                   <a v-for="metode in dataMetodeBayarTF" class="dropdown-item" v-on:click="addMoreMetodeBayar(metode)" href="javascript:void(0)">{{ metode.nama }}</a>
                   <hr class="dropdown-divider" />
                   <a v-for="metode in dataMetodeBayarEWal" class="dropdown-item" v-on:click="addMoreMetodeBayar(metode)" href="javascript:void(0)">{{ metode.nama }}</a>
@@ -437,10 +439,11 @@
                 <img class="img-icon-po1" :src="'src/assets/img/po-img/' + selectedMetodeBayar.image" />
               </div>
               <div class="w-40 me-1">
-                <input class="form-control form-control-sm" type="text" :placeholder="selectedMetodeBayar.tipe == '2' ? 'Nomor telepon' : '4 digit nomor' " />
+                <input v-if="selectedMetodeBayar.tipe" id="inputSelectedMetodeBayar" @input="onChangeCheckVal($event)" class="form-control form-control-sm" type="text" :placeholder="selectedMetodeBayar.tipe == '2' ? 'Nomor telepon' : '4 digit nomor' " />
+                <i v-else>Pembayaran Cash</i>
               </div>
               <div class="w-25">
-                <input class="form-control form-control-sm text-end" type="text" :value="$root.formatPrice(calculateTotalBayarPrice)" disabled />
+                <input class="form-control form-control-sm text-end" id="inputSelectedNominalMetode" @input="onChangeCheckVal($event)" type="text" :value="$root.formatPrice(calculateTotalBayarPrice)" disabled />
               </div>
             </div>
             
@@ -452,10 +455,11 @@
                 <img class="img-icon-po1" :src="'src/assets/img/po-img/' + metode.image" />
               </div>
               <div class="w-40 me-1">
-                <input class="form-control form-control-sm" type="text" :placeholder="metode.tipe == '2' ? 'Nomor telepon' : '4 digit nomor' " />
+                <input v-if="metode.tipe" class="form-control form-control-sm" :id="'inputMoreMetodeBayar_' + index" @input="onChangeCheckVal($event)" type="text" :placeholder="metode.tipe == '2' ? 'Nomor telepon' : '4 digit nomor' " />
+                <i v-else>Pembayaran Cash</i>
               </div>
               <div class="w-25">
-                <input v-model="nominalMoreMetodeBayar[index]" @input="nominalMoreMetodeBayar[index] = formatCalculatePriceMoreMetode($event, index)" class="form-control form-control-sm text-end" type="text" placeholder="Nominal"/>
+                <input v-model="nominalMoreMetodeBayar[index]" @input="nominalMoreMetodeBayar[index] = formatCalculatePriceMoreMetode($event, index)" :id="'inputNominalMoreMetodeBayar_' + index" class="form-control form-control-sm text-end" type="text" placeholder="Nominal"/>
               </div>
             </div>
 
@@ -487,7 +491,7 @@
           </div>
         </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary btn-sm" type="button" v-on:click="dataMoreMetodeBayar = []" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-secondary btn-sm" type="button" v-on:click="dataMoreMetodeBayar = []; nominalMoreMetodeBayar = []; calculateTotalMoreMetode()" data-bs-dismiss="modal">Batal</button>
         <button class="btn btn-primary btn-sm" type="button" v-on:click="openModalCheckoutConfirm">Checkout <span class="fas fa-shopping-basket"></span></button>
       </div>
       </div>
@@ -602,6 +606,7 @@ export default {
 
       // Metode bayar
       dataAllMetodeBayar: [],
+      metodeBayarCash: {},
       dataMetodeBayarTF: [],
       dataMetodeBayarEWal: [],
       dataMetodeBayarCC: [],
@@ -709,6 +714,7 @@ export default {
         this.dataAllKodeToko = allData.getAllKodeToko; //All Kode Toko
         this.select_kode_toko = allData.getAllKodeToko[0].id;
         this.dataAllMetodeBayar = allData.getAllMetodeBayar; //All Metode Bayar
+        this.metodeBayarCash = this.dataAllMetodeBayar.find((m) => m.kode == 'cash'); // Metode Bayar Cash
         allData.getAllMetodeBayar.forEach(metode => {
           if(metode.tipe === '1'){
             this.dataMetodeBayarTF.push(metode);
@@ -929,6 +935,15 @@ export default {
     },
 
     formatCalculatePriceMoreMetode(event, index) {
+      var inputId = event.target;
+      var valueInput = inputId.value;
+      
+      if (valueInput || valueInput.length > 0){
+        inputId.classList.remove('border-red');
+      }else{
+        inputId.classList.add('border-red');
+      }
+
       let total = 0;
       for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
         if (this.nominalMoreMetodeBayar[i] !== '') {
@@ -970,7 +985,7 @@ export default {
       }
     },
 
-    calculateTotalMoreMetode(index){
+    calculateTotalMoreMetode(index = null){
       let total = 0;
       for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
         if (this.nominalMoreMetodeBayar[i] !== '') {
@@ -979,16 +994,18 @@ export default {
         }
       }
       
-      if (total > this.totalBayarPrice) {
-        let thisNominalTotal = 0;
-        for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
-          if (i !== index && this.nominalMoreMetodeBayar[i] !== '') {
-            const value = this.nominalMoreMetodeBayar[i] ? parseFloat(this.nominalMoreMetodeBayar[i].replace(/\./g, '')) || 0 : 0;
-            thisNominalTotal += value;
+      if(index != null){
+        if (total >= this.totalBayarPrice) {
+          let thisNominalTotal = 0;
+          for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
+            if (i !== index && this.nominalMoreMetodeBayar[i] !== '') {
+              const value = this.nominalMoreMetodeBayar[i] ? parseFloat(this.nominalMoreMetodeBayar[i].replace(/\./g, '')) || 0 : 0;
+              thisNominalTotal += value;
+            }
           }
+          this.calculateTotalBayarPrice = this.totalBayarPrice - thisNominalTotal;
+          return;
         }
-        this.calculateTotalBayarPrice = this.totalBayarPrice - thisNominalTotal;
-        return;
       }
 
       this.calculateTotalBayarPrice = this.totalBayarPrice - total;
@@ -1015,8 +1032,56 @@ export default {
       $('#modalConfirmPay').modal('show');
     },
 
+    onChangeCheckVal(event){
+      var inputId = event.target;
+      var valueInput = inputId.value;
+      
+      if (valueInput || valueInput.length > 0){
+        inputId.classList.remove('border-red');
+      }else{
+        inputId.classList.add('border-red');
+      }
+    },
+
     openModalCheckoutConfirm(){
-        this.invalidSelectSalesBsc = false;
+      this.invalidSelectSalesBsc = false;
+
+      function checkAllInputMetodAndNominal(dataMoreMetodeBayar, nominalMoreMetodeBayar) {
+        var result = true;
+      
+        var inputSelectedMetodeBayar = $("#inputSelectedMetodeBayar");
+        var inputSelectedMetodeBayarVal = inputSelectedMetodeBayar.val();
+
+        if(inputSelectedMetodeBayarVal){
+          if (inputSelectedMetodeBayarVal.trim() === "" ){
+            inputSelectedMetodeBayar.addClass('border-red');
+            result = false;
+          }
+        }
+        for(let i=0; i < dataMoreMetodeBayar.length; i++){
+          if(dataMoreMetodeBayar[i].tipe){
+            var inputMoreMetode = $('#inputMoreMetodeBayar_' + i);
+            var inputMoreMetodeVal = inputMoreMetode.val().trim();
+            if (inputMoreMetodeVal === ""){
+              inputMoreMetode.addClass('border-red');
+              result = false;
+            }
+          }
+          var inputMoreNominalMetode = $('#inputNominalMoreMetodeBayar_' + i);
+          var inputMoreNominalMetodeVal = inputMoreNominalMetode.val().trim();
+          if (inputMoreNominalMetodeVal === ""){
+            inputMoreNominalMetode.addClass('border-red');
+            result = false;
+          }
+        }
+
+        return result;
+      }
+
+      if(!checkAllInputMetodAndNominal(this.dataMoreMetodeBayar, this.nominalMoreMetodeBayar)){
+        return false;
+      }
+
       if(this.selectSalesBy == 'wa' && this.selectedBscWa == ''){
         this.invalidSelectSalesBsc = true;
         return false;

@@ -50,7 +50,7 @@
     },
     methods: {
       closeAlert() {
-        this.$emit('close');
+        this.$emit('close-alert');
       },
     },
   }
