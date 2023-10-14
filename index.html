@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html class="chrome windows fontawesome-i2svg-active fontawesome-i2svg-complete navbar-vertical-collapsed" data-bs-theme="light" lang="en-US" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Point of Sales</title>
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="./src/assets/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./src/assets/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./src/assets/img/favicon-16x16.png">
+    <link rel="shortcut icon" type="image/x-icon" href="./src/assets/img/favicon.ico">
+    <link rel="manifest" href="./src/assets/js/manifest.json">
+    
+    <meta name="theme-color" content="#ffffff">
+    <script src="./src/assets/js/config.js"></script>
+    <script src="./src/assets/vendor/js/simplebar.min.js"></script>
+
+    <link href="./src/assets/vendor/css/choices.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap" rel="stylesheet">
+    <link href="./src/assets/vendor/css/simplebar.min.css" rel="stylesheet">
+    <link href="./src/assets/css/theme-rtl.min.css" rel="stylesheet" id="style-rtl">
+    <link href="./src/assets/css/theme.min.css" rel="stylesheet" id="style-default">
+
+    <script>
+      var isRTL = JSON.parse(localStorage.getItem('isRTL'));
+      if (isRTL) {
+        var linkDefault = document.getElementById('style-default');
+        var userLinkDefault = document.getElementById('user-style-default');
+        linkDefault.setAttribute('disabled', true);
+        userLinkDefault.setAttribute('disabled', true);
+        document.querySelector('html').setAttribute('dir', 'rtl');
+      } else {
+        var linkRTL = document.getElementById('style-rtl');
+        var userLinkRTL = document.getElementById('user-style-rtl');
+        linkRTL.setAttribute('disabled', true);
+        //userLinkRTL.setAttribute('disabled', true);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div class="offcanvas offcanvas-end settings-panel border-0" id="settings-offcanvas" tabindex="-1" aria-labelledby="settings-offcanvas">
+      <div class="offcanvas-header settings-panel-header bg-shape">
+        <div class="z-1 py-1">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <h5 class="text-white mb-0 me-2">
+              <span class="fas fa-palette me-2 fs-0"></span>Settings
+            </h5>
+            <button class="btn btn-primary btn-sm rounded-pill mt-0 mb-0" data-theme-control="reset" style="font-size:12px">
+              <span class="fas fa-redo-alt me-1" data-fa-transform="shrink-3"></span>Reset </button>
+          </div>
+          <p class="mb-0 fs--1 text-white opacity-75"> Set your own customized style</p>
+        </div>
+        <div class="z-1" data-bs-theme="dark">
+          <button class="btn-close z-1 mt-0" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="offcanvas-body scrollbar-overlay px-x1 h-100" id="themeController">
+        <h5 class="fs-0">Color Scheme</h5>
+        <p class="fs--1">Choose the perfect color mode for your app.</p>
+        <div class="btn-group d-block w-100 btn-group-navbar-style">
+          <div class="row gx-2">
+            <div class="col-4">
+              <input class="btn-check" id="themeSwitcherLight" name="theme-color" type="radio" value="light" data-theme-control="theme" />
+              <label class="btn d-inline-block btn-navbar-style fs--1" for="themeSwitcherLight">
+                <span class="hover-overlay mb-2 rounded d-block">
+                  <img class="img-fluid img-prototype mb-0" src="./src/assets/img/customized/falcon-mode-default.jpg" width="100" style="max-height: 80px;" alt="" />
+                </span>
+                <span class="label-text">Light</span>
+              </label>
+            </div>
+            <div class="col-4">
+              <input class="btn-check" id="themeSwitcherDark" name="theme-color" type="radio" value="dark" data-theme-control="theme" />
+              <label class="btn d-inline-block btn-navbar-style fs--1" for="themeSwitcherDark">
+                <span class="hover-overlay mb-2 rounded d-block">
+                  <img class="img-fluid img-prototype mb-0" src="./src/assets/img/customized/falcon-mode-dark.jpg" width="100" style="max-height: 80px;" alt="" />
+                </span>
+                <span class="label-text"> Dark</span>
+              </label>
+            </div>
+            <div class="col-4">
+              <input class="btn-check" id="themeSwitcherAuto" name="theme-color" type="radio" value="auto" data-theme-control="theme" />
+              <label class="btn d-inline-block btn-navbar-style fs--1" for="themeSwitcherAuto">
+                <span class="hover-overlay mb-2 rounded d-block">
+                  <img class="img-fluid img-prototype mb-0" src="./src/assets/img/customized/falcon-mode-auto.jpg" width="100" style="max-height: 80px;" alt="" />
+                </span>
+                <span class="label-text"> Auto</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <h5 class="fs-0 d-flex align-items-center">Vertical Navbar Style</h5>
+        <p class="fs--1 mb-0">Switch between styles for your vertical navbar </p>
+        <div class="btn-group d-block w-100 btn-group-navbar-style">
+          <div class="row gx-2">
+            <div class="col-6">
+              <input class="btn-check" id="navbar-style-transparent" type="radio" name="navbarStyle" value="transparent" data-theme-control="navbarStyle" />
+              <label class="btn d-block w-100 btn-navbar-style fs--1" for="navbar-style-transparent">
+                <img class="img-fluid img-prototype" src="./src/assets/img/customized/default.png" alt="" />
+                <span class="label-text"> Transparent</span>
+              </label>
+            </div>
+            <div class="col-6">
+              <input class="btn-check" id="navbar-style-inverted" type="radio" name="navbarStyle" value="inverted" data-theme-control="navbarStyle" />
+              <label class="btn d-block w-100 btn-navbar-style fs--1" for="navbar-style-inverted">
+                <img class="img-fluid img-prototype" src="./src/assets/img/customized/inverted.png" alt="" />
+                <span class="label-text"> Inverted</span>
+              </label>
+            </div>
+            <div class="col-6">
+              <input class="btn-check" id="navbar-style-card" type="radio" name="navbarStyle" value="card" data-theme-control="navbarStyle" />
+              <label class="btn d-block w-100 btn-navbar-style fs--1" for="navbar-style-card">
+                <img class="img-fluid img-prototype" src="./src/assets/img/customized/card.png" alt="" />
+                <span class="label-text"> Card</span>
+              </label>
+            </div>
+            <div class="col-6">
+              <input class="btn-check" id="navbar-style-vibrant" type="radio" name="navbarStyle" value="vibrant" data-theme-control="navbarStyle" />
+              <label class="btn d-block w-100 btn-navbar-style fs--1" for="navbar-style-vibrant">
+                <img class="img-fluid img-prototype" src="./src/assets/img/customized/vibrant.png" alt="" />
+                <span class="label-text"> Vibrant</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script type="module" src="/src/main.ts"></script>
+    <script src="./src/assets/vendor/js/jquery.min.js"></script>
+    <script src="./src/assets/vendor/js/popper.min.js"></script>
+    <script src="./src/assets/vendor/js/bootstrap.min.js"></script>
+    <script src="./src/assets/vendor/js/anchor.min.js"></script>
+    <script src="./src/assets/vendor/js/is.min.js"></script>
+    <script src="./src/assets/vendor/js/choices.min.js"></script>
+    <script src="./src/assets/vendor/js/echarts.min.js"></script>
+    <script src="./src/assets/vendor/js/all.min.js"></script>
+    <script src="./src/assets/vendor/js/lodash.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+    <script src="./src/assets/vendor/js/list.min.js"></script>
+    <script src="./src/assets/js/theme.js"></script>
+
+    <script>
+      var isFluid = JSON.parse(localStorage.getItem('isFluid'));
+      if (isFluid) {
+        var container = document.querySelector('[data-layout]');
+        container.classList.remove('container');
+        container.classList.add('container-fluid');
+      }
+    </script>
+  </body>
+</html>
