@@ -27,11 +27,13 @@ import Alert from '@/components/layouts/Alert.vue';
 import Login from '@/components/pages/Login.vue';
 import Dashboard from '@/components/pages/Dashboard.vue';
 import Sales from '@/components/pages/Sales.vue';
+import PromoList from '@/components/pages/MasterPromo/PromoList.vue';
 
 const routeComponent = {
   'dashboard': Dashboard,
   'sales': Sales,
   'login': Login,
+  'promo-list': PromoList,
 }
 
 export default {
@@ -128,3 +130,12 @@ export default {
   }
 }
 </script>
+
+<style>
+.hide-input-btn::-webkit-inner-spin-button,
+.hide-input-btn::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+</style>

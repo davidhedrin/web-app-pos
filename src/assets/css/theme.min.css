@@ -37173,53 +37173,52 @@ html[data-bs-theme=dark] .bg-priority-low:checked {
 }
 
 
-
 .table-scrollable-wrapper {
     overflow-y: scroll;
     overflow-x: scroll;
     height: fit-content;
     max-height: 25vh; /* Default */
     min-height: 25vh; /* Default */
-  }
-  
-  .table-scrollable {
+}
+
+.table-scrollable {
     min-width: max-content;
     border-spacing: 0px;
-  }
-  
-  .table-scrollable th{
+}
+
+.table-scrollable th{
     position: sticky; 
     top: 0px;
-    background-color: white !important;
+    background-color: transparent;
     z-index: 1 !important;
     padding-top: 0;
     padding-bottom: 0;
-  } 
-  
-  .table-scrollable-wrapper::-webkit-scrollbar {
+}
+
+.table-scrollable-wrapper::-webkit-scrollbar {
     width: 7px;
     height: 7px;
-  }
-  
-  .table-scrollable-wrapper::-webkit-scrollbar-track {
+}
+
+.table-scrollable-wrapper::-webkit-scrollbar-track {
     background: #f1f1f1;
-  }
-  
-  .table-scrollable-wrapper::-webkit-scrollbar-thumb {
+}
+
+.table-scrollable-wrapper::-webkit-scrollbar-thumb {
     background: #8888884a;
     border-radius: 5px;
-  }
-  .table-scrollable-wrapper::-webkit-scrollbar-thumb:horizontal {
+}
+.table-scrollable-wrapper::-webkit-scrollbar-thumb:horizontal {
     background: #8888884a;
     border-radius: 5px;
-  }
-  
-  .table-scrollable-wrapper::-webkit-scrollbar-thumb:hover {
+}
+
+.table-scrollable-wrapper::-webkit-scrollbar-thumb:hover {
     background: #55555585;
-  }
-  .table-scrollable-wrapper::-webkit-scrollbar-thumb:hover:horizontal {
+}
+.table-scrollable-wrapper::-webkit-scrollbar-thumb:hover:horizontal {
     background: #55555585;
-  }
+}
 
 
 .scrollable-customize {

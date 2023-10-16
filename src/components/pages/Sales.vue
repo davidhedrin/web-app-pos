@@ -17,13 +17,13 @@
               <div v-if="!dataProductInList || dataProductInList.length === 0"></div>
               <thead v-else>
                 <tr class="p-0">
-                  <th class="py-1">#</th>
-                  <th class="py-1">SKU</th>
-                  <th class="py-1">Produk</th>
-                  <th class="py-1">Harga</th>
-                  <th class="py-1">Info</th>
-                  <th class="py-1">Banyak</th>
-                  <th class="text-end py-1">
+                  <th class="py-1 bg-white">#</th>
+                  <th class="py-1 bg-white">SKU</th>
+                  <th class="py-1 bg-white">Produk</th>
+                  <th class="py-1 bg-white">Harga</th>
+                  <th class="py-1 bg-white">Info</th>
+                  <th class="py-1 bg-white">Banyak</th>
+                  <th class="text-end py-1 bg-white">
                     <a href="javascript:void(0)" v-on:click="emptyProductList" class="p-0 ms-2 text-danger">
                       <span class="fas fa-trash-alt"></span>
                     </a>
@@ -170,7 +170,7 @@
             <div class="card-body position-relative p-2">
               <div class="d-flex justify-content-between mb-0">
                 <p class="mb-0 fs--1">No.Member</p>
-                <span class="text-dark"><strong>{{ Object.keys(memberOverview).length > 0 ? memberOverview.no_member : "-" }}</strong></span>
+                <span class="text-dark"><strong>{{ Object.keys(memberOverview).length > 0 ? memberOverview.member_id : "-" }}</strong></span>
               </div>
               <div class="d-flex justify-content-between mb-0">
                 <p class="mb-0 fs--1">Nama</p>
@@ -260,87 +260,94 @@
     </div>
   </div>
     
-  <div class="modal fade" id="modalFindMember" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal fade" id="modalFindMember" tabindex="-1" aria-hidden="true" data-bs-keyboard="false" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document" :style="!memberFindOrRegis ? 'max-width: 450px' : ''">
-      <div class="modal-content border-0">
-        <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
-          <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-header rounded-top-3 bg-body-tertiary py-3 ps-3 pe-6">
-          <h5 class="mb-0" id="modalFindMemberLabel">{{ memberFindOrRegis ? "Temukan" : "Daftarkan" }} Member</h5>
-          <button v-on:click="memberFindOrRegis = !memberFindOrRegis" class="btn btn-outline-primary btn-sm me-1 mb-1" type="button">
-            <p class="fs--2 mb-0">{{ memberFindOrRegis ? "Daftarkan member" : "Temukan member" }}</p>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div v-if="memberFindOrRegis">
-            <div class="row align-items-center">
-              <div class="col-md-8">
-                <h5 class="mb-2 fs-0"><u>Daftar Member:</u></h5>
+      <div class="modal-content position-relative border-0">
+        <div class="modal-body p-0">
+          <div class="card">
+            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: cover;"></div>
+            <div class="card-body position-relative p-0">
+              <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
+                <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-              <div class="col-md-4">
-                <input v-model="inputSearchMember" class="form-control search-input fuzzy-search mb-3" type="search" placeholder="Search..." aria-label="Search">
-                <!-- <form class="position-relative show mb-3" data-bs-toggle="search" data-bs-display="static" aria-expanded="true">
-                </form> -->
+              <div class="card-header rounded-top-3 py-3 ps-3 pe-6">
+                <h5 class="mb-0" id="modalFindMemberLabel">{{ memberFindOrRegis ? "Temukan" : "Daftarkan" }} Member</h5>
+                <button v-on:click="memberFindOrRegis = !memberFindOrRegis" class="btn btn-outline-primary btn-sm me-1 mb-1" type="button">
+                  <p class="fs--2 mb-0">{{ memberFindOrRegis ? "Daftarkan member" : "Temukan member" }}</p>
+                </button>
+              </div>
+              <div class="p-4 pt-0">
+                <div v-if="memberFindOrRegis">
+                  <div class="row align-items-center">
+                    <div class="col-md-8">
+                      <h5 class="mb-2 fs-0"><u>Daftar Member:</u></h5>
+                    </div>
+                    <div class="col-md-4">
+                      <input v-model="inputSearchMember" class="form-control search-input fuzzy-search mb-3" type="search" placeholder="Search..." aria-label="Search">
+                      <!-- <form class="position-relative show mb-3" data-bs-toggle="search" data-bs-display="static" aria-expanded="true">
+                      </form> -->
+                    </div>
+                  </div>
+                  <hr class="p-0 m-0">
+                  <div v-if="isLoadingMembers" class="text-center py-4">
+                    <component :is="loading"></component>
+                  </div>
+                  <div v-else class="table-scrollable-wrapper" style="min-height: 30vh; max-height: 30vh;">
+                    <table class="table table-scrollable table-sm table-hover">
+                      <thead>
+                        <tr>
+                          <th class="bg-white">Name</th>
+                          <th class="bg-white">Email</th>
+                          <th class="bg-white">Phone</th>
+                          <th class="bg-white">Tanggal Lahir</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="member in filteredMembers" :id="member.member_id" class="align-middle" v-on:click="selectMemberOverview(member)" style="cursor: pointer;">
+                          <td class="text-nowrap">{{ member.nama }}</td>
+                          <td class="text-nowrap">{{ member.email }}</td>
+                          <td class="text-nowrap">{{ member.no_hp }}</td>
+                          <td class="text-nowrap">{{ member.tanggal_lahir }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div v-else>
+                 <form class="px-2 needs-validation" novalidate="">  <!-- @submit.prevent="storeNewMember" -->
+                    <div class="mb-1">
+                      <label class="form-label mb-1" for="nama_member">Name</label>
+                      <input v-model="nama_member" class="form-control bg-transparent" id="nama_member" name="nama_member" type="text" placeholder="Masukkan nama lengkap" required="">
+                      <div class="invalid-feedback">Nama member wajib untuk diisi</div>
+                    </div>
+                    <div class="mb-1">
+                      <label class="form-label mb-1" for="no_hp_member">No Hp</label>
+                      <input v-model="no_hp_member" class="form-control bg-transparent" id="no_hp_member" name="no_hp_member" type="text" placeholder="Masukkan nomor handpone" required="">
+                    </div>
+                    <div class="mb-1">
+                      <label class="form-label mb-1" for="email_member">Email address</label>
+                      <input v-model="email_member" class="form-control bg-transparent" id="email_member" name="email_member" type="email" placeholder="email@example.com" required="">
+                    </div>
+                    <div class="mb-1">
+                      <label class="form-label mb-1" for="select_jk_member">Jenis Kelamin</label>
+                      <select v-model="select_jk_member" class="form-select bg-transparent" id="select_jk_member" name="select_jk_member" required="">
+                        <option value="">Pilih jenis kelamin</option>
+                        <option value="male">Laki-laki</option>
+                        <option value="female">Perempuan</option>
+                        <option value="other">Lainnya</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label mb-1" for="tanggal_lahir">Tanggal Lahir</label>
+                      <input v-model="tanggal_lahir" class="form-control bg-transparent" id="tanggal_lahir" name="tanggal_lahir" type="date" required="">
+                    </div>
+                    <div class="text-end">
+                      <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
-            <hr class="p-0 m-0">
-            <div v-if="isLoadingMembers" class="text-center py-4">
-              <component :is="loading"></component>
-            </div>
-            <div v-else class="table-scrollable-wrapper" style="min-height: 30vh; max-height: 30vh;">
-              <table class="table table-scrollable table-sm table-hover">
-                <thead>
-                  <tr class="fs--1 p-0">
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Phone</th>
-                    <th scope="col">Tanggal Lahir</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="member in filteredMembers" :id="member.no_member" class="align-middle" v-on:click="selectMemberOverview(member)" style="cursor: pointer;">
-                    <td class="text-nowrap">{{ member.nama }}</td>
-                    <td class="text-nowrap">{{ member.email }}</td>
-                    <td class="text-nowrap">{{ member.no_hp }}</td>
-                    <td class="text-nowrap">{{ member.tanggal_lahir }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div v-else>
-           <form class="px-2 needs-validation" novalidate="">  <!-- @submit.prevent="storeNewMember" -->
-              <div class="mb-1">
-                <label class="form-label mb-1" for="nama_member">Name</label>
-                <input v-model="nama_member" class="form-control" id="nama_member" name="nama_member" type="text" placeholder="Masukkan nama lengkap" required="">
-                <div class="invalid-feedback">Nama member wajib untuk diisi</div>
-              </div>
-              <div class="mb-1">
-                <label class="form-label mb-1" for="no_hp_member">No Hp</label>
-                <input v-model="no_hp_member" class="form-control" id="no_hp_member" name="no_hp_member" type="text" placeholder="Masukkan nomor handpone" required="">
-              </div>
-              <div class="mb-1">
-                <label class="form-label mb-1" for="email_member">Email address</label>
-                <input v-model="email_member" class="form-control" id="email_member" name="email_member" type="email" placeholder="email@example.com" required="">
-              </div>
-              <div class="mb-1">
-                <label class="form-label mb-1" for="select_jk_member">Jenis Kelamin</label>
-                <select v-model="select_jk_member" class="form-select" id="select_jk_member" name="select_jk_member" required="">
-                  <option value="">Pilih jenis kelamin</option>
-                  <option value="male">Laki-laki</option>
-                  <option value="female">Perempuan</option>
-                  <option value="other">Lainnya</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label mb-1" for="tanggal_lahir">Tanggal Lahir</label>
-                <input v-model="tanggal_lahir" class="form-control" id="tanggal_lahir" name="tanggal_lahir" type="date" required="">
-              </div>
-              <div class="text-end">
-                <button class="btn btn-primary btn-sm mb-2" type="submit">Submit</button>
-              </div>
-            </form>
           </div>
         </div>
       </div>
@@ -351,149 +358,165 @@
     <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 500px">
       <div class="modal-content border-0">
         <div class="modal-body p-0">
-          <div class="rounded-top-3 bg-body-tertiary py-3 text-center">
-            <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
-          </div>
-          <div class="p-3 py-0">
-            <hr class="p-0 m-0 mb-2">
-            <div class="d-flex justify-content-between fs--1 mb-2">
-              <p class="fs--1 m-0">
-                Member: {{ Object.keys(memberOverview).length > 0 ? memberOverview.no_member : '' }}
-              </p>
-              <span class="fs--1">{{ formattedDateNow }}, {{ formattedTimeNow }}</span>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label mb-0">Ringkasan Produk</label>
-              <hr class="m-0">
-              <div class="scrollable-customize" style="max-height: 120px;">
-                <div v-for="product in dataProductInList" :id="product.sku" class="d-flex justify-content-between fs--1 mb-1">
-                  <p class="mb-0 text-dark"><strong>{{ product.qty }} x </strong>{{ product.product.nama_product }}</p><span class="text-dark"><strong>{{ $root.formatPrice(product.qty * product.product.harga) }}</strong></span>
+          <div class="card">
+            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-1-left.png); background-position: left; background-size: cover;"></div>
+            <div class="card-body position-relative p-0">
+              <div class="rounded-top-3 py-3 text-center">
+                <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
+              </div>
+              <div class="p-3 py-0">
+                <hr class="p-0 m-0 mb-2">
+                <div class="d-flex justify-content-between fs--1 mb-2">
+                  <p class="fs--1 m-0">
+                    Member: {{ Object.keys(memberOverview).length > 0 ? memberOverview.member_id : '' }}
+                  </p>
+                  <span class="fs--1">{{ formattedDateNow }}, {{ formattedTimeNow }}</span>
                 </div>
-              </div>
-              <hr class="mb-1 mt-0">
-              <div class="d-flex justify-content-between fs--1 mb-0">
-                <p class="mb-0 text-dark"><strong>Total</strong></p>
-                <span class="text-dark"><strong>Rp {{ $root.formatPrice(subTotalPrice) }}</strong></span>
-              </div>
-              <hr class="m-0 mt-1">
-            </div>
-
-            <div v-if="subTotalPrice > 1000000" class="card mb-3">
-              <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1-w-left.png); background-position: left;"></div>
-              <div class="card-body p-0 px-3 py-2">
-                <div class="row align-items-center text-center">
-                  <div class="col text-sm-start mt-3 mt-sm-0">
-                    <!-- <span class="mb-0 fs-0 fw-medium">Gelar Pembelian</span> -->
-                    <h5 class="mb-0">Gelar Pembelian <span class="text-warning">PREMIUM</span></h5>
-                    <p class="fs--1 mb-0">Melakukan pembelian dengan jumlah sebagai <u>RESALLER</u></p>
+    
+                <div class="mb-3">
+                  <label class="form-label mb-0">Ringkasan Produk</label>
+                  <hr class="m-0">
+                  <div class="scrollable-customize" style="max-height: 120px;">
+                    <div v-for="product in dataProductInList" :id="product.sku" class="d-flex justify-content-between fs--1 mb-1">
+                      <p class="mb-0 text-dark"><strong>{{ product.qty }} x </strong>{{ product.product.nama_product }}</p><span class="text-dark"><strong>{{ $root.formatPrice(product.qty * product.product.harga) }}</strong></span>
+                    </div>
                   </div>
-                  <div class="col-sm-4 text-sm-end">
-                    <img class="py-2" src="@/assets/img/illustration/rewords-payment.png" alt="invoice" width="50">
+                  <hr class="mb-1 mt-0">
+                  <div class="d-flex justify-content-between fs--1 mb-0">
+                    <p class="mb-0 text-dark"><strong>Total</strong></p>
+                    <span class="text-dark"><strong>Rp {{ $root.formatPrice(subTotalPrice) }}</strong></span>
+                  </div>
+                  <hr class="m-0 mt-1">
+                </div>
+    
+                <!-- <div v-if="subTotalPrice > 1000000" class="card mb-3">
+                  <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1-w-left.png); background-position: left;"></div>
+                  <div class="card-body p-0 px-3 py-2">
+                    <div class="row align-items-center text-center">
+                      <div class="col text-sm-start mt-3 mt-sm-0">
+                        <span class="mb-0 fs-0 fw-medium">Gelar Pembelian</span>
+                        <h5 class="mb-0">Gelar Pembelian <span class="text-warning">PREMIUM</span></h5>
+                        <p class="fs--1 mb-0">Melakukan pembelian dengan jumlah sebagai <u>RESALLER</u></p>
+                      </div>
+                      <div class="col-sm-4 text-sm-end">
+                        <img class="py-2" src="@/assets/img/illustration/rewords-payment.png" alt="invoice" width="50">
+                      </div>
+                    </div>
+                  </div>
+                </div> -->
+    
+                <span class="text-dark">Billing Detail:</span>
+                <hr class="m-0">
+                <table class="table fs--1 mb-3">
+                  <tbody>
+                    <tr v-if="subTotalPrice > 1000000" class="border-bottom">
+                      <th class="ps-0 py-1" style="font-weight: normal;">
+                        Member RESELLER 
+                        <span v-if="Object.keys(getCheckGelarPembelian).length > 0" class="me-1">
+                          <span v-if="getCheckGelarPembelian.jenis_diskon == '2'" class="badge badge-subtle-danger px-1 fs--2">
+                            {{ getCheckGelarPembelian.amount }}%
+                          </span>
+                          <span v-else-if="getCheckGelarPembelian.jenis_diskon == '3'" class="badge badge-subtle-danger px-1 fs--2">
+                            Buy {{ getCheckGelarPembelian.amount }} Get 1
+                          </span>
+                        </span>
+                        <img class="py-0" src="@/assets/img/illustration/rewords-payment.png" alt="invoice" width="20">
+                      </th>
+                      <th class="pe-0 py-1 text-end text-dark">- Rp 25.000</th>
+                    </tr>
+                    <tr class="border-bottom">
+                      <th class="ps-0 py-1" style="font-weight: normal;">Hemat </th>
+                      <th class="pe-0 py-1 text-end text-dark">-Rp 15.000</th>
+                    </tr>
+                    <tr class="border-bottom">
+                      <th class="ps-0 py-1" style="font-weight: normal;">Diskon </th>
+                      <th class="pe-0 py-1 text-end text-dark">-Rp 5.000</th>
+                    </tr>
+                    <tr class="border-bottom">
+                      <th class="ps-0 py-1" style="font-weight: normal;">Total Bayar </th>
+                      <th class="pe-0 fs-0 py-1 text-end text-warning">Rp {{ $root.formatPrice(totalBayarPrice) }}</th>
+                    </tr>
+                  </tbody>
+                </table>
+    
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <label class="form-label mb-0">Metode Pembayaran (Max 3): </label>
+                  <div class="btn-group" role="group">
+                    <button class="btn btn-sm p-0 ms-2 text-primary dropdown-toggle" id="btnGroupTambahMetode" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Tambah Metode
+                    </button>
+                    <div class="dropdown-menu py-0" aria-labelledby="btnGroupTambahMetode">
+                      <a class="dropdown-item" v-on:click="addMoreMetodeBayar(metodeBayarCash)" href="javascript:void(0)">{{ metodeBayarCash.nama }}</a>
+                      <a v-for="metode in dataMetodeBayarTF" class="dropdown-item" v-on:click="addMoreMetodeBayar(metode)" href="javascript:void(0)">{{ metode.nama }}</a>
+                      <hr class="dropdown-divider" />
+                      <a v-for="metode in dataMetodeBayarEWal" class="dropdown-item" v-on:click="addMoreMetodeBayar(metode)" href="javascript:void(0)">{{ metode.nama }}</a>
+                      <hr class="dropdown-divider" />
+                      <a v-for="metode in dataMetodeBayarCC" class="dropdown-item" v-on:click="addMoreMetodeBayar(metode)" href="javascript:void(0)">{{ metode.nama }}</a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <span class="text-dark">Billing Detail:</span>
-            <hr class="m-0">
-            <table class="table fs--1 mb-3">
-              <tbody>
-                <tr v-if="subTotalPrice > 1000000" class="border-bottom">
-                  <th class="ps-0 py-1" style="font-weight: normal;">Member PREMIUM</th>
-                  <th class="pe-0 py-1 text-end text-dark">- Rp 25.000</th>
-                </tr>
-                <tr class="border-bottom">
-                  <th class="ps-0 py-1" style="font-weight: normal;">Hemat </th>
-                  <th class="pe-0 py-1 text-end text-dark">-Rp 15.000</th>
-                </tr>
-                <tr class="border-bottom">
-                  <th class="ps-0 py-1" style="font-weight: normal;">Diskon </th>
-                  <th class="pe-0 py-1 text-end text-dark">-Rp 5.000</th>
-                </tr>
-                <tr class="border-bottom">
-                  <th class="ps-0 py-1" style="font-weight: normal;">Total Bayar </th>
-                  <th class="pe-0 fs-0 py-1 text-end text-warning">Rp {{ $root.formatPrice(totalBayarPrice) }}</th>
-                </tr>
-              </tbody>
-            </table>
-
-            <div class="d-flex align-items-center justify-content-between mb-1">
-              <label class="form-label mb-0">Metode Pembayaran (Max 3): </label>
-              <div class="btn-group" role="group">
-                <button class="btn btn-sm p-0 ms-2 text-primary dropdown-toggle" id="btnGroupTambahMetode" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Tambah Metode
-                </button>
-                <div class="dropdown-menu py-0" aria-labelledby="btnGroupTambahMetode">
-                  <a class="dropdown-item" v-on:click="addMoreMetodeBayar(metodeBayarCash)" href="javascript:void(0)">{{ metodeBayarCash.nama }}</a>
-                  <a v-for="metode in dataMetodeBayarTF" class="dropdown-item" v-on:click="addMoreMetodeBayar(metode)" href="javascript:void(0)">{{ metode.nama }}</a>
-                  <hr class="dropdown-divider" />
-                  <a v-for="metode in dataMetodeBayarEWal" class="dropdown-item" v-on:click="addMoreMetodeBayar(metode)" href="javascript:void(0)">{{ metode.nama }}</a>
-                  <hr class="dropdown-divider" />
-                  <a v-for="metode in dataMetodeBayarCC" class="dropdown-item" v-on:click="addMoreMetodeBayar(metode)" href="javascript:void(0)">{{ metode.nama }}</a>
+                <div class="d-flex align-items-center justify-content-between rounded-3 bg-body-tertiary p-2">
+                  <div class="w-35">
+                    <img class="img-icon-po1" :src="'src/assets/img/po-img/' + selectedMetodeBayar.image" />
+                  </div>
+                  <div class="w-40 me-1">
+                    <input v-if="selectedMetodeBayar.tipe != '1'" v-model="modelInputSelectedMetodeBayar" id="inputSelectedMetodeBayar" @input="modelInputSelectedMetodeBayar = onChangeCheckNumberVal($event)" class="form-control form-control-sm" type="text" :placeholder="selectedMetodeBayar.tipe == '3' ? 'Nomor telepon' : '4 digit nomor' " />
+                    <i v-else>Pembayaran Cash</i>
+                  </div>
+                  <div class="w-25">
+                    <input class="form-control form-control-sm text-end" id="inputSelectedNominalMetode" @input="onChangeCheckVal($event)" type="text" :value="$root.formatPrice(calculateTotalBayarPrice)" disabled />
+                  </div>
+                </div>
+                
+                <div v-for="(metode, index) in dataMoreMetodeBayar" :key="index" class="d-flex align-items-center justify-content-between rounded-3 bg-body-tertiary p-2">
+                  <div class="w-35 d-flex align-items-center">
+                    <a href="javascript:void(0)" class="text-secondary me-1" v-on:click="removeMoreMetodeBayar(metode, index)">
+                      <span class="fas fa-window-close"></span>
+                    </a>
+                    <img class="img-icon-po1" :src="'src/assets/img/po-img/' + metode.image" />
+                  </div>
+                  <div class="w-40 me-1">
+                    <input v-if="metode.tipe != '1'" v-model="modelInputMoreMetodeBayar[index]" class="form-control form-control-sm" :id="'inputMoreMetodeBayar_' + index" @input="modelInputMoreMetodeBayar[index] = onChangeCheckNumberVal($event)" type="text" :placeholder="metode.tipe == '3' ? 'Nomor telepon' : '4 digit nomor' " />
+                    <i v-else>Pembayaran Cash</i>
+                  </div>
+                  <div class="w-25">
+                    <input v-model="nominalMoreMetodeBayar[index]" @input="nominalMoreMetodeBayar[index] = formatCalculatePriceMoreMetode($event, index)" :id="'inputNominalMoreMetodeBayar_' + index" class="form-control form-control-sm text-end" type="text" placeholder="Nominal"/>
+                  </div>
+                </div>
+    
+                <!-- <div class="d-flex align-items-center justify-content-between mb-2">
+                  <label class="form-label mb-0">Metode Pembayaran: </label>
+                  <div>
+                    <img class="img-icon-po1" :src="'/img/po-img/' + selectedMetodeBayar.image" />
+                  </div>
+                </div> -->
+                
+                <hr class="m-0 mt-2">
+    
+                <div v-if="selectSalesBy == 'wa'" class="mb-2 mt-2">
+                  <label class="form-label mb-0" for="selectSalesBy">Sales By WA:</label>
+                  <select v-model="selectedBscWa" v-on:change="invalidSelectSalesBsc = false" class="form-select mb-0" :class="{'border-red' : invalidSelectSalesBsc}" id="selectSalesBy">
+                    <option value="">Pilih BSC WA</option>
+                    <option value="1">David Simbolon</option>
+                    <option value="2">Jonatan Hudson</option>
+                    <option value="3">Surya Hasan</option>
+                  </select>
+                </div>
+                
+                <label class="form-label mb-0">Keterangan: </label>
+                <div class="scrollable-customize" style="max-height: 7vh">
+                  <p class="fs--1 mb-0 pb-0">
+                    {{ $root.trimString(keteranganTransaksi) == '' ? '-' : $root.trimString(keteranganTransaksi) }}
+                  </p>
                 </div>
               </div>
-            </div>
-            <div class="d-flex align-items-center justify-content-between rounded-3 bg-body-tertiary p-2">
-              <div class="w-35">
-                <img class="img-icon-po1" :src="'src/assets/img/po-img/' + selectedMetodeBayar.image" />
+              <div class="text-end px-3 pt-0 pb-3">
+                <button class="btn btn-secondary me-2 btn-sm" type="button" v-on:click="batalModalCheckoutConfirm" data-bs-dismiss="modal">Batal</button>
+                <button class="btn btn-primary btn-sm" type="button" v-on:click="openModalCheckoutConfirm">Checkout <span class="fas fa-shopping-basket"></span></button>
               </div>
-              <div class="w-40 me-1">
-                <input v-if="selectedMetodeBayar.tipe" id="inputSelectedMetodeBayar" @input="onChangeCheckVal($event)" class="form-control form-control-sm" type="text" :placeholder="selectedMetodeBayar.tipe == '2' ? 'Nomor telepon' : '4 digit nomor' " />
-                <i v-else>Pembayaran Cash</i>
-              </div>
-              <div class="w-25">
-                <input class="form-control form-control-sm text-end" id="inputSelectedNominalMetode" @input="onChangeCheckVal($event)" type="text" :value="$root.formatPrice(calculateTotalBayarPrice)" disabled />
-              </div>
-            </div>
-            
-            <div v-for="(metode, index) in dataMoreMetodeBayar" :key="index" class="d-flex align-items-center justify-content-between rounded-3 bg-body-tertiary p-2">
-              <div class="w-35 d-flex align-items-center">
-                <a href="javascript:void(0)" class="text-secondary me-1" v-on:click="removeMoreMetodeBayar(metode, index)">
-                  <span class="fas fa-window-close"></span>
-                </a>
-                <img class="img-icon-po1" :src="'src/assets/img/po-img/' + metode.image" />
-              </div>
-              <div class="w-40 me-1">
-                <input v-if="metode.tipe" class="form-control form-control-sm" :id="'inputMoreMetodeBayar_' + index" @input="onChangeCheckVal($event)" type="text" :placeholder="metode.tipe == '2' ? 'Nomor telepon' : '4 digit nomor' " />
-                <i v-else>Pembayaran Cash</i>
-              </div>
-              <div class="w-25">
-                <input v-model="nominalMoreMetodeBayar[index]" @input="nominalMoreMetodeBayar[index] = formatCalculatePriceMoreMetode($event, index)" :id="'inputNominalMoreMetodeBayar_' + index" class="form-control form-control-sm text-end" type="text" placeholder="Nominal"/>
-              </div>
-            </div>
-
-            <!-- <div class="d-flex align-items-center justify-content-between mb-2">
-              <label class="form-label mb-0">Metode Pembayaran: </label>
-              <div>
-                <img class="img-icon-po1" :src="'/img/po-img/' + selectedMetodeBayar.image" />
-              </div>
-            </div> -->
-            
-            <hr class="m-0 mt-2">
-
-            <div v-if="selectSalesBy == 'wa'" class="mb-2 mt-2">
-              <label class="form-label mb-0" for="selectSalesBy">Sales By WA:</label>
-              <select v-model="selectedBscWa" v-on:change="invalidSelectSalesBsc = false" class="form-select mb-0" :class="{'border-red' : invalidSelectSalesBsc}" id="selectSalesBy">
-                <option value="">Pilih BSC WA</option>
-                <option value="1">David Simbolon</option>
-                <option value="2">Jonatan Hudson</option>
-                <option value="3">Surya Hasan</option>
-              </select>
-            </div>
-            
-            <label class="form-label mb-0">Keterangan: </label>
-            <div class="scrollable-customize" style="max-height: 7vh">
-              <p class="fs--1 mb-0 pb-0">
-                {{ $root.trimString(keteranganTransaksi) == '' ? '-' : $root.trimString(keteranganTransaksi) }}
-              </p>
             </div>
           </div>
         </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary btn-sm" type="button" v-on:click="dataMoreMetodeBayar = []; nominalMoreMetodeBayar = []; calculateTotalMoreMetode()" data-bs-dismiss="modal">Batal</button>
-        <button class="btn btn-primary btn-sm" type="button" v-on:click="openModalCheckoutConfirm">Checkout <span class="fas fa-shopping-basket"></span></button>
-      </div>
       </div>
     </div>
   </div>
@@ -503,18 +526,18 @@
       <div class="modal-content position-relative">
         <div class="modal-body p-0">
           <div class="rounded-top-3 py-3 bg-body-tertiary text-center">
-            <h4 class="mb-1" id="modalExampleDemoLabel">Konfirmasi Pesanan</h4>
+            <h3 class="mb-1" id="modalExampleDemoLabel">Konfirmasi Pesanan</h3>
           </div>
-          <div class="p-4 pb-0 text-center">
+          <div class="py-4 text-center">
             <div class="d-flex justify-content-center mb-2">
               <div class="bg-warning me-3 icon-item">
                 <span class="fas fa-exclamation-circle text-white fs-3"></span>
               </div>
             </div>
-            <p class="m-0">
+            <h5 class="m-0 px-1">
               Pastikan konsumen telah membayar!
-            </p>
-            <p>
+            </h5>
+            <p class="m-0 px-3">
               Produk yang telah dibeli tidak dapat dikembalikan kembali.
             </p>
           </div>
@@ -594,7 +617,7 @@ export default {
       isLoadingMembers: true,
       currentTime: new Date(),
 
-      hostUrl: import.meta.env.VITE_APP_URL,
+      hostUrl: import.meta.env.VITE_API_URL,
       memberFindOrRegis: true,
       dataAllProducts: [],
       dataProductInList: [],
@@ -612,6 +635,8 @@ export default {
       dataMetodeBayarCC: [],
       dataMoreMetodeBayar: [],
       selectedMetodeBayar: {},
+      modelInputSelectedMetodeBayar: '',
+      modelInputMoreMetodeBayar:[],
 
       memberOverview: {},
 
@@ -646,6 +671,8 @@ export default {
 
       productShowDetail: {},
       qtyProductShowDetail: 1,
+
+      getCheckGelarPembelian: {},
     };
   },
 
@@ -674,7 +701,7 @@ export default {
       const query = this.inputSearchMember.toLowerCase();
       return this.dataAllMembers.filter(member => {
         return (
-          member.no_member.toLowerCase().includes(query) ||
+          member.member_id.toLowerCase().includes(query) ||
           member.nama.toLowerCase().includes(query) ||
           member.no_hp.toLowerCase().includes(query) ||
           member.email.toLowerCase().includes(query) ||
@@ -714,15 +741,15 @@ export default {
         this.dataAllKodeToko = allData.getAllKodeToko; //All Kode Toko
         this.select_kode_toko = allData.getAllKodeToko[0].id;
         this.dataAllMetodeBayar = allData.getAllMetodeBayar; //All Metode Bayar
-        this.metodeBayarCash = this.dataAllMetodeBayar.find((m) => m.kode == 'cash'); // Metode Bayar Cash
+        this.metodeBayarCash = this.dataAllMetodeBayar.find((m) => m.tipe == '1'); // Metode Bayar Cash
         allData.getAllMetodeBayar.forEach(metode => {
-          if(metode.tipe === '1'){
+          if(metode.tipe === '2'){
             this.dataMetodeBayarTF.push(metode);
           }
-          if(metode.tipe === '2'){
+          if(metode.tipe === '3'){
             this.dataMetodeBayarEWal.push(metode);
           }
-          if(metode.tipe === '3'){
+          if(metode.tipe === '4'){
             this.dataMetodeBayarCC.push(metode);
           }
         });
@@ -902,31 +929,31 @@ export default {
       }
 
       // Metode pembayaran kartu kredit tidak dapat dikombinasikan atau ditambahkan jika sudah ada yang lain
-      if(this.selectedMetodeBayar.tipe !== '3'){
-        if(metode.tipe === '3'){
+      if(this.selectedMetodeBayar.tipe !== '4'){
+        if(metode.tipe === '4'){
           this.$root.showAlertFunction('info', 'Ops...!', "Metode pembayaran 'Kredit' tidak dapat dikombinasi.");
           return false;
         }
       }
 
       // Hanya boleh metode pembayaran kartu kredit jika dipilih dari awal
-      if(this.selectedMetodeBayar.tipe === '3'){
+      if(this.selectedMetodeBayar.tipe === '4'){
         this.$root.showAlertFunction('info', 'Ops...!', 'Metode pembayaran hanya boleh Kartu Kredit.');
         return false;
       }
 
       // Metode pembayaran debit dan kartu kredit tidak dapat dikombinasikan
       if(
-        (this.selectedMetodeBayar.tipe === '3' && metode.tipe === '1') || 
-        (this.selectedMetodeBayar.tipe === '1' && metode.tipe === '3')
+        (this.selectedMetodeBayar.tipe === '4' && metode.tipe === '2') || 
+        (this.selectedMetodeBayar.tipe === '2' && metode.tipe === '4')
       ){
         this.$root.showAlertFunction('info', 'Ops...!', "Metode pembayaran 'Debit' dan 'Kredit' tidak dapat dikombinasi.");
         return false;
       }
 
       // Metode pembayaran debit tidak boleh lebih dari 1
-      const existingMetodeDebit = this.dataMoreMetodeBayar.find((m) => m.tipe === '1');
-      if((this.selectedMetodeBayar.tipe === '1' && metode.tipe === '1') || (existingMetodeDebit && metode.tipe === '1')){
+      const existingMetodeDebit = this.dataMoreMetodeBayar.find((m) => m.tipe === '2');
+      if((this.selectedMetodeBayar.tipe === '2' && metode.tipe === '2') || (existingMetodeDebit && metode.tipe === '2')){
         this.$root.showAlertFunction('info', 'Ops...!', "Metode pembayaran 'Debit' tidak boleh lebih.");
         return false;
       }
@@ -985,6 +1012,13 @@ export default {
       }
     },
 
+    batalModalCheckoutConfirm(){
+      dataMoreMetodeBayar = [];
+      nominalMoreMetodeBayar = [];
+      getCheckGelarPembelian = {};
+      calculateTotalMoreMetode();
+    },
+
     calculateTotalMoreMetode(index = null){
       let total = 0;
       for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
@@ -1011,6 +1045,29 @@ export default {
       this.calculateTotalBayarPrice = this.totalBayarPrice - total;
     },
 
+    checkValidasiGelarMember(){
+      let gelarTerpilih = this.dataAllGelars.find((gelar) => {
+        const minimalNilai = parseFloat(gelar.minimal_nilai);
+        const maksimalNilai = parseFloat(gelar.maksimal_nilai);
+
+        if (gelar.minimal_nilai !== null && gelar.maksimal_nilai !== null) {
+          return this.totalBayarPrice >= minimalNilai && this.totalBayarPrice <= maksimalNilai;
+        } else if (gelar.minimal_nilai !== null) {
+          return this.totalBayarPrice >= minimalNilai;
+        } else if (gelar.maksimal_nilai !== null) {
+          return this.totalBayarPrice <= maksimalNilai;
+        }
+
+        return false;
+      });
+
+      if (!gelarTerpilih) {
+        gelarTerpilih = this.dataAllGelars.find((gelar) => gelar.id === 1);
+      }
+
+      return gelarTerpilih;
+    },
+
     confirmationPayment(){
       if(this.dataProductInList.length < 1){
         this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
@@ -1028,6 +1085,9 @@ export default {
         this.invalidMetodePembayaran = true;
         return false;
       }
+      
+      var checkGelarPembelian = this.checkValidasiGelarMember();
+      this.getCheckGelarPembelian = checkGelarPembelian;
 
       $('#modalConfirmPay').modal('show');
     },
@@ -1042,24 +1102,44 @@ export default {
         inputId.classList.add('border-red');
       }
     },
+    onChangeCheckNumberVal(event){
+      var inputId = event.target;
+      var valueInput = inputId.value;
+
+      const numberInput = valueInput.replace(/[^0-9]/g, '');
+      
+      if (numberInput === null || numberInput.trim() === "") {
+        inputId.classList.add('border-red');
+        return;
+      }
+      
+      if (valueInput || valueInput.length > 0){
+        inputId.classList.remove('border-red');
+      }else{
+        inputId.classList.add('border-red');
+      }
+
+      return numberInput;
+    },
 
     openModalCheckoutConfirm(){
       this.invalidSelectSalesBsc = false;
 
-      function checkAllInputMetodAndNominal(dataMoreMetodeBayar, nominalMoreMetodeBayar) {
+      function checkAllInputMetodAndNominal(selectedMetodeBayar, dataMoreMetodeBayar, nominalMoreMetodeBayar) {
         var result = true;
       
-        var inputSelectedMetodeBayar = $("#inputSelectedMetodeBayar");
-        var inputSelectedMetodeBayarVal = inputSelectedMetodeBayar.val();
-
-        if(inputSelectedMetodeBayarVal){
-          if (inputSelectedMetodeBayarVal.trim() === "" ){
+        if(selectedMetodeBayar.tipe != '1'){
+          var inputSelectedMetodeBayar = $("#inputSelectedMetodeBayar");
+          var inputSelectedMetodeBayarVal = inputSelectedMetodeBayar.val().trim();
+  
+          if (inputSelectedMetodeBayarVal === "" ){
             inputSelectedMetodeBayar.addClass('border-red');
             result = false;
           }
         }
+
         for(let i=0; i < dataMoreMetodeBayar.length; i++){
-          if(dataMoreMetodeBayar[i].tipe){
+          if(dataMoreMetodeBayar[i].tipe != '1'){
             var inputMoreMetode = $('#inputMoreMetodeBayar_' + i);
             var inputMoreMetodeVal = inputMoreMetode.val().trim();
             if (inputMoreMetodeVal === ""){
@@ -1067,6 +1147,7 @@ export default {
               result = false;
             }
           }
+
           var inputMoreNominalMetode = $('#inputNominalMoreMetodeBayar_' + i);
           var inputMoreNominalMetodeVal = inputMoreNominalMetode.val().trim();
           if (inputMoreNominalMetodeVal === ""){
@@ -1078,7 +1159,7 @@ export default {
         return result;
       }
 
-      if(!checkAllInputMetodAndNominal(this.dataMoreMetodeBayar, this.nominalMoreMetodeBayar)){
+      if(!checkAllInputMetodAndNominal(this.selectedMetodeBayar, this.dataMoreMetodeBayar, this.nominalMoreMetodeBayar)){
         return false;
       }
 
@@ -1092,8 +1173,14 @@ export default {
     checkoutBtn(){
       this.dataProductInList = [];
       this.memberOverview = {};
+
+      this.dataMoreMetodeBayar = [];
+      this.nominalMoreMetodeBayar = [];
       this.selectedMetodeBayar = {};
       this.selectMethodPayment = '';
+      this.modelInputSelectedMetodeBayar = '';
+      this.modelInputMoreMetodeBayar = [];
+
       this.selectedFilterBrand = '';
       this.selectedBscWa = '';
       this.inputSearchMember = '';

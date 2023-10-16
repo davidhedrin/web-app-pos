@@ -55,6 +55,41 @@
               </div>
             </a>
           </li>
+          
+          <li class="nav-item">
+            <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
+              <div class="col-auto navbar-vertical-label">Master</div>
+              <div class="col ps-0">
+                <hr class="mb-0 navbar-vertical-divider" />
+              </div>
+            </div>
+            
+            
+            <a class="nav-link dropdown-indicator collapsed" href="#master_promo" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="master_promo">
+              <div class="d-flex align-items-center">
+                <span class="nav-link-icon">
+                  <span class="fas fa-tags"></span>
+                </span>
+                <span class="nav-link-text ps-1">Promo</span>
+              </div>
+            </a>
+            <ul class="nav collapse" id="master_promo">
+              <li class="nav-item">
+                <a class="nav-link" href="javascript:void(0)">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-text ps-1">Promo Product</span>
+                  </div>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a v-on:click="$root.goto('promo-list')" class="nav-link" href="javascript:void(0)">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-text ps-1">Promo List</span>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </li>
 
           <li class="nav-item">
             <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
