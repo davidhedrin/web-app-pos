@@ -75,7 +75,7 @@
             </a>
             <ul class="nav collapse" id="master_promo">
               <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)">
+                <a v-on:click="$root.goto('promo-product')" class="nav-link" href="javascript:void(0)">
                   <div class="d-flex align-items-center">
                     <span class="nav-link-text ps-1">Promo Product</span>
                   </div>

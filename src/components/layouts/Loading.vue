@@ -44,7 +44,7 @@ export default {
   width: 4px;
   height: 12px;
   border-radius: 20%;
-  background: #222222;
+  background: #ffffff;
 }
 
 .lds-spinner div:nth-child(1) {

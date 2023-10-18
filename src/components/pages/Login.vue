@@ -108,9 +108,7 @@
   export default {
     name: 'Login',
     mounted(){
-      console.log(
-        import.meta.env
-      )
+      this.$root.hideLoading();
     },
     methods: {
       executeLogin(){

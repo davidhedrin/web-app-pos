@@ -37250,3 +37250,7 @@ html[data-bs-theme=dark] .bg-priority-low:checked {
 .scrollable-customize::-webkit-scrollbar-thumb:hover:horizontal {
     background: #55555585;
 }
+
+.va-middle{
+    vertical-align: middle;
+}
