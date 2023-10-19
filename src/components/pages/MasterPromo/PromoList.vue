@@ -14,14 +14,12 @@
 
   <div class="card mb-3">
     <div class="card-header d-flex align-items-center justify-content-between">
+      <button class="btn btn-falcon-default btn-sm py-1" type="button" data-bs-toggle="modal" data-bs-target="#modalAddEditPromo" v-on:click="openModalAddPromo">
+        <span class="fas fa-edit"></span>
+        <span class="d-none d-xl-inline-block ms-1">Tambah</span>
+      </button>
       <div>
         <input class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
-      </div>
-      <div class="d-flex">
-        <button class="btn btn-falcon-default btn-sm py-1" type="button" data-bs-toggle="modal" data-bs-target="#modalAddEditPromo" v-on:click="openModalAddPromo">
-          <span class="fas fa-edit"></span>
-          <span class="d-none d-xl-inline-block ms-1">Tambah</span>
-        </button>
       </div>
     </div>
   </div>
