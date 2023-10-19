@@ -688,13 +688,15 @@
 <script>
 import axios from "axios";
 import { markRaw } from 'vue';
-import Loading from '../layouts/Loading.vue';
+
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import imageMts from '@/assets/img/mtsiconland.png';
 
 export default {
   name: 'SalesPage',
   data() {
     return {
-      loading: markRaw(Loading),
       currentTime: new Date(),
 
       hostUrl: import.meta.env.VITE_API_URL,
@@ -1043,10 +1045,10 @@ export default {
 
     addMoreMetodeBayar(metode){
        // Metode pembayaran tidak boleh lebih dari 3
-      if(this.dataMoreMetodeBayar.length > 1){
-        this.$root.showAlertFunction('info', 'Ops...!', 'Metode pembayaran sudah mencapai batas (Maksimal 3).');
-        return false;
-      }
+      // if(this.dataMoreMetodeBayar.length > 1){
+      //   this.$root.showAlertFunction('info', 'Ops...!', 'Metode pembayaran sudah mencapai batas (Maksimal 3).');
+      //   return false;
+      // }
       
       // Metode pembayaran yang sama tidak boleh bertambah
       const existingMetode = this.dataMoreMetodeBayar.find((m) => m.id === metode.id);
@@ -1089,12 +1091,11 @@ export default {
       // }
 
       // Metode pembayaran debit tidak boleh lebih dari 1
-      
-      const existingMetodeDebit = this.dataMoreMetodeBayar.find((m) => m.kode === 'tf');
-      if((this.selectedMetodeBayar.kode === 'tf' && metode.kode === 'tf') || (existingMetodeDebit && metode.kode === 'tf')){
-        this.$root.showAlertFunction('info', 'Ops...!', "Metode pembayaran 'Debit' tidak boleh lebih.");
-        return false;
-      }
+      // const existingMetodeDebit = this.dataMoreMetodeBayar.find((m) => m.kode === 'tf');
+      // if((this.selectedMetodeBayar.kode === 'tf' && metode.kode === 'tf') || (existingMetodeDebit && metode.kode === 'tf')){
+      //   this.$root.showAlertFunction('info', 'Ops...!', "Metode pembayaran 'Debit' tidak boleh lebih.");
+      //   return false;
+      // }
 
       this.dataMoreMetodeBayar.push(metode);
     },
@@ -1259,6 +1260,8 @@ export default {
       this.getCheckGelarPembelian = checkGelarPembelian;
 
       $('#modalConfirmPay').modal('show');
+
+      // this.generatePdfCheckout();
     },
 
     onChangeCheckVal(event){
@@ -1338,6 +1341,142 @@ export default {
       }
       $('#modalCheckoutConfirm').modal('show');
     },
+
+    generatePdfCheckout(){
+      const docStruk = new jsPDF();
+      const imgDataMts = imageMts;
+      
+      // Mengukur halaman dokumen
+      const pageWidth = docStruk.internal.pageSize.width;
+      const pageHeight = docStruk.internal.pageSize.height;
+
+      const imgWidth = 90;
+      const imgHeight = 17;
+
+      const x = (pageWidth - imgWidth) / 2;
+      const y = (pageHeight - imgHeight) / 2;
+
+      docStruk.addImage(imgDataMts, 'PNG', x, 14, imgWidth, imgHeight);
+      const tableProps = {
+        startY: 35,
+      };
+
+      autoTable(docStruk, {
+        ...tableProps,
+        body: [
+          [
+            {
+              content: 'Jl. Pulo Kambing II No.1, RW.11, Jatinegara, Kec. Cakung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13930',
+              styles: {
+                halign: 'center',
+                fontSize: 11,
+                cellPadding: [0, 20, 0, 20],
+              }
+            }
+          ],
+
+          [
+            {
+              content: '021 59407217',
+              styles: {
+                halign: 'center',
+                fontSize: 11,
+                cellPadding: [0, 0, 0, 0],
+              }
+            }
+          ],
+        ],
+        theme: 'plain',
+      });
+
+      const startY1 = docStruk.autoTable.previous.finalY; // Mengambil posisi Y terakhir tabel
+      const lineY1 = startY1 + 3; // Atur tinggi garis horizontal
+      docStruk.setDrawColor(0); // Warna garis
+      docStruk.setLineWidth(0.4); // Lebar garis
+      docStruk.line(10, lineY1, 200, lineY1);
+
+      autoTable(docStruk, {
+        body: [
+          [
+            {
+              content: 'Ringkasan Produk:',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            },
+            {
+              content: '',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            }
+          ],
+
+          [
+            {
+              content: '3x OUR IN ONE GENTLE FACE & BODY WASH 245ml',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            },
+            {
+              content: '30.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            }
+          ],
+          [
+            {
+              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            },
+            {
+              content: '78.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            }
+          ]
+        ],
+        theme: 'plain',
+      });
+
+      const startY2 = docStruk.autoTable.previous.finalY; // Mengambil posisi Y terakhir tabel
+      const lineY2 = startY2 + 3; // Atur tinggi garis horizontal
+      docStruk.setDrawColor(0); // Warna garis
+      docStruk.setLineWidth(0.4); // Lebar garis
+      docStruk.line(10, lineY2, 200, lineY2);
+
+      // return docStruk.save('Struk Belanja');
+      const pdfDataUri = docStruk.output('datauristring');
+      const newWindow = window.open();
+      if (newWindow) {
+        const iframe = document.createElement('iframe');
+        iframe.src = pdfDataUri;
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        newWindow.document.body.style.margin = '0';
+        newWindow.document.body.appendChild(iframe);
+      } else {
+        alert('Pop-up windows are blocked. Please enable pop-ups for this site.');
+      }
+    },
     
     checkoutBtn(){
       this.dataProductInList = [];
@@ -1359,6 +1498,8 @@ export default {
       $('#modalConfirmPay').modal('hide');
 
       this.$root.showAlertFunction('success', 'Traksaksi Berhasil!', 'Selamat, transaksi baru telah berhasil disimpan.');
+
+      this.generatePdfCheckout();
     },
   },
 }
