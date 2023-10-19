@@ -119,7 +119,16 @@ export default {
     },
     
     formatPrice(price) {
-      if (price) {
+      // if (price) {
+      //   const number = parseFloat(price);
+      //   if (isNaN(number)) {
+      //     return;
+      //   }
+        
+      //   const formattedPrice = number.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      //   return formattedPrice;
+      // }
+      if (price !== null && price !== undefined) {
         const number = parseFloat(price);
         if (isNaN(number)) {
           return;
