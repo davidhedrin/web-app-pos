@@ -28,12 +28,12 @@
     <div v-for="promo in dataAllMasterPromo" class="col-lg-4 mb-3">
       <div class="border rounded-3 h-100 d-flex justify-content-between p-3 bg-white">
         <div>
-          <h6><span class="badge rounded-pill mb-1" :class="'bg-'+promo.master_kode_promo.badge">{{ promo.master_kode_promo.nama_promo }}</span></h6>
+          <h6><span class="badge rounded-pill mb-0" :class="'bg-'+promo.master_kode_promo.badge">{{ promo.master_kode_promo.nama_promo }}</span></h6>
           <div class="display-4 fs-2 fw-bold font-sans-serif">
             {{ promo.nama_promo }}
           </div>
           <span class="fw-semi-bold fs--1 text-nowrap" href="index.html">
-            10 Oktober 2023 - 20 Oktober 2023
+            {{ formatDateTime(promo.start_date) }} - {{ formatDateTime(promo.end_date) }}
           </span>
         </div>
         <div class="text-end">
@@ -50,7 +50,7 @@
             <button class="btn btn-link p-0" type="button" data-bs-toggle="modal" data-bs-target="#modalAddEditPromo" v-on:click="openModalEditPromo(promo)">
               <span class="fas fa-edit text-warning"></span>
             </button>
-            <button class="btn btn-link p-0 ms-2" type="button" data-bs-toggle="modal" data-bs-target="#modalConfirmDeletePromo" v-on:click="idPromoForDelete = promo.id">
+            <button class="btn btn-link p-0 ms-2" type="button" v-on:click="idPromoForDelete = promo.id" data-bs-toggle="modal" data-bs-target="#modalConfirmDeletePromo">
               <span class="fas fa-trash-alt text-danger"></span>
             </button>
           </div>
@@ -152,64 +152,121 @@
               <div class="rounded-top-3 py-3 ps-4 pe-6">
                 <h5 class="mb-1">{{ modalAddOrEditPromo ? 'Buat Promo Baru' : 'Edit Promo' }}</h5>
               </div>
-              <form @submit.prevent="actionPostPromo">
+              <form @submit.prevent="actionSubmitNewPromo">
                 <div class="p-4 pb-2 pt-1">
                   <div class="row" id="formAddNewPromo">
                     <div class="col-md-6 mb-2">
-                      <label class="form-label mb-1" for="select_kode_promo">Kode Promo <span class="text-danger">*</span></label>
+                      <label class="form-label mb-0" for="select_kode_promo">Kode Promo <span class="text-danger">*</span></label>
                       <select v-model="dataMasterPromo.kode_promo_id" class="form-select bg-transparent" id="select_kode_promo" aria-label="Default select example">
                         <option value="">Pilih kode promo</option>
                         <option v-for="kode in dataAllMasterKodePromo" :key="kode.id" :value="kode.id">{{ kode.nama_promo }}</option>
                       </select>
                     </div>
                     <div class="col-md-6 mb-2">
-                      <label class="form-label mb-1" for="select_tipe_promo">Tipe Promo <span class="text-danger">*</span></label>
-                      <select v-model="dataMasterPromo.tipe_promo" class="form-select bg-transparent" id="select_tipe_promo" aria-label="Default select example">
+                      <label class="form-label mb-0" for="select_tipe_promo">Tipe Promo <span class="text-danger">*</span></label>
+                      <select v-model="dataMasterPromo.tipe_promo" @change="onChangeTipePromo" class="form-select bg-transparent" id="select_tipe_promo" aria-label="Default select example">
                         <option value="">Pilih tipe promo</option>
                         <option value="1">Bundle (Buy & Get Free)</option>
                         <option value="2">Percent (%)</option>
                       </select>
                     </div>
-                    <div class="col-md-12">
-                      <div v-if="dataMasterPromo.tipe_promo == '1'" class="row mb-2">
-                        <div class="col-md-6">
-                          <label class="form-label mb-1" for="input_buy_tipe_bundle">Buy Unit <span class="text-danger">*</span></label>
-                          <input v-model="dataMasterPromo.buy_item" class="form-control bg-transparent" type="number" min="1" id="input_buy_tipe_bundle" placeholder="Masukkan jumlah beli">
-                        </div>
-                        <div class="col-md-6">
-                          <label class="form-label mb-1" for="input_get_tipe_bundle">Get Unit <span class="text-danger">*</span></label>
-                          <input v-model="dataMasterPromo.get_item" class="form-control bg-transparent" type="number" min="1" id="input_get_tipe_bundle" placeholder="Masukkan jumlah free">
-                        </div>
-                      </div>
-                      <div v-else-if="dataMasterPromo.tipe_promo == '2'" class="mb-2">
-                        <label class="form-label mb-1" for="input_tipe_percent">Nilai Persen <span class="text-danger">*</span></label>
-                        <input v-model="dataMasterPromo.percent" class="form-control bg-transparent" type="number" min="1" max="100" id="input_tipe_percent" placeholder="Masukkan nilai persen">
-                      </div>
-                    </div>
                     <div class="col-md-12 mb-2">
-                      <label class="form-label mb-1" for="input_nama_promo">Nama Promo</label>
+                      <label class="form-label mb-0" for="input_nama_promo">Nama Promo <span class="text-danger">*</span></label>
                       <input v-model="dataMasterPromo.nama_promo" class="form-control bg-transparent" id="input_nama_promo" type="text" placeholder="Masukkan nama tambahan">
                     </div>
                     <div class="col-md-6 mb-2">
-                      <label class="form-label mb-1" for="tanggal_mulai">Tanggal Mulai <span class="text-danger">*</span></label>
+                      <label class="form-label mb-0" for="tanggal_mulai">Tanggal Mulai <span class="text-danger">*</span></label>
                       <input v-model="dataMasterPromo.start_date" class="form-control bg-transparent" id="tanggal_mulai" type="datetime-local">
                     </div>
                     <div class="col-md-6 mb-2">
-                      <label class="form-label mb-1" for="tanggal_akhir">Tanggal Berakhir <span class="text-danger">*</span></label>
+                      <label class="form-label mb-0" for="tanggal_akhir">Tanggal Berakhir <span class="text-danger">*</span></label>
                       <input v-model="dataMasterPromo.end_date" class="form-control bg-transparent" id="tanggal_akhir" type="datetime-local">
                     </div>
                     <div class="col-md-12">
-                      <label class="form-label mb-1" for="keterangan">Keterangan</label>
+                      <label class="form-label mb-0" for="keterangan">Keterangan</label>
                       <textarea v-model="dataMasterPromo.keterangan" class="form-control bg-transparent" id="keterangan" placeholder="Keterangan jika ada"></textarea>
                     </div>
-                    <div class="col-md-12 mt-3">
+                    
+                    <div v-if="dataMasterPromo.tipe_promo == '1'" class="col-md-12">
+                      <div class="row">
+                        <div class="col-md-6 mt-2 mb-0">
+                          <label class="form-label mb-0" for="input_buy_tipe_bundle">Buy Unit <span class="text-danger">*</span></label>
+                          <input v-model="dataMasterPromo.buy_item" class="form-control bg-transparent" type="number" min="1" id="input_buy_tipe_bundle" placeholder="Masukkan jumlah beli">
+                        </div>
+                        <div class="col-md-6 mt-2 mb-0">
+                          <label class="form-label mb-0" for="input_get_tipe_bundle">Get Unit <span class="text-danger">*</span></label>
+                          <input v-model="dataMasterPromo.get_item" class="form-control bg-transparent" type="number" min="1" id="input_get_tipe_bundle" placeholder="Masukkan jumlah free">
+                        </div>
+                      </div>
+                      
+                      <div v-for="(product, index) in dataMasterPromo.product_promo_buy_get" :key="index" class="card mt-3">
+                        <div class="card-body p-2 px-3">
+                          <div class="d-flex justify-content-between">
+                            <label class="form-label mb-0">Product - {{ index + 1 }}</label>
+                            <a v-if="index != 0" href="javascript:void(0)" class="text-danger" @click="removeMoreProductBundle(product.index)">hapus</a>
+                            <span v-else class="text-secondary" style="cursor: not-allowed;">hapus</span>
+                          </div>
+                          <hr class="m-0">
+                          <div class="row">
+                            <div class="col-md-6">
+                              <label class="form-label mb-0" :for="'promo_bundle_buy_' + index">Buy Product <span class="text-danger">*</span></label>
+                              <v-select  
+                                :id="'promo_bundle_buy_' + index"
+                                v-model="product.product_buy"
+                                :options="dataAllProduct"
+                                label="nama_product"
+                                value="id"
+                                :placeholder="'Pilih product'"
+                              />
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label mb-0" :for="'promo_bundle_get_' + index">Get Product <span class="text-danger">*</span></label>
+                              <v-select  
+                                :id="'promo_bundle_get_' + index"
+                                v-model="product.product_get"
+                                :options="dataAllProduct"
+                                label="nama_product"
+                                value="id"
+                                :placeholder="'Pilih product'"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-12 mt-2 text-end">
+                        <a href="javascript:void(0)" class="fw-semi-bold text-primary fs--1" type="button" @click="addMoreProductBundle">
+                          Tambah Product <span class="fas fa-plus"></span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <div v-if="dataMasterPromo.tipe_promo == '2'">
+                      <div class="col-md-12 mt-2">
+                        <label class="form-label mb-0" for="input_tipe_percent">Nilai Persen <span class="text-danger">*</span></label>
+                        <input v-model="dataMasterPromo.percent" class="form-control bg-transparent" type="number" min="1" max="100" id="input_tipe_percent" placeholder="Masukkan nilai persen">
+                      </div>
+                      <div class="col-md-12 mt-2">
+                        <label class="form-label mb-0">Products <span class="text-danger">*</span></label>
+                        <v-select 
+                          v-model="dataMasterPromo.products_promo_percent"
+                          multiple 
+                          :options="dataAllProduct"
+                          label="nama_product"
+                          value="id"
+                          :placeholder="'Pilih product'"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="col-md-12 mt-3 mb-2">
                       <i>Field dengan tanda <span class="text-danger">*</span> wajib untuk diisi</i>
                     </div>
                   </div>
                 </div>
                 <div class="text-end px-4 pt-0 pb-3">
                   <button class="btn btn-secondary me-2" type="button" data-bs-dismiss="modal">Close</button>
-                  <button class="btn btn-primary" type="submit">{{ modalAddOrEditPromo ? 'Simpan' : 'Update' }}</button>
+                  <!-- <button class="btn btn-secondary me-2" type="button" @click="console.log(dataMasterPromo.products_promo_percent)">Test</button> -->
+                  <button class="btn btn-primary" type="submit">Simpan</button>
                 </div>
               </form>
             </div>
@@ -228,13 +285,13 @@
           </div>
           <div class="py-2 text-center">
             <div class="d-flex justify-content-center mb-2">
-              <img src="@/assets/img/icons/gif/warning-icon-2.gif" height="60" alt="">
+              <img src="@/assets/img/icons/Gif/warning-icon-2.gif" height="60" alt="">
             </div>
             <h5 class="m-0 px-1">
               Yakin ingin menghapus!
             </h5>
             <p class="m-0 px-3">
-              Promo yang telah dihapus tidak dapat dikembalikan kembali.
+              Menghapus master promo akan menghapus daftar product yang terkait!
             </p>
           </div>
         </div>
@@ -258,12 +315,13 @@ export default {
     return {
       hostUrl: import.meta.env.VITE_API_URL,
 
+      dataAllProduct: [],
       dataAllMasterPromo: [],
       dataAllMasterKodePromo: [],
       dataAllMasterNamaPromo: [],
       modalAddOrEditPromo: true,
 
-      idPromoForDelete: null,
+      idPromoForDelete: '',
 
       dataMasterPromo: {
         id: '',
@@ -277,6 +335,9 @@ export default {
         get_item: '',
         percent: '',
         keterangan: '',
+        
+        product_promo_buy_get: [],
+        products_promo_percent: [],
       }
     }
   },
@@ -291,6 +352,7 @@ export default {
           url: this.hostUrl + '/master-promo',
         });
         const allData = getAllData.data;
+        this.dataAllProduct = allData.getAllProduct; // All Products
         this.dataAllMasterKodePromo = allData.getAllKodePromo; // Master Kode Promo
         this.dataAllMasterNamaPromo = allData.getAllNamaPromo; // Master Nama Promo
 
@@ -301,6 +363,7 @@ export default {
         });
         const allDataPromo = getAllDataPromo.data;
         this.dataAllMasterPromo = allDataPromo;
+        console.log(this.dataAllMasterPromo);
 
         this.$root.hideLoading();
       } catch (error) {
@@ -308,8 +371,8 @@ export default {
       }
     },
 
-    async actionPostPromo(){
-      if(this.modalAddOrEditPromo == true){
+    async actionSubmitNewPromo(){
+      if (this.modalAddOrEditPromo == true){
         try{
           $('#modalAddEditPromo').modal('hide');
           this.$root.showLoading();
@@ -320,12 +383,37 @@ export default {
           });
   
           if(store.status == 201 || store.status == 200){
-            var getResponsStore = store.data;
-            var getDataStore = getResponsStore.data;
-            this.dataAllMasterPromo.push(getDataStore);
+            var getResponsStore = store.data.data;
+            if(getResponsStore.product_promo_buy_get){
+              if (!getResponsStore.all_promo_product) {
+                getResponsStore.all_promo_product = [];
+              }
+              getResponsStore.all_promo_product = getResponsStore.all_promo_product.concat(
+                getResponsStore.product_promo_buy_get.map(product => {
+                  return product;
+                })
+              );
+            }
+            if(getResponsStore.products_promo_percent){
+              if (!getResponsStore.all_promo_product) {
+                getResponsStore.all_promo_product = [];
+              }
+              getResponsStore.all_promo_product = getResponsStore.all_promo_product.concat(
+                getResponsStore.products_promo_percent.map(product => {
+                  return product;
+                })
+              );
+            }
+            console.log(getResponsStore);
+            this.dataAllMasterPromo.push(getResponsStore);
+  
   
             for (let prop in this.dataMasterPromo) {
-              this.dataMasterPromo[prop] = '';
+              if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
+                this.dataMasterPromo[prop] = '';
+              }else{
+                this.dataMasterPromo[prop] = [];
+              }
             }
   
             this.$root.showAlertFunction('success', 'Promo Berhasil!', 'Selamat, Promo baru telah berhasil ditambahkan.');
@@ -341,42 +429,42 @@ export default {
         }
       }
 
-      if (this.modalAddOrEditPromo == false) {
-        // Validasi tipe promo
-        if(this.dataMasterPromo.tipe_promo == '1'){ // Bundle
-          this.dataMasterPromo.percent = null;
-        }
-        if(this.dataMasterPromo.tipe_promo == '2'){ // Percent
-          this.dataMasterPromo.buy_item = null;
-          this.dataMasterPromo.get_item = null;
-        }
+      // if (this.modalAddOrEditPromo == false) {
+      //   // Validasi tipe promo
+      //   if(this.dataMasterPromo.tipe_promo == '1'){ // Bundle
+      //     this.dataMasterPromo.percent = null;
+      //   }
+      //   if(this.dataMasterPromo.tipe_promo == '2'){ // Percent
+      //     this.dataMasterPromo.buy_item = null;
+      //     this.dataMasterPromo.get_item = null;
+      //   }
 
-        try{
-          $('#modalAddEditPromo').modal('hide');
-          this.$root.showLoading();
-          const store = await axios({
-            method: 'put',
-            url: this.hostUrl + '/master-promo/updateDataPromo',
-            data: this.dataMasterPromo,
-          });
+      //   try{
+      //     $('#modalAddEditPromo').modal('hide');
+      //     this.$root.showLoading();
+      //     const store = await axios({
+      //       method: 'put',
+      //       url: this.hostUrl + '/master-promo/updateDataPromo',
+      //       data: this.dataMasterPromo,
+      //     });
 
-          if(store.status == 201 || store.status == 200){
-            var getDataStore = store.data.data;
-            var findIndexPromo = this.dataAllMasterPromo.findIndex((promo) => promo.id == getDataStore.id);
-            this.dataAllMasterPromo[findIndexPromo] = getDataStore;
+      //     if(store.status == 201 || store.status == 200){
+      //       var getDataStore = store.data.data;
+      //       var findIndexPromo = this.dataAllMasterPromo.findIndex((promo) => promo.id == getDataStore.id);
+      //       this.dataAllMasterPromo[findIndexPromo] = getDataStore;
 
-            this.$root.showAlertFunction('success', 'Update Berhasil!', 'Selamat, Data promo telah berhasil diperbaharui.');
-          }else{
-            this.$root.showAlertFunction('warning', 'Mengubah Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-          }
+      //       this.$root.showAlertFunction('success', 'Update Berhasil!', 'Selamat, Data promo telah berhasil diperbaharui.');
+      //     }else{
+      //       this.$root.showAlertFunction('warning', 'Mengubah Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+      //     }
           
-          this.$root.hideLoading();
-        } catch (error) {
-          this.$root.showAlertFunction('warning', 'Update Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-          this.$root.hideLoading();
-          console.log(error);
-        }
-      }
+      //     this.$root.hideLoading();
+      //   } catch (error) {
+      //     this.$root.showAlertFunction('warning', 'Update Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+      //     this.$root.hideLoading();
+      //     console.log(error);
+      //   }
+      // }
     },
 
     async actionDeletePromo(){
@@ -395,6 +483,7 @@ export default {
           var findIndexPromo = this.dataAllMasterPromo.findIndex((promo) => promo.master_promo_id == this.idPromoForDelete);
           this.dataAllMasterPromo.splice(findIndexPromo, 1);
 
+          this.idPromoForDelete = '';
           this.$root.showAlertFunction('success', 'Delete Berhasil!', 'Selamat, Data promo telah berhasil dihapus.');
         }else{
           this.$root.showAlertFunction('warning', 'Menghapus Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
@@ -408,9 +497,45 @@ export default {
       }
     },
 
+    onChangeTipePromo(){
+      this.dataMasterPromo.product_promo_buy_get = [];
+      if(this.dataMasterPromo.tipe_promo == '1'){
+        const setObject = {
+          index: 0,
+          product_buy: {},
+          product_get: {}
+        }
+
+        this.dataMasterPromo.product_promo_buy_get.push(setObject);
+      }
+    },
+
+    addMoreProductBundle(){
+      const getLengthProductBundle = this.dataMasterPromo.product_promo_buy_get.length;
+      const setObject = {
+        index: getLengthProductBundle + 1,
+        product_buy: {},
+        product_get: {}
+      }
+      this.dataMasterPromo.product_promo_buy_get.push(setObject);
+    },
+
+    removeMoreProductBundle(index){
+      const findIndexProduct = this.dataMasterPromo.product_promo_buy_get.findIndex((item) => item.index === index);
+      if (findIndexProduct !== -1) {
+        this.dataMasterPromo.product_promo_buy_get.splice(findIndexProduct, 1);
+      } else {
+        console.log('Product not found');
+      }
+    },
+
     openModalAddPromo(){
       for (let prop in this.dataMasterPromo) {
-        this.dataMasterPromo[prop] = '';
+        if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
+          this.dataMasterPromo[prop] = '';
+        }else{
+          this.dataMasterPromo[prop] = [];
+        }
       }
       
       this.modalAddOrEditPromo = true;
@@ -418,11 +543,52 @@ export default {
     
     openModalEditPromo(promo){
       for (let prop in this.dataMasterPromo) {
-        this.dataMasterPromo[prop] = promo[prop];
+        if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
+          this.dataMasterPromo[prop] = '';
+        }else{
+          this.dataMasterPromo[prop] = [];
+        }
+      }
+
+      for (let prop in this.dataMasterPromo) {
+        if(prop == 'product_promo_buy_get'){
+          for(let i = 0; i < promo.all_promo_product.length ; i++){
+            if(promo.tipe_promo == '1'){ // Bundle
+              const setObject = {
+                index: i,
+                product_buy: promo.all_promo_product[i].for_product,
+                product_get: promo.all_promo_product[i].get_product
+              }
+              this.dataMasterPromo.product_promo_buy_get.push(setObject);
+            }
+          }
+        }
+        else if(prop == 'products_promo_percent'){
+          for(let i = 0; i < promo.all_promo_product.length ; i++){
+            if(promo.tipe_promo == '2'){ // Percent
+              this.dataMasterPromo.products_promo_percent.push(promo.all_promo_product[i].for_product);
+            }
+          }
+        }else{
+          this.dataMasterPromo[prop] = promo[prop];
+        }
       }
       
       this.modalAddOrEditPromo = false;
-    }
+    },
+
+    formatDateTime(dateTimeString) {
+      const isTFormat = dateTimeString.includes('T');
+      const separator = isTFormat ? 'T' : ' ';
+      const [datePart, timePart] = dateTimeString.split(separator);
+      const [year, month, day] = datePart.split('-');
+      const [hour, minute] = timePart.split(':');
+
+      const formattedDate = `${day}/${month}/${year}`;
+      const formattedTime = `${hour}:${minute}`;
+
+      return `${formattedDate} ${formattedTime}`;
+    },
   }
 }
 </script>

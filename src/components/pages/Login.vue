@@ -48,12 +48,12 @@
                   <input class="form-control" id="card-password" type="password" placeholder="***********">
                 </div>
                 <div class="row flex-between-center">
-                  <div class="col-auto">
+                  <!-- <div class="col-auto">
                     <div class="form-check mb-0">
                       <input class="form-check-input" type="checkbox" id="card-checkbox">
                       <label class="form-check-label mb-0" for="card-checkbox"> Remember me</label>
                     </div>
-                  </div>
+                  </div> -->
                   <div class="col-auto"><a class="fs--1" href="javascript:void(0)">Forgot Password?</a></div>
                 </div>
                 <div class="mb-3">

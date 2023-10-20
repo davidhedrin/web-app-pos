@@ -12,19 +12,19 @@
     <link rel="icon" type="image/png" sizes="16x16" href="./src/assets/img/favicon-16x16.png">
     <link rel="shortcut icon" type="image/x-icon" href="./src/assets/img/favicon.ico">
     <!-- <link rel="manifest" href="./src/assets/js/manifest.json"> -->
-    
-    <meta name="theme-color" content="#ffffff">
-    <script src="./src/assets/js/config.js"></script>
-    <script src="./src/assets/vendor/js/simplebar.min.js"></script>
 
     <!-- <link href="./src/assets/vendor/css/choices.min.css" rel="stylesheet"> -->
     <!-- <link rel="preconnect" href="https://fonts.gstatic.com"> -->
     <link href="./src/assets/css/fonts.css" rel="stylesheet">
     <link href="./src/assets/vendor/css/simplebar.min.css" rel="stylesheet">
-    <link href="./src/assets/css/theme-rtl.min.css" rel="stylesheet" id="style-rtl">
     <link href="./src/assets/css/theme.min.css" rel="stylesheet" id="style-default">
-
-    <script>
+    
+    <meta name="theme-color" content="#ffffff">
+    <script src="./src/assets/js/config.js"></script>
+    <script src="./src/assets/vendor/js/simplebar.min.js"></script>
+    
+    <!-- <link href="./src/assets/css/theme-rtl.min.css" rel="stylesheet" id="style-rtl"> -->
+    <!-- <script>
       var isRTL = JSON.parse(localStorage.getItem('isRTL'));
       if (isRTL) {
         var linkDefault = document.getElementById('style-default');
@@ -36,9 +36,9 @@
         var linkRTL = document.getElementById('style-rtl');
         var userLinkRTL = document.getElementById('user-style-rtl');
         linkRTL.setAttribute('disabled', true);
-        //userLinkRTL.setAttribute('disabled', true);
+        userLinkRTL.setAttribute('disabled', true);
       }
-    </script>
+    </script> -->
   </head>
   <body>
     <div id="app"></div>
@@ -144,13 +144,13 @@
     <!-- <script src="./src/assets/vendor/js/list.min.js"></script> -->
     <script src="./src/assets/js/theme.js"></script>
 
-    <script>
+    <!-- <script>
       var isFluid = JSON.parse(localStorage.getItem('isFluid'));
       if (isFluid) {
         var container = document.querySelector('[data-layout]');
         container.classList.remove('container');
         container.classList.add('container-fluid');
       }
-    </script>
+    </script> -->
   </body>
 </html>
