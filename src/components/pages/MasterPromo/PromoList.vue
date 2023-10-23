@@ -266,7 +266,7 @@
                 <div class="text-end px-4 pt-0 pb-3">
                   <button class="btn btn-secondary me-2" type="button" data-bs-dismiss="modal">Close</button>
                   <!-- <button class="btn btn-secondary me-2" type="button" @click="console.log(dataMasterPromo.products_promo_percent)">Test</button> -->
-                  <button class="btn btn-primary" type="submit">Simpan</button>
+                  <button class="btn btn-primary" type="submit">{{ modalAddOrEditPromo ? 'Simpan' : 'Update' }}</button>
                 </div>
               </form>
             </div>
@@ -363,7 +363,7 @@ export default {
         });
         const allDataPromo = getAllDataPromo.data;
         this.dataAllMasterPromo = allDataPromo;
-        console.log(this.dataAllMasterPromo);
+        // console.log(this.dataAllMasterPromo);
 
         this.$root.hideLoading();
       } catch (error) {
@@ -384,27 +384,7 @@ export default {
   
           if(store.status == 201 || store.status == 200){
             var getResponsStore = store.data.data;
-            if(getResponsStore.product_promo_buy_get){
-              if (!getResponsStore.all_promo_product) {
-                getResponsStore.all_promo_product = [];
-              }
-              getResponsStore.all_promo_product = getResponsStore.all_promo_product.concat(
-                getResponsStore.product_promo_buy_get.map(product => {
-                  return product;
-                })
-              );
-            }
-            if(getResponsStore.products_promo_percent){
-              if (!getResponsStore.all_promo_product) {
-                getResponsStore.all_promo_product = [];
-              }
-              getResponsStore.all_promo_product = getResponsStore.all_promo_product.concat(
-                getResponsStore.products_promo_percent.map(product => {
-                  return product;
-                })
-              );
-            }
-            console.log(getResponsStore);
+            getResponsStore.all_promo_product = getResponsStore.promo_product_save;
             this.dataAllMasterPromo.push(getResponsStore);
   
   
@@ -429,42 +409,43 @@ export default {
         }
       }
 
-      // if (this.modalAddOrEditPromo == false) {
-      //   // Validasi tipe promo
-      //   if(this.dataMasterPromo.tipe_promo == '1'){ // Bundle
-      //     this.dataMasterPromo.percent = null;
-      //   }
-      //   if(this.dataMasterPromo.tipe_promo == '2'){ // Percent
-      //     this.dataMasterPromo.buy_item = null;
-      //     this.dataMasterPromo.get_item = null;
-      //   }
+      if (this.modalAddOrEditPromo == false) {
+        // Validasi tipe promo
+        if(this.dataMasterPromo.tipe_promo == '1'){ // Bundle
+          this.dataMasterPromo.percent = null;
+        }
+        if(this.dataMasterPromo.tipe_promo == '2'){ // Percent
+          this.dataMasterPromo.buy_item = null;
+          this.dataMasterPromo.get_item = null;
+        }
 
-      //   try{
-      //     $('#modalAddEditPromo').modal('hide');
-      //     this.$root.showLoading();
-      //     const store = await axios({
-      //       method: 'put',
-      //       url: this.hostUrl + '/master-promo/updateDataPromo',
-      //       data: this.dataMasterPromo,
-      //     });
+        try{
+          $('#modalAddEditPromo').modal('hide');
+          this.$root.showLoading();
+          const store = await axios({
+            method: 'put',
+            url: this.hostUrl + '/master-promo/updateDataPromo',
+            data: this.dataMasterPromo,
+          });
 
-      //     if(store.status == 201 || store.status == 200){
-      //       var getDataStore = store.data.data;
-      //       var findIndexPromo = this.dataAllMasterPromo.findIndex((promo) => promo.id == getDataStore.id);
-      //       this.dataAllMasterPromo[findIndexPromo] = getDataStore;
+          if(store.status == 201 || store.status == 200){
+            var getDataStore = store.data.data;
+            getDataStore.all_promo_product = getDataStore.promo_product_save;
+            var findIndexPromo = this.dataAllMasterPromo.findIndex((promo) => promo.id == getDataStore.id);
+            this.dataAllMasterPromo[findIndexPromo] = getDataStore;
 
-      //       this.$root.showAlertFunction('success', 'Update Berhasil!', 'Selamat, Data promo telah berhasil diperbaharui.');
-      //     }else{
-      //       this.$root.showAlertFunction('warning', 'Mengubah Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-      //     }
+            this.$root.showAlertFunction('success', 'Update Berhasil!', 'Selamat, Data promo telah berhasil diperbaharui.');
+          }else{
+            this.$root.showAlertFunction('warning', 'Mengubah Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
           
-      //     this.$root.hideLoading();
-      //   } catch (error) {
-      //     this.$root.showAlertFunction('warning', 'Update Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-      //     this.$root.hideLoading();
-      //     console.log(error);
-      //   }
-      // }
+          this.$root.hideLoading();
+        } catch (error) {
+          this.$root.showAlertFunction('warning', 'Update Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          this.$root.hideLoading();
+          console.log(error);
+        }
+      }
     },
 
     async actionDeletePromo(){
@@ -498,7 +479,10 @@ export default {
     },
 
     onChangeTipePromo(){
-      this.dataMasterPromo.product_promo_buy_get = [];
+      if (this.modalAddOrEditPromo == true) {
+        this.dataMasterPromo.product_promo_buy_get = [];
+        this.dataMasterPromo.products_promo_percent = [];
+      }
       if(this.dataMasterPromo.tipe_promo == '1'){
         const setObject = {
           index: 0,
