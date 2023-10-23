@@ -126,46 +126,6 @@
             </div>
             <div class="px-3">
               <div class="row px-3">
-                <!-- Product dari master promo disini -->
-                <!-- <div class="mb-1 col-md-2 p-1" v-for="promo in dataAllProductsPromo">
-                  <div class="border rounded-1 h-100 d-flex flex-column justify-content-between">
-                    <div class="overflow-hidden">
-                      <div class="position-relative rounded-top overflow-hidden" v-on:click="addProductToList(promo.for_product.sku)" style="cursor: pointer;">
-                        <div class="d-block text-center">
-                          <img class="img-fluid rounded-top" :src="'src/assets/img/product/' + promo.for_product.image" style="width: 100%;" alt="">
-                          <span class="badge rounded-pill position-absolute mt-2 me-2 z-2 top-0 end-0" :class="'bg-' + promo.master_promo.master_kode_promo.badge">
-                            {{ promo.master_promo.master_kode_promo.nama_promo }}
-                          </span>
-                          <span class="badge badge-subtle-secondary position-absolute mb-1 ms-2 z-2 bottom-0 start-0 fs--2 fw-bold" style="font-weight: normal;">{{ promo.for_product.sku }}</span>
-                          <span class="badge badge-subtle-success position-absolute mb-1 me-2 z-2 bottom-0 end-0 fs--2" style="font-weight: normal;">{{ promo.for_product.stok }}</span>
-                        </div>
-                      </div>
-                      <div class="p-2 text-center">
-                        <button v-on:click="productShowDetail = promo.for_product" class="btn btn-sm p-0 ps-1" data-bs-toggle="offcanvas" data-bs-target="#canvasShowDetailProduct" aria-controls="canvasShowDetailProduct">
-                          <h5 class="fs-0 mb-0">
-                            <div class="text-1100">
-                              <span class="d-inline-block text-truncate max-width-text-truncate">
-                                {{ promo.for_product.nama_product }}
-                              </span>
-                            </div>
-                          </h5>
-                        </button>
-                        <div>
-                          <div v-if="promo.master_promo.tipe_promo == '1'" class="fs--1">
-                            <span>Buy {{ promo.master_promo.buy_item }} Get {{ promo.master_promo.get_item }}</span>
-                          </div>
-                          <div v-if="promo.master_promo.tipe_promo == '2'" class="fs--1">
-                            <del>Rp. 50.000</del> ({{ promo.master_promo.percent }}%)
-                          </div>
-                          <strong class="fs-md-0 text-warning mb-0 text-center">
-                            Rp {{ $root.formatPrice(promo.for_product.harga) }}
-                          </strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div> -->
-
                 <div class="mb-1 col-md-2 p-1" v-for="product in filteredProducts" :key="product.sku">
                   <!-- Product dari master promo disini -->
                   <div v-if="product.master_promo_id" class="border rounded-1 h-100 d-flex flex-column justify-content-between">
@@ -181,7 +141,6 @@
                         </div>
                       </div>
                       <div class="p-2 text-center">
-                        <!-- <p class="fs--1 mb-0"><u>{{ product.sku }}</u></p> -->
                         <button v-on:click="productShowDetail = product" class="btn btn-sm p-0 ps-1" data-bs-toggle="offcanvas" data-bs-target="#canvasShowDetailProduct" aria-controls="canvasShowDetailProduct">
                           <h5 class="fs-0 mb-0">
                             <div class="text-1100">
@@ -202,8 +161,6 @@
                             Rp {{ product.master_promo.tipe_promo == '2' ? $root.formatPrice(product.for_product.harga - (product.for_product.harga * (product.master_promo.percent/100))) : $root.formatPrice(product.for_product.harga) }}
                           </strong>
                         </div>
-                        <!-- <p class="fs--1 mb-0">Brand: <strong class="text-dark">{{ product.brand.nama_brand }}</strong></p> -->
-                        <!-- <p class="fs--1 mb-0">Stock: <strong class="text-success">{{ product.stok }}</strong></p> -->
                       </div>
                     </div>
                   </div>
@@ -218,7 +175,6 @@
                         </div>
                       </div>
                       <div class="p-2 text-center">
-                        <!-- <p class="fs--1 mb-0"><u>{{ product.sku }}</u></p> -->
                         <button v-on:click="productShowDetail = product" class="btn btn-sm p-0 ps-1" data-bs-toggle="offcanvas" data-bs-target="#canvasShowDetailProduct" aria-controls="canvasShowDetailProduct">
                           <h5 class="fs-0 mb-0">
                             <div class="text-1100">
@@ -233,8 +189,6 @@
                             Rp {{ $root.formatPrice(product.harga) }}
                           </strong>
                         </div>
-                        <!-- <p class="fs--1 mb-0">Brand: <strong class="text-dark">{{ product.brand.nama_brand }}</strong></p> -->
-                        <!-- <p class="fs--1 mb-0">Stock: <strong class="text-success">{{ product.stok }}</strong></p> -->
                       </div>
                     </div>
                   </div>
