@@ -150,7 +150,7 @@
               </div>
             </div>
             
-            <a class="nav-link" href="javascript:void(0)" role="button">
+            <a @click="$root.goto('profilepage')" class="nav-link" href="javascript:void(0)" role="button">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
                   <span class="fas fa-user"></span>
@@ -159,7 +159,7 @@
               </div>
             </a>
             
-            <a class="nav-link" v-on:click="$root.goto('login')" href="javascript:void(0)" role="button">
+            <a class="nav-link" v-on:click="$root.clearSessionLocalStorege()" href="javascript:void(0)" role="button">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
                   <span class="fas fa-sign-out-alt"></span>

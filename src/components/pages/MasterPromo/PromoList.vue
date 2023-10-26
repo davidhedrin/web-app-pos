@@ -307,14 +307,12 @@
 <script>
 import axios from "axios";
 import { markRaw } from 'vue';
-import Loading from '../../layouts/Loading.vue';
+import LoadingWhite from '@/components/layouts/LoadingWhite.vue';
 
 export default {
   name: 'PromoList',
   data() {
     return {
-      hostUrl: import.meta.env.VITE_API_URL,
-
       dataAllProduct: [],
       dataAllMasterPromo: [],
       dataAllMasterKodePromo: [],
@@ -349,7 +347,7 @@ export default {
       try{
         const getAllData = await axios({
           method: 'get',
-          url: this.hostUrl + '/master-promo',
+          url: this.$root.API_URL + '/master-promo',
         });
         const allData = getAllData.data;
         this.dataAllProduct = allData.getAllProduct; // All Products
@@ -359,7 +357,7 @@ export default {
         //Get all data master promo
         const getAllDataPromo = await axios({
           method: 'get',
-          url: this.hostUrl + '/master-promo/getAllMasterPromo',
+          url: this.$root.API_URL + '/master-promo/getAllMasterPromo',
         });
         const allDataPromo = getAllDataPromo.data;
         this.dataAllMasterPromo = allDataPromo;
@@ -378,7 +376,7 @@ export default {
           this.$root.showLoading();
           const store = await axios({
             method: 'post',
-            url: this.hostUrl + '/master-promo/storeNewPromo',
+            url: this.$root.API_URL + '/master-promo/storeNewPromo',
             data: this.dataMasterPromo,
           });
   
@@ -424,7 +422,7 @@ export default {
           this.$root.showLoading();
           const store = await axios({
             method: 'put',
-            url: this.hostUrl + '/master-promo/updateDataPromo',
+            url: this.$root.API_URL + '/master-promo/updateDataPromo',
             data: this.dataMasterPromo,
           });
 
@@ -454,7 +452,7 @@ export default {
         this.$root.showLoading();
         const store = await axios({
           method: 'delete',
-          url: this.hostUrl + '/master-promo/deleteDataPromo',
+          url: this.$root.API_URL + '/master-promo/deleteDataPromo',
           data: {
             id: this.idPromoForDelete,
           }

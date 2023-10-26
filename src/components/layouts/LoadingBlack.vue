@@ -17,7 +17,7 @@
 
 <script>
 export default {
-  name: 'LoadingPage',
+  name: 'LoadingBlack',
 }
 </script>
 
@@ -44,7 +44,7 @@ export default {
   width: 4px;
   height: 12px;
   border-radius: 20%;
-  background: #ffffff;
+  background: #1a1a1a;
 }
 
 .lds-spinner div:nth-child(1) {

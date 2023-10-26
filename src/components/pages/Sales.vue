@@ -3,14 +3,22 @@
     <div class="col-lg-9">
       <div class="card mb-3">
         <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5j.png); background-size: cover;"></div>
-        <div class="card-header pb-0">
+        <div class="card-header position-relative pb-0 d-flex align-items-center justify-content-between">
           <h5 class="mb-0 d-flex align-items-center">
-            Order List 
+            <span class="d-none d-sm-block">Order List</span>
             <span class="badge rounded-pill badge-subtle-primary fs-0 ms-1">{{ dataProductInList.length > 0 ? dataProductInList.length : '0' }} item{{ dataProductInList.length > 1 ? 's' : '' }} <span v-if="dataProductInList.length > 0" class="fs--1">({{ totalPcsItemOrder }} pcs)</span></span>
             <!-- <span class="badge rounded-pill bg-info fs--1 ms-1"></span> -->
           </h5>
-          <hr class="m-1">
+          <div>
+            <form @submit.prevent="submitFindOrderWithTiket">
+              <div class="input-group">  <!--  -->
+                <input v-model="valueInputNoTiket" class="form-control ps-2 pe-1 search-input fuzzy-search" type="search" placeholder="#No Tiket" style="width: 105px;" aria-label="Search" />
+                <button class="btn btn-primary card-link btn-sm" type="submit"><span class="fas fa-search"></span></button>
+              </div>
+            </form>
+          </div>
         </div>
+        <hr class="m-1">
         <div class="card-body position-relative p-0">
           <div class="table-scrollable-wrapper">
             <table class="table table-scrollable table-sm">
@@ -55,7 +63,15 @@
                     Rp {{ $root.formatPrice(product.product.harga) }}
                   </td>
                   <td>
-                    -
+                    <span v-if="product.is_promo_product" class="badge rounded-pill" :class="product.is_promo_product.master_promo.tipe_promo == '1' ? 'badge-subtle-warning' : 'badge-subtle-primary'">
+                      <span v-if="product.is_promo_product.master_promo.tipe_promo == '1'">
+                        Buy {{ product.is_promo_product.master_promo.buy_item }} Get {{ product.is_promo_product.master_promo.get_item }}
+                      </span>
+                      <span v-else-if="product.is_promo_product.master_promo.tipe_promo == '2'">
+                        Diskon (-{{ product.is_promo_product.master_promo.percent }}%)
+                      </span>
+                    </span>
+                    <span v-else>-</span>
                   </td>
                   <td class="col-md-2">
                     <input class="form-control p-0 ps-2" type="number" min="1" :value="product.qty" style="width: 60px;" 
@@ -79,28 +95,28 @@
         <div class="row card-header position-relative align-items-center pb-2 pt-1">
           <div class="col-md-7 py-2">
             <div class="form-check form-check-inline m-0 me-2">
-              <input class="form-check-input" id="checkBoxBestSellerAll" type="checkbox" value="" />
+              <input v-model="checkboxProducts.bestSellerAll" class="form-check-input" id="checkBoxBestSellerAll" type="checkbox" value="" />
               <label class="form-check-label mb-0" for="checkBoxBestSellerAll">Best Seller All</label>
             </div>
             <div class="form-check form-check-inline m-0 me-2">
-              <input class="form-check-input" id="checkBoxBestSellerToko" type="checkbox" value="" />
+              <input v-model="checkboxProducts.bestSellerToko" class="form-check-input" id="checkBoxBestSellerToko" type="checkbox" value="" />
               <label class="form-check-label mb-0" for="checkBoxBestSellerToko">Best Seller Toko</label>
             </div>
             <div class="form-check form-check-inline m-0 me-2">
-              <input class="form-check-input" id="checkBoxTopThisMonth" type="checkbox" value="" />
+              <input v-model="checkboxProducts.topThisMonth" class="form-check-input" id="checkBoxTopThisMonth" type="checkbox" value="" />
               <label class="form-check-label mb-0" for="checkBoxTopThisMonth">Top This Month</label>
             </div>
 
             <div v-if="isCheckBoxPromo" class="form-check form-check-inline m-0 me-2">
-              <input class="form-check-input" id="checkBoxPromo" type="checkbox" value="" />
+              <input v-model="checkboxProducts.promo" class="form-check-input" id="checkBoxPromo" type="checkbox" value="" />
               <label class="form-check-label mb-0" for="checkBoxPromo">Promo</label>
             </div>
             <div v-if="isCheckBoxFlushOut" class="form-check form-check-inline m-0 me-2">
-              <input class="form-check-input" id="checkBoxFlushOut" type="checkbox" value="" />
+              <input v-model="checkboxProducts.flushOut" class="form-check-input" id="checkBoxFlushOut" type="checkbox" value="" />
               <label class="form-check-label mb-0" for="checkBoxFlushOut">Flush Out</label>
             </div>
             <div v-if="isCheckBoxKaryawan && Object.keys(memberOverview).length > 0 && memberOverview.tipe_konsumen.id == '3'" class="form-check form-check-inline m-0 me-2">
-              <input class="form-check-input" id="checkBoxPromoKaryawan" type="checkbox" value="" />
+              <input v-model="checkboxProducts.promoKaryawan" class="form-check-input" id="checkBoxPromoKaryawan" type="checkbox" value="" />
               <label class="form-check-label mb-0" for="checkBoxPromoKaryawan">Promo Karyawan</label>
             </div>
           </div>
@@ -118,26 +134,29 @@
           </div>
         </div>
         <div class="card-body position-relative p-0">
-          <div class="scrollable-customize mb-3" style="max-height: 45vh;">
-            <div v-if="filteredProducts.length < 1" class="text-center py-4">
-              <div>
+          <div class="scrollable-customize mb-3" style="max-height: 45vh; min-height: 45vh">
+            <div v-if="filteredProducts.length < 1" class="text-center py-5">
+              <div class="mt-5">
                 <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
               </div>
+              <h5 class="fs-0 mt-3">
+                Product Tidak Ditemukan!
+              </h5>
             </div>
             <div class="px-3">
               <div class="row px-3">
-                <div class="mb-1 col-md-2 p-1" v-for="product in filteredProducts" :key="product.sku">
-                  <!-- Product dari master promo disini -->
-                  <div v-if="product.master_promo_id" class="border rounded-1 h-100 d-flex flex-column justify-content-between">
+                <div class="mb-1 col-sm-6 col-md-2 p-1" v-for="product in filteredProducts" :key="product.sku">
+                  <div class="border rounded-1 h-100 d-flex flex-column justify-content-between">
                     <div class="overflow-hidden">
                       <div class="position-relative rounded-top overflow-hidden" v-on:click="addProductToList(product)" style="cursor: pointer;">
                         <div class="d-block text-center">
-                          <img class="img-fluid rounded-top" :src="'src/assets/img/product/' + product.for_product.image" style="width: 100%;" alt="">
-                          <span class="badge rounded-pill position-absolute mt-2 me-2 z-2 top-0 end-0 fs--2" :class="'bg-' + product.master_promo.master_kode_promo.badge">
+                          <img v-if="product.master_promo_id" class="img-fluid rounded-top" :src="'src/assets/img/product/' + product.for_product.image" style="width: 100%;" alt="">
+                          <img v-else class="img-fluid rounded-top" :src="'src/assets/img/product/' + product.image" style="width: 100%;" alt="">
+                          <span v-if="product.master_promo_id" class="badge rounded-pill position-absolute mt-2 me-2 z-2 top-0 end-0 fs--2" :class="'bg-' + product.master_promo.master_kode_promo.badge">
                             {{ product.master_promo.master_kode_promo.nama_promo }}
                           </span>
-                          <span class="badge badge-subtle-secondary position-absolute mb-1 ms-2 z-2 bottom-0 start-0 fs--2 fw-bold" style="font-weight: normal;">{{ product.for_product.sku }}</span>
-                          <span class="badge badge-subtle-success position-absolute mb-1 me-2 z-2 bottom-0 end-0 fs--2" style="font-weight: normal;">{{ product.for_product.stok }}</span>
+                          <span class="badge badge-subtle-secondary position-absolute mb-1 ms-2 z-2 px-1 bottom-0 start-0 fs--2 fw-bold" style="font-weight: normal;">{{ product.master_promo_id ? product.for_product.sku : product.sku }}</span>
+                          <span class="badge badge-subtle-success position-absolute mb-1 me-2 z-2 px-1 bottom-0 end-0 fs--2" style="font-weight: normal;">{{ product.master_promo_id ? product.for_product.stok : product.stok }}</span>
                         </div>
                       </div>
                       <div class="p-2 text-center">
@@ -145,12 +164,12 @@
                           <h5 class="fs-0 mb-0">
                             <div class="text-1100">
                               <span class="d-inline-block text-truncate max-width-text-truncate">
-                                {{ product.for_product.nama_product }}
+                                {{ product.master_promo_id ? product.for_product.nama_product : product.nama_product }}
                               </span>
                             </div>
                           </h5>
                         </button>
-                        <div>
+                        <div v-if="product.master_promo_id">
                           <div v-if="product.master_promo.tipe_promo == '1'" class="fs--1">
                             <span>Buy {{ product.master_promo.buy_item }} Get {{ product.master_promo.get_item }}</span>
                           </div>
@@ -161,30 +180,7 @@
                             Rp {{ product.master_promo.tipe_promo == '2' ? $root.formatPrice(product.for_product.harga - (product.for_product.harga * (product.master_promo.percent/100))) : $root.formatPrice(product.for_product.harga) }}
                           </strong>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div v-else class="border rounded-1 h-100 d-flex flex-column justify-content-between">
-                    <div class="overflow-hidden">
-                      <div class="position-relative rounded-top overflow-hidden" v-on:click="addProductToList(product)" style="cursor: pointer;">
-                        <div class="d-block text-center">
-                          <img class="img-fluid rounded-top" :src="'src/assets/img/product/' + product.image" style="width: 100%;" alt="">
-                          <!-- <span class="badge rounded-pill bg-success position-absolute mt-2 me-2 z-2 top-0 end-0">Flash Sale</span> -->
-                          <span class="badge badge-subtle-secondary position-absolute mb-1 ms-2 z-2 bottom-0 start-0 fs--2 fw-bold" style="font-weight: normal;">{{ product.sku }}</span>
-                          <span class="badge badge-subtle-success position-absolute mb-1 me-2 z-2 bottom-0 end-0 fs--2" style="font-weight: normal;">{{ product.stok }}</span>
-                        </div>
-                      </div>
-                      <div class="p-2 text-center">
-                        <button v-on:click="productShowDetail = product" class="btn btn-sm p-0 ps-1" data-bs-toggle="offcanvas" data-bs-target="#canvasShowDetailProduct" aria-controls="canvasShowDetailProduct">
-                          <h5 class="fs-0 mb-0">
-                            <div class="text-1100">
-                              <span class="d-inline-block text-truncate max-width-text-truncate">
-                                {{ product.nama_product }}
-                              </span>
-                            </div>
-                          </h5>
-                        </button>
-                        <div>
+                        <div v-else>
                           <strong class="fs-md-0 text-warning mb-0 text-center">
                             Rp {{ $root.formatPrice(product.harga) }}
                           </strong>
@@ -199,6 +195,7 @@
         </div>
       </div>
     </div>
+
     <div class="col-lg-3">
       <div class="card">
         <div class="card-body">
@@ -268,22 +265,22 @@
             <div class="mb-2">
               <label class="form-label mb-0" for="selectSalesBy">Sales By:</label>
               <select v-model="selectSalesBy" @change="selectMethodPayment = ''" class="form-select mb-0" id="selectSalesBy">
-                <option v-for="sales in dataAllMasterSalesBy" :value="sales.slug">{{ sales.nama_sales }}</option>
+                <option v-for="sales in dataAllMasterSalesBy" :value="sales.id">{{ sales.nama_sales }}</option>
               </select>
             </div>
             <div class="mb-2">
               <label class="form-label mb-0" for="selectMethodPayment">Metode Pembayaran:</label>
               <select v-model="selectMethodPayment" class="form-select mb-0" :class="{'border-red' : invalidMetodePembayaran}" v-on:change="onChangeSelectedMetodeBayar" id="selectMethodPayment">
                 <option value="">Pilih Metode Bayar</option>
-                <option v-if="selectSalesBy == 'wi'" :value="metodeBayarCash.id">{{ metodeBayarCash.nama }}</option>
+                <option v-if="selectSalesBy == '1'" :value="metodeBayarCash.id">{{ metodeBayarCash.nama }}</option>
                 <option v-if="Object.keys(memberOverview).length > 0 && memberOverview.tipe_konsumen.id == '3'" :value="metodeBayarKaryawan.id">{{ metodeBayarKaryawan.nama }}</option>
                 <optgroup label="Transfer Bank">
                   <option v-for="metode in dataMetodeBayarTF" :value="metode.id">{{ metode.nama }}</option>
                 </optgroup>
-                <optgroup v-if="selectSalesBy != 'selly'" label="E-Wallet">
+                <optgroup v-if="selectSalesBy != '3'" label="E-Wallet">
                   <option v-for="metode in dataMetodeBayarEWal" :value="metode.id">{{ metode.nama }}</option>
                 </optgroup>
-                <optgroup v-if="selectSalesBy != 'selly'" label="Kartu Kredit">
+                <optgroup v-if="selectSalesBy != '3'" label="Kartu Kredit">
                   <option v-for="metode in dataMetodeBayarCC" :value="metode.id">{{ metode.nama }}</option>
                 </optgroup>
               </select>
@@ -298,8 +295,10 @@
             <!-- Kontrol untuk penambahan metode pembayaran distruk checkout button confirm pay (di event v-on:click) -->
             <button class="btn btn-success" type="submit" v-on:click="confirmationPayment">Confirm &amp; Pay</button>
           </div>
-          <hr class="mb-1 mt-2">
-          <p class="p-0 m-0 fs--1 text-center">Tekan 'Confirm' untuk menyelesaikan</p>
+          <hr class="mb-2 mt-2">
+          <div class="d-grid gap-2">
+            <button class="btn btn-info" type="submit" v-on:click="buatkanSebagaiTiket"><span class="me-2">Buatkan Tiket</span><span class="fas fa-ticket-alt"></span></button>
+          </div>
         </div>
       </div>
     </div>
@@ -612,7 +611,7 @@
                 
                 <hr class="m-0 mt-2">
     
-                <div v-if="selectSalesBy == 'wa'" class="mb-2 mt-2">
+                <div v-if="selectSalesBy == '2'" class="mb-2 mt-2">
                   <label class="form-label mb-0" for="selectSalesBy">Sales By WA:</label>
                   <select v-model="selectedBscWa" v-on:change="invalidSelectSalesBsc = false" class="form-select mb-0" :class="{'border-red' : invalidSelectSalesBsc}" id="selectSalesBy">
                     <option value="">Pilih BSC WA</option>
@@ -625,7 +624,7 @@
                 <label class="form-label mb-0">Keterangan: </label>
                 <div class="scrollable-customize" style="max-height: 7vh">
                   <p class="fs--1 mb-0 pb-0">
-                    {{ $root.trimString(keteranganTransaksi) == '' ? '-' : $root.trimString(keteranganTransaksi) }}
+                    {{ keteranganTransaksi ? $root.trimString(keteranganTransaksi) == '' ? '-' : $root.trimString(keteranganTransaksi) : '-' }}
                   </p>
                 </div>
               </div>
@@ -662,6 +661,57 @@
         <div class="modal-footer d-flex justify-content-center">
           <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">Batal</button>
           <button class="btn btn-primary btn-sm" type="button" v-on:click="checkoutBtn">Konfirmasi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="modalConfirmCreateTicket" tabindex="0" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px">
+      <div class="modal-content position-relative">
+        <div class="modal-body p-0 pb-2">
+          <div class="rounded-top-3 py-3 bg-body-tertiary text-center">
+            <h3 class="mb-1" id="modalExampleDemoLabel">Konfirmasi Buat Tiket</h3>
+          </div>
+          <div class="py-2 text-center">
+            <div class="d-flex justify-content-center mb-2">
+              <img src="@/assets/img/icons/Gif/info-icon.gif" height="60" alt="">
+            </div>
+            <h5 class="m-0 px-1">
+              Yakin ingin lanjut membuat tiket?
+            </h5>
+            <p class="m-0 px-3">
+              Pastikan bahwa konsumen mengingat nomor tiket.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">Batal</button>
+          <button class="btn btn-primary btn-sm" type="button" @click="confirmasiBuatTiket">Buat</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="showCreateNoTicket" tabindex="0" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px">
+      <div class="modal-content position-relative">
+        <div class="modal-body p-0 pb-2">
+          <div class="py-2 text-center">
+            <div class="d-flex justify-content-center mb-0">
+              <img src="@/assets/img/icons/Gif/success-gif.gif" height="120" alt="">
+            </div>
+            <u class="m-0">No Tiket:</u>
+            <h2 class="m-0 mb-2 px-1">
+              "{{ numberTicketOrder }}"
+            </h2>
+            <p class="m-0 px-4">
+              Tiket order berhasil dibuat! Pastikan bahwa konsumen mengingat nomor tiket.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <button class="btn btn-success btn-sm" type="button" data-bs-dismiss="modal">Selesai</button>
         </div>
       </div>
     </div>
@@ -738,6 +788,8 @@
 import axios from "axios";
 import { markRaw } from 'vue';
 
+import LoadingBlack from '@/components/layouts/LoadingBlack.vue';
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import imageMts from '@/assets/img/mtsiconland.png';
@@ -746,9 +798,9 @@ export default {
   name: 'SalesPage',
   data() {
     return {
+      loadingBlack: markRaw(LoadingBlack),
       currentTime: new Date(),
 
-      hostUrl: import.meta.env.VITE_API_URL,
       memberFindOrRegis: true,
       dataAllProducts: [],
       dataAllProductsPromo: [],
@@ -802,7 +854,7 @@ export default {
 
       selectedFilterBrand: '',
       inputSearchMember: '',
-      selectSalesBy: 'wi',
+      selectSalesBy: '1',
       selectedBscWa: '',
 
       invalidMemberSelect: false,
@@ -817,6 +869,18 @@ export default {
       isCheckBoxPromo: false,
       isCheckBoxFlushOut: false,
       isCheckBoxKaryawan: false,
+
+      checkboxProducts: {
+        bestSellerAll: false,
+        bestSellerToko: false,
+        topThisMonth: false,
+        promo: false,
+        flushOut: false,
+        promoKaryawan: false
+      },
+
+      numberTicketOrder: '',
+      valueInputNoTiket: '',
     };
   },
 
@@ -832,14 +896,70 @@ export default {
 
   computed: {
     filteredProducts() {
-      if (this.selectedFilterBrand == '') {
-
-        console.log(this.dataAllProducts);
-        return this.dataAllProducts;
-      }
+      // console.log(this.dataAllProducts);
+      const valueSeletedBrand = this.selectedFilterBrand.toLowerCase();
+      const hasTruecheckboxProducts = Object.values(this.checkboxProducts).some(value => value);
 
       return this.dataAllProducts.filter(product => {
-        return product.brand.slug === this.selectedFilterBrand;
+        if(hasTruecheckboxProducts){ // Filter jika ada checkbox promo yang true
+          if(product.master_promo_id){
+            if(this.checkboxProducts.bestSellerAll){ // Filter Checkbox Best Seller All
+              if(product.master_promo.master_kode_promo.id == '1'){
+                return (
+                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                );
+              }
+            }
+            if(this.checkboxProducts.bestSellerToko){ // Filter Checkbox Best Seller Toko
+              if(product.master_promo.master_kode_promo.id == '2'){
+                return (
+                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                );
+              }
+            }
+            if(this.checkboxProducts.topThisMonth){ // Filter Checkbox Top This Month
+              if(product.master_promo.master_kode_promo.id == '3'){
+                return (
+                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                );
+              }
+            }
+            if(this.checkboxProducts.promo){
+              if(product.master_promo.master_kode_promo.id == '4'){ // Filter Checkbox Promo
+                return (
+                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                );
+              }
+            }
+            if(this.checkboxProducts.flushOut){
+              if(product.master_promo.master_kode_promo.id == '5'){ // Filter Checkbox Flushout
+                return (
+                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                );
+              }
+            }
+            if(this.checkboxProducts.promoKaryawan){
+              if(product.master_promo.master_kode_promo.id == '6'){ // Filter Checkbox Promo Karyawan
+                return (
+                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                );
+              }
+            }
+          }
+        }else{
+          if(product.master_promo_id){
+            if (
+              (Object.keys(this.memberOverview).length > 0 && this.memberOverview.tipe_konsumen.id == '3') ||
+              product.master_promo.master_kode_promo.id != '6'
+            ) {
+              return product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand);
+            }
+          }else{
+            return (
+              product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+            );
+          }
+        }
       });
     },
     
@@ -870,7 +990,7 @@ export default {
       try {
         const getAllDataSales = await axios({
           method: 'get',
-          url: this.hostUrl + '/sales',
+          url: this.$root.API_URL + '/sales',
           // withCredentials: false,
         });
         const allData = getAllDataSales.data;
@@ -898,7 +1018,7 @@ export default {
 
         const getAllProduct = await axios({
           method: 'get',
-          url: this.hostUrl + '/sales/getAllProduct',
+          url: this.$root.API_URL + '/sales/getAllProduct',
         });
         var getDataProduct = getAllProduct.data;
 
@@ -928,13 +1048,9 @@ export default {
             if(getDataProduct.getAllMasterPromo[i].kode_promo_id == '4'){ // Promo
               this.isCheckBoxPromo = true;
             };
-          }
-          if(today >= startDate && today <= endDate){
             if(getDataProduct.getAllMasterPromo[i].kode_promo_id == '5'){ // Flushout
               this.isCheckBoxFlushOut = true;
             };
-          }
-          if(today >= startDate && today <= endDate){
             if(getDataProduct.getAllMasterPromo[i].kode_promo_id == '6'){ // Karyawan
               this.isCheckBoxKaryawan = true;
             };
@@ -953,7 +1069,7 @@ export default {
         this.$root.showLoading();
         const store = await axios({
           method: 'post',
-          url: this.hostUrl + '/sales/storeNewMember',
+          url: this.$root.API_URL + '/sales/storeNewMember',
           data: this.dataInputMember,
         });
 
@@ -986,7 +1102,7 @@ export default {
         this.$root.showLoading();
         const store = await axios({
           method: 'put',
-          url: this.hostUrl + '/sales/updateDataMember',
+          url: this.$root.API_URL + '/sales/updateDataMember',
           data: this.dataInputMember,
         });
         
@@ -1039,11 +1155,15 @@ export default {
       if(qty > 0){
         if(product.master_promo_id){ // Jika product promo
           try{
-            existingProduct = this.dataProductInList.find( (p) => 
-              p.is_promo_product.master_promo_id === product.master_promo_id &&
-              p.is_promo_product.for_product.sku === product.for_product.sku
-            );
-          }catch(error){}
+            existingProduct = this.dataProductInList.find( (p) => {
+              if(p.is_promo_product){ // Jika sudah ada di list product yang diorder
+                return p.is_promo_product.master_promo_id === product.master_promo_id &&
+                p.is_promo_product.for_product.sku === product.for_product.sku
+              }
+            });
+          }catch(error){
+            console.log(error);
+          }
         }else{ // Jika product reguler
           existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.sku === product.sku);
         }
@@ -1100,10 +1220,12 @@ export default {
       let existingProduct = {};
       if(product.is_promo_product){ // Jika product promo
         try{
-          existingProduct = this.dataProductInList.find((p) => 
-            p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
-            p.is_promo_product.for_product.sku === product.product.sku
-          );
+          existingProduct = this.dataProductInList.find((p) => {
+            if(p.is_promo_product){
+              return p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
+              p.is_promo_product.for_product.sku === product.product.sku
+            }
+          });
         }catch(error){}
       }else{ // Jika product reguler
         existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.sku === product.product.sku);
@@ -1121,10 +1243,12 @@ export default {
       let existingProduct = {};
       if(product.is_promo_product){ // Jika product promo
         try{
-          existingProduct = this.dataProductInList.find((p) => 
-            p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
-            p.is_promo_product.for_product.sku === product.product.sku
-          );
+          existingProduct = this.dataProductInList.find((p) => {
+            if(p.is_promo_product){
+              return p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
+              p.is_promo_product.for_product.sku === product.product.sku
+            }
+          });
         }catch(error){}
       }else{ // Jika product reguler
         existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.sku === product.product.sku);
@@ -1161,6 +1285,9 @@ export default {
     },
 
     selectMemberOverview(member){
+      if(Object.keys(this.memberOverview).length > 0 && this.memberOverview.member_id != member.member_id){
+        this.dataProductInList = [];
+      }
       this.memberOverview = member;
       this.invalidMemberSelect = false;
       $('#modalFindMember').modal('hide');
@@ -1361,7 +1488,7 @@ export default {
       return gelarTerpilih;
     },
 
-    confirmationPayment(){
+    validationBeforeContinueBtnBilling(){
       if(this.dataProductInList.length < 1){
         this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
         return false;
@@ -1378,16 +1505,22 @@ export default {
         this.invalidMetodePembayaran = true;
         return false;
       }
+    },
+
+    confirmationPayment(){
+      if(this.validationBeforeContinueBtnBilling() == false){
+        return false;
+      }
       
       const findMetodeBayar = this.dataAllMetodeBayar.find((metode) => metode.id === this.selectMethodPayment);
 
       // Penentuan tambahan metode pembayaran pada struk checkout apa saja berdasarkan logic
       this.validasiMetodePembayaran = this.dataAllMetodeBayar.filter((metode) => {
-        if(this.selectSalesBy == 'selly'){
+        if(this.selectSalesBy == '3'){
           return metode.kode == 'tf';
         }else{
           if(findMetodeBayar.kode != 'cc' && findMetodeBayar.kode != 'karyawan'){
-            if(this.selectSalesBy != 'wi'){
+            if(this.selectSalesBy != '1'){
               return metode.kode != 'cash' && metode.kode != 'cc' && metode.kode != 'karyawan';
             }else{
               return metode.kode != 'cc' && metode.kode != 'karyawan';
@@ -1416,6 +1549,117 @@ export default {
       // this.generatePdfCheckout();
     },
 
+    buatkanSebagaiTiket(){
+      if(this.dataProductInList.length < 1){
+        this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
+        return false;
+      }
+
+      if(Object.keys(this.memberOverview).length < 1){
+        this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih dan tentukan member!');
+        this.invalidMemberSelect = true;
+        return false;
+      }
+
+      $('#modalConfirmCreateTicket').modal('show');
+    },
+
+    async confirmasiBuatTiket(){
+      try{
+        $('#modalConfirmCreateTicket').modal('hide');
+        this.$root.showLoading();
+
+        const dataPost = {
+          member_id: this.memberOverview.id,
+          sales_by_id: this.selectSalesBy,
+          metode_bayar_id: this.selectMethodPayment,
+          products: this.dataProductInList,
+          keterangan: this.keteranganTransaksi,
+        };
+
+        const store = await axios({
+          method: 'post',
+          url: this.$root.API_URL + '/sales/storeNewTicket',
+          data: dataPost,
+        });
+        
+        if(store.status == 201 || store.status == 200){
+          this.numberTicketOrder = store.data.data.no_ticket;
+          $('#showCreateNoTicket').modal('show');
+
+          this.selectSalesBy = '';
+          this.selectMethodPayment = '';
+          this.keteranganTransaksi = '';
+          this.memberOverview = {};
+          this.dataProductInList = [];
+        }else{
+          this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+        }
+
+        this.$root.hideLoading();
+      } catch (error) {
+        this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+        this.$root.hideLoading();
+        console.log(error);
+      }
+    },
+
+    async submitFindOrderWithTiket(){
+      try{
+        this.$root.showLoading();
+        const store = await axios({
+          method: 'get',
+          url: this.$root.API_URL + '/sales/findOrderWithTicket/' + this.valueInputNoTiket,
+        });
+
+        if(store.status == 200){
+          const response = store.data;
+          const responseData = response.data;
+          if(response.access ==  true){
+            this.selectSalesBy = responseData.sales_by_id ? responseData.sales_by_id : '1';
+            this.selectMethodPayment = responseData.metode_bayar_id ? responseData.metode_bayar_id : '';
+            this.keteranganTransaksi = responseData.keterangan ? responseData.keterangan : '';
+            this.memberOverview = responseData.member;
+            this.dataProductInList = responseData.products;
+  
+            // this.valueInputNoTiket = '';
+            this.calculateAmoutPrice();
+            this.calculatePcsItemOrderList();
+            this.$root.showAlertFunction('success', 'Tiket Ditemukan!', 'Tiket pesanan telah berhasil ditambahkan.');
+          }else{
+            this.$root.showAlertFunction('info', 'Tiket Terkunci!', 'Maaf, Tiket pesanan masih dalam antrian oleh BA. "' + responseData.has_access_by + '"');
+          }
+        }
+        else{
+          this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+        }
+
+        this.$root.hideLoading();
+      } catch (error) {
+        if(error.response.status == 404){
+          this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Maaf, Tiket pesanan tidak ditemukan.');
+        }else{
+          this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+        }
+        this.valueInputNoTiket = '';
+        this.$root.hideLoading();
+        console.log(error);
+      }
+    },
+
+    changeInputNoTiket(){
+      if(this.valueInputNoTiket.trim() == ''){
+        this.selectSalesBy = '1';
+        this.selectMethodPayment = '';
+        this.keteranganTransaksi = '';
+        this.memberOverview = {};
+        this.dataProductInList = [];
+
+        this.calculateAmoutPrice();
+        this.calculatePcsItemOrderList();
+      }
+    },
+
     onChangeCheckVal(event){
       var inputId = event.target;
       var valueInput = inputId.value;
@@ -1426,6 +1670,7 @@ export default {
         inputId.classList.add('border-red');
       }
     },
+
     onChangeCheckNumberVal(event){
       var inputId = event.target;
       var valueInput = inputId.value;
@@ -1487,7 +1732,7 @@ export default {
         return false;
       }
 
-      if(this.selectSalesBy == 'wa' && this.selectedBscWa == ''){
+      if(this.selectSalesBy == '2' && this.selectedBscWa == ''){
         this.invalidSelectSalesBsc = true;
         return false;
       }
@@ -1657,7 +1902,7 @@ export default {
 }
 </script>
 
-<style scope>
+<style scoped>
 .img-icon-po1{
   height: 22px;
   width: 80px;
@@ -1670,7 +1915,7 @@ export default {
 }
 
 .max-width-text-truncate{
-  max-width: 145px;
+  max-width: 135px;
 }
 @media (min-width: 600px) and (max-width: 1024px) {
   .max-width-text-truncate{

@@ -37,7 +37,7 @@
                 </span>
               </span>
             </a>
-            <a v-on:click="$root.goto('login')" class="dropdown-item" href="javascript:void(0)">
+            <a v-on:click="$root.clearSessionLocalStorege()" class="dropdown-item" href="javascript:void(0)">
               Logout <span class="fas fa-sign-out-alt"></span>
             </a>
           </div>
