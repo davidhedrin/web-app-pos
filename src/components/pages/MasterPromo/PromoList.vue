@@ -385,7 +385,6 @@ export default {
             getResponsStore.all_promo_product = getResponsStore.promo_product_save;
             this.dataAllMasterPromo.push(getResponsStore);
   
-  
             for (let prop in this.dataMasterPromo) {
               if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
                 this.dataMasterPromo[prop] = '';

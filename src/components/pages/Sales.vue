@@ -10,12 +10,7 @@
             <!-- <span class="badge rounded-pill bg-info fs--1 ms-1"></span> -->
           </h5>
           <div>
-            <form @submit.prevent="submitFindOrderWithTiket">
-              <div class="input-group">  <!--  -->
-                <input v-model="valueInputNoTiket" class="form-control ps-2 pe-1 search-input fuzzy-search" type="search" placeholder="#No Tiket" style="width: 105px;" aria-label="Search" />
-                <button class="btn btn-primary card-link btn-sm" type="submit"><span class="fas fa-search"></span></button>
-              </div>
-            </form>
+            <button class="btn btn-primary card-link" type="submit" @click="showListModalTiket()">Tiket <span class="far fa-list-alt"></span></button>
           </div>
         </div>
         <hr class="m-1">
@@ -42,9 +37,6 @@
                 <tr v-if="!dataProductInList || dataProductInList.length === 0">
                   <td class="text-center" style="border: none;" colspan="7">
                     <img class="py-5" src="@/assets/img/mtsiconland.png" width="200" alt="" />
-                    <!-- <p>
-                      Product list empty <br> No products added!
-                    </p> -->
                   </td>
                 </tr>
                 <tr v-else class="align-middle" v-for="(product, index) in dataProductInList" :key="index" :id="product.sku">
@@ -297,7 +289,60 @@
           </div>
           <hr class="mb-2 mt-2">
           <div class="d-grid gap-2">
-            <button class="btn btn-info" type="submit" v-on:click="buatkanSebagaiTiket"><span class="me-2">Buatkan Tiket</span><span class="fas fa-ticket-alt"></span></button>
+            <button v-if="isBuatkanTiketBtn" class="btn btn-info" type="submit" v-on:click="buatkanSebagaiTiket"><span class="me-2">Buatkan Tiket</span><span class="fas fa-ticket-alt"></span></button>
+            <button v-else class="btn btn-secondary" type="submit" disabled><span class="me-2">Buatkan Tiket</span><span class="fas fa-ticket-alt"></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="modalListTicket" tabindex="-1" aria-hidden="true" data-bs-keyboard="false" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="width: 700px;">
+      <div class="modal-content position-relative border-0">
+        <div class="modal-body p-0">
+          <div class="card">
+            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: cover;"></div>
+            <div class="card-body position-relative p-0">
+              <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
+                <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="card-header rounded-top-3 py-3 ps-3 pe-6">
+                <h5 class="mb-0" id="modalFindMemberLabel">Daftar List Tiket</h5>
+              </div>
+              <div class="p-4 pt-0">
+                <div class="table-scrollable-wrapper" style="min-height: 30vh; max-height: 30vh;">
+                  <table class="table table-scrollable table-hover">
+                    <thead>
+                      <tr>
+                        <!-- <th class="bg-white">Tipe</th> -->
+                        <th class="bg-white">#</th>
+                        <th class="bg-white">Konsumen</th>
+                        <th class="bg-white">No Hp</th>
+                        <th class="bg-white">Tiket Pesanan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-if="dataFilterAllTicket.length > 0" v-for="(ticket, index) in dataFilterAllTicket" :key="ticket.member_id" style="cursor: pointer;" @click="clickRowTicketList(ticket)">
+                        <td>{{ index+1 }}</td>
+                        <td>{{ ticket.member.nama }}</td>
+                        <td>{{ ticket.member.no_hp }}</td>
+                        <td>
+                          <span class="badge badge-subtle-primary mx-1" v-for="no_ticket in ticket.no_ticket">
+                            {{ no_ticket }}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr v-else>
+                        <td class="text-center" colspan="4">
+                          <component :is="loadingBlack"></component>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -782,6 +827,8 @@
       </div>
     </div>
   </div>
+
+  <iframe id="pdf_struk_transaksi_id" ref="pdf_struk_transaksi" src="" frameborder="0" hidden></iframe>
 </template>
 
 <script>
@@ -812,7 +859,9 @@ export default {
       dataAllKodeToko: [],
       dataAllMasterSalesBy: [],
 
-      // Metode bayar
+      dataAllTicket: [],
+      dataFilterAllTicket: [],
+
       dataAllMetodeBayar: [],
       metodeBayarCash: {},
       metodeBayarKaryawan: {},
@@ -880,7 +929,7 @@ export default {
       },
 
       numberTicketOrder: '',
-      valueInputNoTiket: '',
+      isBuatkanTiketBtn: true,
     };
   },
 
@@ -986,7 +1035,7 @@ export default {
   },
 
   methods: {
-    async loadAlldatas(){
+    loadAlldatas: async function(){
       try {
         const getAllDataSales = await axios({
           method: 'get',
@@ -1063,7 +1112,7 @@ export default {
       }
     },
 
-    async storeNewMember(){
+    storeNewMember: async function(){
       try{
         $('#modalFindMember').modal('hide');
         this.$root.showLoading();
@@ -1096,7 +1145,7 @@ export default {
       }
     },
 
-    async updateEditDataMember(){
+    updateEditDataMember: async function (){
       try{
         $('#modalEditMember').modal('hide');
         this.$root.showLoading();
@@ -1124,7 +1173,7 @@ export default {
       }
     },
 
-    calculateAmoutPrice(){
+    calculateAmoutPrice: function(){
       this.subTotalPrice = 0;
       this.totalBayarPrice = 0;
       this.dataProductInList.forEach((product) => {
@@ -1140,7 +1189,7 @@ export default {
       this.calculateTotalBayarPrice = tatalUntukBayar;
     },
 
-    calculatePcsItemOrderList(){
+    calculatePcsItemOrderList: function(){
       this.totalPcsItemOrder = 0;
       let qtyPcs = 0;
       this.dataProductInList.forEach(item => {
@@ -1150,7 +1199,7 @@ export default {
       this.totalPcsItemOrder = qtyPcs;
     },
 
-    addProductToList(product, qty = 1){
+    addProductToList: function(product, qty = 1){
       let existingProduct = {};
       if(qty > 0){
         if(product.master_promo_id){ // Jika product promo
@@ -1185,7 +1234,7 @@ export default {
       }
     },
     
-    deleteProductById(product) {
+    deleteProductById: function(product) {
       let indexToDelete = 0;
       if(product.is_promo_product){ // Jika product promo
         try{
@@ -1205,17 +1254,21 @@ export default {
         console.log('Product not found');
       }
       
+      if(this.dataProductInList.length == 0){
+        this.isBuatkanTiketBtn = true;
+      }
       this.calculatePcsItemOrderList();
       this.calculateAmoutPrice();
     },
 
-    emptyProductList(){
+    emptyProductList: function(){
       this.dataProductInList = [];
+      this.isBuatkanTiketBtn = true;
       this.calculatePcsItemOrderList();
       this.calculateAmoutPrice();
     },
 
-    incDecQtyInput(event, product){
+    incDecQtyInput: function(event, product){
       const newValue = parseInt(event.target.value);
       let existingProduct = {};
       if(product.is_promo_product){ // Jika product promo
@@ -1238,7 +1291,7 @@ export default {
       }
     },
 
-    incDecQtyChange(event, product){
+    incDecQtyChange: function(event, product){
       const newValue = parseInt(event.target.value);
       let existingProduct = {};
       if(product.is_promo_product){ // Jika product promo
@@ -1264,13 +1317,13 @@ export default {
       this.calculateAmoutPrice();
     },
 
-    incDecQtyInputCanvas(event){
+    incDecQtyInputCanvas: function(event){
       const newValue = parseInt(event.target.value);
       this.qtyProductShowDetail = newValue;
       this.calculatePcsItemOrderList();
     },
 
-    incDecQtyChangeCanvas(event){
+    incDecQtyChangeCanvas: function(event){
       const newValue = parseInt(event.target.value);
       if (isNaN(newValue) || newValue < 1) {
         this.qtyProductShowDetail = 1;
@@ -1278,13 +1331,13 @@ export default {
       this.calculatePcsItemOrderList();
     },
 
-    disableBackspace(event, product) {
+    disableBackspace: function(event, product) {
       if (product.qty <= 1 && event.key === 'Backspace') {
         event.preventDefault();
       }
     },
 
-    selectMemberOverview(member){
+    selectMemberOverview: function(member){
       if(Object.keys(this.memberOverview).length > 0 && this.memberOverview.member_id != member.member_id){
         this.dataProductInList = [];
       }
@@ -1293,7 +1346,7 @@ export default {
       $('#modalFindMember').modal('hide');
     },
 
-    openModalFindOrRegis(){
+    openModalFindOrRegis: function(){
       this.memberFindOrRegis = true;
       for (let prop in this.dataInputMember) {
         this.dataInputMember[prop] = '';
@@ -1302,7 +1355,7 @@ export default {
       $('#modalFindMember').modal('show');
     },
 
-    selectEditMemberForm(member){
+    selectEditMemberForm: function(member){
       for (let prop in this.dataInputMember) {
         console.log(member[prop]);
         this.dataInputMember[prop] = member[prop];
@@ -1312,13 +1365,13 @@ export default {
       $('#modalEditMember').modal('show');
     },
 
-    onChangeSelectedMetodeBayar(){
+    onChangeSelectedMetodeBayar: function(){
       this.validasiMetodePembayaran = [];
       this.selectedMetodeBayar = {};
       this.invalidMetodePembayaran = false;
     },
 
-    addMoreMetodeBayar(metode){
+    addMoreMetodeBayar: function(metode){
        // Metode pembayaran tidak boleh lebih dari 3
       // if(this.dataMoreMetodeBayar.length > 1){
       //   this.$root.showAlertFunction('info', 'Ops...!', 'Metode pembayaran sudah mencapai batas (Maksimal 3).');
@@ -1375,7 +1428,7 @@ export default {
       this.dataMoreMetodeBayar.push(metode);
     },
 
-    formatCalculatePriceMoreMetode(event, index) {
+    formatCalculatePriceMoreMetode: function(event, index) {
       var inputId = event.target;
       var valueInput = inputId.value;
       
@@ -1415,7 +1468,7 @@ export default {
       return formattedPrice;
     },
 
-    removeMoreMetodeBayar(metode, indexInpNominal){
+    removeMoreMetodeBayar: function(metode, indexInpNominal){
       const indexToDelete = this.dataMoreMetodeBayar.findIndex((item) => item.id === metode.id);
       if (indexToDelete !== -1) {
         this.dataMoreMetodeBayar.splice(indexToDelete, 1);
@@ -1431,7 +1484,7 @@ export default {
       }
     },
 
-    batalModalCheckoutConfirm(){
+    batalModalCheckoutConfirm: function(){
       this.dataMoreMetodeBayar = [];
       this.validasiMetodePembayaran = [];
       this.nominalMoreMetodeBayar = [];
@@ -1439,7 +1492,7 @@ export default {
       this.calculateTotalMoreMetode();
     },
 
-    calculateTotalMoreMetode(index = null){
+    calculateTotalMoreMetode: function(index = null){
       let total = 0;
       for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
         if (this.nominalMoreMetodeBayar[i] !== '') {
@@ -1465,7 +1518,7 @@ export default {
       this.calculateTotalBayarPrice = this.totalBayarPrice - total;
     },
 
-    checkValidasiGelarMember(){
+    checkValidasiGelarMember: function(){
       let gelarTerpilih = this.dataAllGelars.find((gelar) => {
         const minimalNilai = parseFloat(gelar.minimal_nilai);
         const maksimalNilai = parseFloat(gelar.maksimal_nilai);
@@ -1488,7 +1541,7 @@ export default {
       return gelarTerpilih;
     },
 
-    validationBeforeContinueBtnBilling(){
+    validationBeforeContinueBtnBilling: function(){
       if(this.dataProductInList.length < 1){
         this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
         return false;
@@ -1507,7 +1560,7 @@ export default {
       }
     },
 
-    confirmationPayment(){
+    confirmationPayment: function(){
       if(this.validationBeforeContinueBtnBilling() == false){
         return false;
       }
@@ -1549,7 +1602,7 @@ export default {
       // this.generatePdfCheckout();
     },
 
-    buatkanSebagaiTiket(){
+    buatkanSebagaiTiket: function(){
       if(this.dataProductInList.length < 1){
         this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
         return false;
@@ -1564,17 +1617,15 @@ export default {
       $('#modalConfirmCreateTicket').modal('show');
     },
 
-    async confirmasiBuatTiket(){
+    confirmasiBuatTiket: async function (){
       try{
         $('#modalConfirmCreateTicket').modal('hide');
         this.$root.showLoading();
 
         const dataPost = {
           member_id: this.memberOverview.id,
-          sales_by_id: this.selectSalesBy,
-          metode_bayar_id: this.selectMethodPayment,
           products: this.dataProductInList,
-          keterangan: this.keteranganTransaksi,
+          created_by: 'David Simbolon',
         };
 
         const store = await axios({
@@ -1587,9 +1638,6 @@ export default {
           this.numberTicketOrder = store.data.data.no_ticket;
           $('#showCreateNoTicket').modal('show');
 
-          this.selectSalesBy = '';
-          this.selectMethodPayment = '';
-          this.keteranganTransaksi = '';
           this.memberOverview = {};
           this.dataProductInList = [];
         }else{
@@ -1604,31 +1652,128 @@ export default {
       }
     },
 
-    async submitFindOrderWithTiket(){
+    showListModalTiket: async function (){
+      try{
+        this.dataFilterAllTicket = [];
+        $('#modalListTicket').modal('show');
+
+        const store = await axios({
+          method: 'get',
+          url: this.$root.API_URL + '/sales/getAllTicket',
+        });
+
+        this.dataAllTicket = store.data;
+
+        // const groupedData = {};
+        // store.data.forEach(item => {
+        //   const key = `${item.member_id}_${item.member}`;
+          
+        //   if (!groupedData[key]) {
+        //     groupedData[key] = {
+        //       member_id: item.member_id,
+        //       no_ticket: [],
+        //       member: item.member,
+        //     };
+        //   }
+          
+        //   groupedData[key].no_ticket.push(item.no_ticket);
+        // });
+
+        // const finishDataFilter = Object.values(groupedData);
+
+        const groupedData = {};
+        store.data.forEach((data) => {
+          const member_id = data.member_id;
+
+          if (!groupedData[member_id]) {
+            groupedData[member_id] = {
+              member_id: member_id,
+              no_ticket: [],
+              member: data.member,
+              products: [],
+            };
+          }
+          groupedData[member_id].no_ticket.push(data.no_ticket);
+
+          data.products.forEach((product) => {
+            const isPromo = product.is_promo_product !== null;
+
+            if (!isPromo) {
+              // Produk tidak memiliki is_promo_product
+              const existingProduct = groupedData[member_id].products.find(
+                (p) => p.product && p.product.id === product.product.id
+              );
+
+              if (existingProduct) {
+                // Produk yang sama ditemukan, tambahkan qty
+                existingProduct.qty += product.qty;
+              } else {
+                // Tambahkan produk baru
+                groupedData[member_id].products.push({
+                  qty: product.qty,
+                  product: product.product,
+                  is_promo_product: product.is_promo_product,
+                });
+              }
+            } else {
+              // Produk memiliki is_promo_product, cek produk yang ada di hasil sebelumnya
+              const existingProduct = groupedData[member_id].products.find(
+                (p) =>
+                  p.product &&
+                  p.product.id === product.product.id &&
+                  p.is_promo_product &&
+                  p.is_promo_product.id === product.is_promo_product.id
+              );
+
+              if (existingProduct) {
+                // Produk yang sama ditemukan, tambahkan qty
+                existingProduct.qty += product.qty;
+              } else {
+                // Produk dengan is_promo_product yang berbeda, tambahkan sebagai produk baru
+                groupedData[member_id].products.push({
+                  qty: product.qty,
+                  product: product.product,
+                  is_promo_product: product.is_promo_product,
+                });
+              }
+            }
+          });
+        });
+
+        const finishDataFilter = Object.values(groupedData);
+        this.dataFilterAllTicket = finishDataFilter;
+        console.log(finishDataFilter);
+      } catch (error) {
+        this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+        this.$root.hideLoading();
+        console.log(error);
+      }
+    },
+
+    clickRowTicketList: function (ticket){
+      this.dataProductInList = ticket.products;
+      this.memberOverview = ticket.member;
+      this.calculateAmoutPrice();
+      this.calculatePcsItemOrderList();
+      this.isBuatkanTiketBtn = false;
+      $('#modalListTicket').modal('hide');
+    },
+
+    submitFindOrderWithTiket: async function (ticket){
       try{
         this.$root.showLoading();
         const store = await axios({
           method: 'get',
-          url: this.$root.API_URL + '/sales/findOrderWithTicket/' + this.valueInputNoTiket,
+          url: this.$root.API_URL + '/sales/findOrderWithTicket/' + ticket,
         });
 
         if(store.status == 200){
           const response = store.data;
           const responseData = response.data;
-          if(response.access ==  true){
-            this.selectSalesBy = responseData.sales_by_id ? responseData.sales_by_id : '1';
-            this.selectMethodPayment = responseData.metode_bayar_id ? responseData.metode_bayar_id : '';
-            this.keteranganTransaksi = responseData.keterangan ? responseData.keterangan : '';
-            this.memberOverview = responseData.member;
-            this.dataProductInList = responseData.products;
-  
-            // this.valueInputNoTiket = '';
-            this.calculateAmoutPrice();
-            this.calculatePcsItemOrderList();
-            this.$root.showAlertFunction('success', 'Tiket Ditemukan!', 'Tiket pesanan telah berhasil ditambahkan.');
-          }else{
-            this.$root.showAlertFunction('info', 'Tiket Terkunci!', 'Maaf, Tiket pesanan masih dalam antrian oleh BA. "' + responseData.has_access_by + '"');
-          }
+
+          this.calculateAmoutPrice();
+          this.calculatePcsItemOrderList();
+          this.$root.showAlertFunction('success', 'Tiket Ditemukan!', 'Tiket pesanan telah berhasil ditambahkan.');
         }
         else{
           this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
@@ -1641,26 +1786,12 @@ export default {
         }else{
           this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
         }
-        this.valueInputNoTiket = '';
         this.$root.hideLoading();
         console.log(error);
       }
     },
 
-    changeInputNoTiket(){
-      if(this.valueInputNoTiket.trim() == ''){
-        this.selectSalesBy = '1';
-        this.selectMethodPayment = '';
-        this.keteranganTransaksi = '';
-        this.memberOverview = {};
-        this.dataProductInList = [];
-
-        this.calculateAmoutPrice();
-        this.calculatePcsItemOrderList();
-      }
-    },
-
-    onChangeCheckVal(event){
+    onChangeCheckVal: function(event){
       var inputId = event.target;
       var valueInput = inputId.value;
       
@@ -1671,7 +1802,7 @@ export default {
       }
     },
 
-    onChangeCheckNumberVal(event){
+    onChangeCheckNumberVal: function(event){
       var inputId = event.target;
       var valueInput = inputId.value;
 
@@ -1691,7 +1822,7 @@ export default {
       return numberInput;
     },
 
-    openModalCheckoutConfirm(){
+    openModalCheckoutConfirm: function(){
       this.invalidSelectSalesBsc = false;
 
       function checkAllInputMetodAndNominal(selectedMetodeBayar, dataMoreMetodeBayar, nominalMoreMetodeBayar) {
@@ -1739,7 +1870,7 @@ export default {
       $('#modalCheckoutConfirm').modal('show');
     },
 
-    generatePdfCheckout(){
+    generatePdfCheckout: function(){
       const docStruk = new jsPDF();
       const imgDataMts = imageMts;
       
@@ -1848,6 +1979,132 @@ export default {
                 cellPadding: [1, 0, 0, 0],
               }
             }
+          ],
+          [
+            {
+              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            },
+            {
+              content: '78.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            }
+          ],
+          [
+            {
+              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            },
+            {
+              content: '78.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            }
+          ],
+          [
+            {
+              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            },
+            {
+              content: '78.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            }
+          ],
+          [
+            {
+              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            },
+            {
+              content: '78.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            }
+          ],
+          [
+            {
+              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            },
+            {
+              content: '78.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            }
+          ],
+          [
+            {
+              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            },
+            {
+              content: '78.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            }
+          ],
+          [
+            {
+              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            },
+            {
+              content: '78.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [1, 0, 0, 0],
+              }
+            }
           ]
         ],
         theme: 'plain',
@@ -1859,8 +2116,208 @@ export default {
       docStruk.setLineWidth(0.4); // Lebar garis
       docStruk.line(10, lineY2, 200, lineY2);
 
+      autoTable(docStruk, {
+        body: [
+          [
+            {
+              content: 'Total:',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            },
+            {
+              content: 'Rp 1.500.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            }
+          ],
+        ],
+        theme: 'plain',
+      });
+
+      autoTable(docStruk, {
+        body: [
+          [
+            {
+              content: 'Billing Detail:',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            },
+            {
+              content: '',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            }
+          ],
+          [
+            {
+              content: 'Member Reseller 20%',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            },
+            {
+              content: '- Rp 200.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            }
+          ],
+          [
+            {
+              content: 'Hemat Diskon(%)',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            },
+            {
+              content: '- Rp 300.000',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            }
+          ],
+          [
+            {
+              content: 'Total Bayar:',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            },
+            {
+              content: 'Rp 1.000.000,00',
+              styles: {
+                halign: 'right',
+                fontSize: 14,
+                cellPadding: [0, 0, 1, 0],
+              }
+            }
+          ]
+        ],
+        theme: 'plain',
+      });
+      
+      
+      autoTable(docStruk, {
+        body: [
+          [
+            {
+              content: 'Note:',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            },
+            {
+              content: '',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            }
+          ],
+          [
+            {
+              content: 'Barang yang sudah dibeli tidak dapat dikembalikan kembali! dengan alasan apapun dan kondisi apapun.',
+              styles: {
+                halign: 'left',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            },
+            {
+              content: '',
+              styles: {
+                halign: 'right',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            }
+          ],
+        ],
+        theme: 'plain',
+      });
+
+      const startY3 = docStruk.autoTable.previous.finalY; // Mengambil posisi Y terakhir tabel
+      const lineY3 = startY3 + 3; // Atur tinggi garis horizontal
+      docStruk.setDrawColor(0); // Warna garis
+      docStruk.setLineWidth(0.4); // Lebar garis
+      docStruk.line(10, lineY3, 200, lineY3);
+
+      
+      autoTable(docStruk, {
+        body: [
+          [
+            {
+              content: 'Terimakasih telah berbelanja di Martha Tilaar Shop.',
+              styles: {
+                halign: 'center',
+                fontSize: 11,
+                cellPadding: [0, 0, 1, 0],
+              }
+            },
+          ],
+        ],
+        theme: 'plain',
+      });
+
+      
+      autoTable(docStruk, {
+        body: [
+          [
+            {
+              content: 'Jl. Pulo Kambing II No.1, RW.11, Jatinegara, Kec. Cakung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13930',
+              styles: {
+                halign: 'center',
+                fontSize: 11,
+                cellPadding: [0, 20, 0, 20],
+              }
+            }
+          ],
+
+          [
+            {
+              content: '021 59407217',
+              styles: {
+                halign: 'center',
+                fontSize: 11,
+                cellPadding: [0, 0, 0, 0],
+              }
+            }
+          ],
+        ],
+        theme: 'plain',
+      });
+
       // return docStruk.save('Struk Belanja');
       const pdfDataUri = docStruk.output('datauristring');
+
+      // const iframe = this.$refs["pdf_struk_transaksi"];
+      // iframe.src = pdfDataUri;
+
       const newWindow = window.open();
       if (newWindow) {
         const iframe = document.createElement('iframe');
@@ -1875,7 +2332,7 @@ export default {
       }
     },
     
-    checkoutBtn(){
+    checkoutBtn: function(){
       this.dataProductInList = [];
       this.memberOverview = {};
 

@@ -7,25 +7,19 @@
         <div class="card-body p-0">
           <div class="row g-0 h-100">
             <div class="col-md-6 text-center bg-card-gradient">
-              <div class="position-relative p-4 pt-md-5 pb-md-7" data-bs-theme="light">
+              <div class="position-relative p-4 pt-md-6" data-bs-theme="light">
                 <div class="bg-holder bg-auth-card-shape" style="background-image: url(src/assets/img/auth/half-circle.png);"></div>
                 <div class="z-1 position-relative">
-                  <a class="link-light mb-4 font-sans-serif fs-4 d-inline-block fw-bolder" href="javascript:void(0)">
-                    <img src="@/assets/img/mtsiconland-white.png" alt="" width="250"/>
+                  <a class="link-light pb-5 font-sans-serif fs-4 d-inline-block fw-bolder" href="javascript:void(0)">
+                    <img src="@/assets/img/mtsiconland-white.png" alt="" width="300"/>
                   </a>
-                  <p class="opacity-75 text-white">With the power of Falcon, you can now focus only on
-                    functionaries for your digital products, while leaving the UI design on us!</p>
+                  <p class="opacity-75 text-white">
+                    Martha Tilaar Shop dikelola oleh PT Tara Parama Semesta yang juga menjadi anak perusahaan PT Martina Berto Tbk, perusahaan kecantikan ternama yang berdiri sejak tahun 1978. 
+                  </p>
                 </div>
               </div>
-              <div class="mt-0" data-bs-theme="light">
-                <p class="text-white">
-                  Don't have an account?<br>
-                  <a href="javascript:void(0)" class="text-decoration-underline link-light">Register Here!</a>
-                </p>
-                <p class="mb-4 mt-4 mt-md-2 fs--1 fw-semi-bold text-white opacity-75">Read our
-                  <a class="text-decoration-underline text-white" href="javascript:void(0)">terms</a> and
-                  <a class="text-decoration-underline text-white" href="javascript:void(0)">conditions </a>
-                </p>
+              <div class="mt-4 mb-4" data-bs-theme="light">
+                <img src="@/assets/img/tps-mtg-logo-text-white.png" width="130" alt="">
               </div>
             </div>
             <div class="col-md-6 d-flex flex-center">

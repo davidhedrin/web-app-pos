@@ -59,9 +59,10 @@ export default {
       APP_SSO_URL: APP_SSO_URL,
       APP_SSO_TOKEN_STATUS: APP_SSO_TOKEN_STATUS,
       dataAuthToken: null,
+      emailUserFromSSO: null,
 
       current_page: sessionStorage.getItem('current_page'),
-      activeRoute: markRaw(routeComponent['login']),
+      activeRoute: markRaw(routeComponent['dashboard']),
       navbar: markRaw(NavbarLayout),
       header: markRaw(HeaderLayout),
       login: markRaw(Login),
@@ -84,33 +85,33 @@ export default {
   beforeMount() {
     const current_page = sessionStorage.getItem('current_page');
     if(current_page){
-      this.goto(current_page);
+      this.activeRoute = markRaw(routeComponent[current_page]);
+      sessionStorage.setItem('current_page', current_page);
     }
   },
 
-  mounted(){
-    this.checkSessionAuthSSO();
+  async mounted(){
+    // await this.checkSessionAuthSSO();
   },
   
   methods: {
-    goto: function(comp){
-      if(this.dataAuthToken){
-        const current_page = sessionStorage.getItem('current_page');
-        if(comp != current_page){
-          this.showLoading();
-        }
-  
-        this.activeRoute = markRaw(routeComponent[comp]);
-        sessionStorage.setItem('current_page', comp);
-      }else{
-        this.activeRoute = markRaw(routeComponent['profilepage']);
-        sessionStorage.setItem('current_page', 'profilepage');
+    goto: async function(comp){
+      const current_page = sessionStorage.getItem('current_page');
+      if(comp != current_page){
+        this.showLoading();
       }
+
+      this.activeRoute = markRaw(routeComponent[comp]);
+      sessionStorage.setItem('current_page', comp);
+      // if(this.dataAuthToken){
+      // }else{
+      //   this.activeRoute = markRaw(routeComponent['profilepage']);
+      //   sessionStorage.setItem('current_page', 'profilepage');
+      // }
     },
     
     async checkSessionAuthSSO(){
       this.showLoading();
-      this.dataAuthToken = null;
       const getStatusToken = await this.checkAuthenticationToken();
       if(!getStatusToken){
         this.clearSessionLocalStorege();
@@ -119,6 +120,7 @@ export default {
       }
 
       await this.checkUserRegistered(getStatusToken.uuid);
+      this.emailUserFromSSO = getStatusToken.email;
       this.hideLoading();
     },
 
@@ -134,7 +136,6 @@ export default {
           return checkUserAxios.data.data;
         }
         if(checkUserAxios.data.status == 404){
-          this.goto('profilepage');
           return false;
         }
       } catch (error) {
