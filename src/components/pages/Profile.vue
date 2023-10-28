@@ -36,18 +36,18 @@
             </div>
             <div class="col-md-9 text-md-start mt-2">
               <h4 class="mb-1">
-                {{ showDataUser.nama_lengkap ? showDataUser.nama_lengkap : 'nama lengkap' }}
-                <span v-if="$root.dataAuthToken" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Verified" data-bs-original-title="Verified">
+                {{ dataUser.nama_lengkap }}
+                <span v-if="dataUserRegister && dataUserRegister.flag_active == true" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Verified" data-bs-original-title="Verified">
                   <small class="fa fa-check-circle text-primary" data-fa-transform="shrink-4 down-2"></small>
                 </span> 
-                <span v-else data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Verified" data-bs-original-title="Waiting Verified">
+                <span v-else data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Waiting-Verified" data-bs-original-title="Waiting Verified">
                   <small class="fa fa-check-circle text-secondary" data-fa-transform="shrink-4 down-2"></small>
                 </span>
               </h4>
-              <h5 class="fs-0 fw-normal">{{ $root.emailUserFromSSO ? $root.emailUserFromSSO : 'email@example.mail' }}</h5>
-              <p class="text-500 fs--1 m-0">{{ showDataUser.no_hp ? showDataUser.no_hp : 'XXXX XXXX XXXX' }},</p>
-              <p class="text-500 fs--1 m-0">{{ showDataUser.gender ? showDataUser.gender == '1' ? 'Laki-laki' : 'Perempuan' : 'gander'}},</p>
-              <p class="text-500 fs--1">{{ showDataUser.tanggal_lahir ? $root.formatDateIdn(showDataUser.tanggal_lahir) : 'day month year' }}</p>
+              <h5 class="fs-0 fw-normal">{{ dataUser.email }}</h5>
+              <p class="text-500 fs--1 m-0">{{ dataUser.no_hp }},</p>
+              <p class="text-500 fs--1 m-0">{{ dataUser.gender ? dataUser.gender == '1' ? 'Laki-laki' : 'Perempuan' : 'gander'}},</p>
+              <p class="text-500 fs--1">{{ dataUser.tanggal_lahir ? $root.formatDateIdn(dataUser.tanggal_lahir) : 'day month year' }}</p>
               <button class="btn btn-falcon-primary btn-sm px-3" type="button" data-bs-toggle="modal" data-bs-target="#modalEditDataUser">
                 Edit <span class="far fa-edit ms-1"></span>
               </button>
@@ -72,26 +72,44 @@
           </div>
           <div class="mb-2">
             <div class="d-flex align-items-end">
-              <h6 class="m-0">Role: <i>Waiting For Registred!!!</i></h6>
-              <!-- <span class="badge rounded-pill badge-subtle-primary ms-1">Super Admin</span> -->
+              <h6 class="m-0">Role: 
+                <span v-if="dataUserRegister">
+                  <span v-if="dataUserRegister.flag_active" class="badge rounded-pill badge-subtle-primary ms-1 fs--1">
+                    {{ dataUserRegister.role ? dataUserRegister.role.nama_role : '?' }}
+                  </span>
+                  <i v-else>Waiting For <span class="badge rounded-pill badge-subtle-warning ms-1">Approved</span></i>
+                </span>
+                <span v-else><i>Waiting For <span class="badge rounded-pill badge-subtle-secondary ms-1">Registred</span></i></span>
+              </h6>
             </div>
           </div>
           <div class="mb-2">
             <div class="d-flex align-items-center">
-              <h6 class="m-0">Account: <i>Waiting For Registred!!!</i></h6>
-              <!-- <span class="text-danger">Not Approve</span> -->
-            </div>
-          </div>
-          <div class="mb-2">
-            <div class="d-flex align-items-center">
-              <h6 class="m-0">Status: <i>Waiting For Registred!!!</i></h6>
-              <!-- <span class="text-danger">Not Approve</span> -->
+              <h6 class="m-0">Status: 
+                <span v-if="dataUserRegister">
+                  <span v-if="dataUserRegister.flag_active" :class="dataUserRegister.flag_active == 1 ? 'text-success' : 'text-danger'">
+                    {{ dataUserRegister.flag_active == 1 ? 'Approved' : 'Not Approve' }}
+                  </span>
+                  <i v-else>Waiting For <span class="badge rounded-pill badge-subtle-warning ms-1">Approved</span></i>
+                </span>
+                <span v-else><i>Waiting For <span class="badge rounded-pill badge-subtle-secondary ms-1">Registred</span></i></span>
+              </h6>
             </div>
           </div>
           <div class="mb-2">
             <div class="d-flex">
-              <h6 class="m-0">Access Store: <i>Waiting For Registred!!!</i></h6>
-              <!-- <u>Kelapa Gading</u>, <u>Taman Anggrek</u> -->
+              <h6 class="m-0">Access Store: 
+                <span v-if="dataUserRegister">
+                  <span v-if="dataUserRegister.flag_active">
+                    <span v-if="dataUserRegister.access_store_outlet.length > 0">
+                      <span v-for="store in dataUserRegister.access_store_outlet">{{ store.nama_toko }}, </span>
+                    </span>
+                    <span v-else>-</span>
+                  </span>
+                  <i v-else>Waiting For <span class="badge rounded-pill badge-subtle-warning ms-1">Approved</span></i>
+                </span>
+                <span v-else><i>Waiting For <span class="badge rounded-pill badge-subtle-secondary ms-1">Registred</span></i></span>
+              </h6>
             </div>
           </div>
           <div class="mb-2">
@@ -118,20 +136,20 @@
               <div class="rounded-top-3 py-3 ps-4 pe-6">
                 <h5 class="mb-1">Edit Data Profile</h5>
               </div>
-              <form @submit.prevent="closeModalEditData">
+              <form @submit.prevent="submitModalEditData">
                 <div class="p-4 pb-2 pt-1">
                   <div class="row" id="formEditDataUser">
                     <div class="col-md-12 mb-2">
                       <label class="form-label mb-0" for="input_alamat_email">Alamat Email <span class="text-danger">*</span></label>
-                      <input :value="$root.emailUserFromSSO" class="form-control" id="input_alamat_email" type="email" placeholder="Masukkan alamat email" disabled>
+                      <input :value="dataUser.email" class="form-control bg-transparent" id="input_alamat_email" type="email" placeholder="Masukkan alamat email" disabled>
                     </div>
                     <div class="col-md-12 mb-2">
                       <label class="form-label mb-0" for="input_nama_lengkap">Nama Lengkap <span class="text-danger">*</span></label>
-                      <input v-model="dataUser.nama_lengkap" class="form-control bg-transparent" id="input_nama_lengkap" type="text" placeholder="Masukkan nama lengkap">
+                      <input :value="dataUser.nama_lengkap" class="form-control bg-transparent" id="input_nama_lengkap" type="text" placeholder="Masukkan nama lengkap" disabled>
                     </div>
                     <div class="col-md-12 mb-2">
                       <label class="form-label mb-0" for="input_no_hp">No Handphone <span class="text-danger">*</span></label>
-                      <input v-model="dataUser.no_hp" class="form-control bg-transparent" id="input_no_hp" type="text" placeholder="Masukkan nomor handphone">
+                      <input :value="dataUser.no_hp" class="form-control bg-transparent" id="input_no_hp" type="text" placeholder="Masukkan nomor handphone" disabled>
                     </div>
                     <div class="col-md-12 mb-2">
                       <label class="form-label mb-0" for="select_gender">Gender <span class="text-danger">*</span></label>
@@ -145,6 +163,15 @@
                       <label class="form-label mb-0" for="tanggal_lahir">Tanggal Lahir <span class="text-danger">*</span></label>
                       <input v-model="dataUser.tanggal_lahir" class="form-control bg-transparent" id="tanggal_lahir" type="date">
                     </div>
+                    <div v-if="!dataUserRegister" class="col-md-12 mb-2">
+                      <label class="form-label mb-0" for="input_password">Password <span class="text-danger">*</span></label>
+                      <input v-model="dataUser.password" class="form-control bg-transparent" id="input_password" type="password" placeholder="Masukkan nama lengkap">
+                    </div>
+                    <div v-if="!dataUserRegister" class="col-md-12 mb-2">
+                      <label class="form-label mb-0" for="input_konfirmasi_password">Konfirmasi Password <span class="text-danger">*</span></label>
+                      <input v-model="dataUser.konfirmasi_password" class="form-control bg-transparent" id="input_konfirmasi_password" type="password" placeholder="Masukkan nama lengkap">
+                    </div>
+                    <span v-if="!dataUserRegister" class="fs--1">Note: <u>Password digunakan untuk login di form login tanpa SSO dan tadak merubah password di SSO!</u></span>
 
                     <div class="col-md-12 mt-3 mb-2">
                       <i>Field dengan tanda <span class="text-danger">*</span> wajib untuk diisi</i>
@@ -199,78 +226,98 @@ export default {
     return{
       dateNow: null,
       dataAuthUserSso: null,
+      dataUserProfileSso: null,
       isRequestApproveBtn: true,
       isEnableBtnApprove: false,
 
+      dataUserRegister: null,
       dataUser: {
-        nama_lengkap: '',
-        no_hp: '',
-        gender: '',
-        tanggal_lahir: '',
-      },
-
-      showDataUser: {
         uuid: null,
         nama_lengkap: null,
         no_hp: null,
-        gender: null,
+        gender: '',
         tanggal_lahir: null,
-        email:null,
-      }
+        password: null,
+        konfirmasi_password: null,
+      },
     }
   },
 
   async beforeMount() {
-    const getAuthSso = await this.$root.checkAuthenticationToken();
-    this.dataAuthUserSso = getAuthSso;
-
-    const checkUserRegis = await this.$root.checkUserRegistered(getAuthSso.uuid);
-    if(checkUserRegis){
-      this.showDataUser.nama_lengkap = checkUserRegis.nama_lengkap;
-      this.showDataUser.no_hp = checkUserRegis.no_hp;
-      this.showDataUser.gender = checkUserRegis.gender;
-      this.showDataUser.tanggal_lahir = checkUserRegis.tanggal_lahir;
-      this.showDataUser.email = checkUserRegis.email;
-
-      this.isRequestApproveBtn = false;
-    }else{
-      this.isRequestApproveBtn = true;
-    }
+    await this.loadAllData();
 
     this.dateNow = this.$root.formatDateIdn(new Date());
     this.$root.hideLoading();
   },
 
   methods: {
-    closeModalEditData(){
+    loadAllData: async function (){
+      const check_uuid = localStorage.getItem("is_dynamic");
+
+      if(!check_uuid){
+        const getAuthSso = await this.$root.checkAuthenticationToken();
+        this.dataAuthUserSso = getAuthSso;
+        check_uuid = getAuthSso.uuid;
+        
+        // const getDataProfileSSO = await this.$root.getProfileUserSSO(getAuthSso.access_token);
+        // this.dataUserProfileSso = getDataProfileSSO;
+      }
+
+      const checkUserRegis = await this.$root.checkUserRegistered(check_uuid);
+      if(checkUserRegis){
+        this.dataUserRegister = checkUserRegis;
+  
+        this.dataUser.email = checkUserRegis.email;
+        this.dataUser.nama_lengkap = checkUserRegis.nama_lengkap;
+        this.dataUser.no_hp = checkUserRegis.no_hp;
+        
+        for (let prop in this.dataUser) {
+          if(prop != 'uuid'){
+            this.dataUser[prop] = checkUserRegis[prop];
+          }
+        }
+
+        this.isRequestApproveBtn = false;
+      }else{
+        this.isRequestApproveBtn = true;
+      }
+    },
+    
+    openModalEditDataUser: function(){
+      this.dataUser.nama_lengkap = this.dataUserRegister ? this.dataUserRegister.nama_lengkap : '';
+      this.dataUser.no_hp = this.dataUserRegister ? this.dataUserRegister.no_hp : '';
+      this.dataUser.gender = this.dataUserRegister ? this.dataUserRegister.gender : '';
+      this.dataUser.tanggal_lahir = this.dataUserRegister ? this.dataUserRegister.tanggal_lahir : '';
+
+      $('#modalEditDataUser').modal('show');
+    },
+
+    submitModalEditData: function(){
       for (let prop in this.dataUser) {
-        if(!this.dataUser[prop]){
-          this.isEnableBtnApprove = false;
-          this.$root.showAlertFunction('warning', 'Lengkapi Data!', 'Ops...! Lengkapi semua data untuk melanjutkan.');
-          return false;
+        if(prop != 'uuid'){
+          if(!this.dataUser[prop] || this.dataUser[prop] == ''){
+            this.isEnableBtnApprove = false;
+            this.$root.showAlertFunction('warning', 'Lengkapi Data!', 'Ops...! Lengkapi semua data untuk melanjutkan.');
+            return false;
+          }
         }
       }
 
       $('#modalEditDataUser').modal('hide');
-      this.showDataUser.nama_lengkap = this.dataUser.nama_lengkap;
-      this.showDataUser.no_hp = this.dataUser.no_hp;
-      this.showDataUser.gender = this.dataUser.gender;
-      this.showDataUser.tanggal_lahir = this.dataUser.tanggal_lahir;
-      this.showDataUser.email = this.$root.emailUserFromSSO;
-      
       this.isEnableBtnApprove = true;
+      // this.$root.showAlertFunction('success', 'Data Disiapkan!', 'Data pribadi anda hampir siap, Silahkan untuk klik Request Approve!');
     },
     
-    async sendRequestApprove(){
+    sendRequestApprove: async function (){
       try{
         this.$root.showLoading();
 
         if(this.dataAuthUserSso){
-          this.showDataUser.uuid = this.dataAuthUserSso.uuid;
+          this.dataUser.uuid = this.dataAuthUserSso.uuid;
           const store = await axios({
             method: 'post',
             url: this.$root.API_URL + '/auth/send-request-approve',
-            data: this.showDataUser
+            data: this.dataUser
           });
           
           if(store.status == 201 || store.status == 200){
@@ -283,6 +330,8 @@ export default {
               for (let prop in this.dataUser) {
                 this.dataUser[prop] = '';
               }
+              
+              await this.loadAllData();
             }else{
               this.$root.showAlertFunction('warning', 'Request Approve!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
             }

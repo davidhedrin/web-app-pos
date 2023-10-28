@@ -19,7 +19,7 @@
       <div class="navbar-vertical-content scrollbar">
         <ul class="navbar-nav flex-column mb-3" id="navbarVerticalNav">
           <li class="nav-item">
-            <a v-on:click="$root.goto('dashboard')" href="javascript:void(0)" class="nav-link" role="button">
+            <a v-on:click="validateGoto('dashboard')" href="javascript:void(0)" class="nav-link" role="button">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
                   <span class="fas fa-chart-pie"></span>
@@ -37,7 +37,7 @@
               </div>
             </div>
             
-            <a v-on:click="$root.goto('sales')" href="javascript:void(0)" class="nav-link" role="button">
+            <a v-on:click="validateGoto('sales')" href="javascript:void(0)" class="nav-link" role="button">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
                   <span class="fas fa-cash-register"></span>
@@ -75,14 +75,14 @@
             </a>
             <ul class="nav collapse" id="master_promo">
               <li class="nav-item">
-                <a v-on:click="$root.goto('promo-product')" class="nav-link" href="javascript:void(0)">
+                <a v-on:click="validateGoto('promo-product')" class="nav-link" href="javascript:void(0)">
                   <div class="d-flex align-items-center">
                     <span class="nav-link-text ps-1">Promo Product</span>
                   </div>
                 </a>
               </li>
               <li class="nav-item">
-                <a v-on:click="$root.goto('promo-list')" class="nav-link" href="javascript:void(0)">
+                <a v-on:click="validateGoto('promo-list')" class="nav-link" href="javascript:void(0)">
                   <div class="d-flex align-items-center">
                     <span class="nav-link-text ps-1">Promo List</span>
                   </div>
@@ -150,7 +150,7 @@
               </div>
             </div>
             
-            <a @click="$root.goto('profilepage')" class="nav-link" href="javascript:void(0)" role="button">
+            <a @click="validateGoto('profilepage')" class="nav-link" href="javascript:void(0)" role="button">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
                   <span class="fas fa-user"></span>
@@ -177,5 +177,21 @@
 <script>
 export default {
   name: 'Navbar',
+
+  methods: {
+    validateGoto: function(goto){
+      const dataAuth = this.$root.dataAuthToken;
+      if(dataAuth){
+        if(dataAuth.flag_active == true){
+          this.$root.goto(goto);
+        }
+      }
+      else{
+        // this.activeRoute = markRaw(routeComponent['profilepage']);
+        // sessionStorage.setItem('current_page', 'profilepage');
+        return false;
+      }
+    },
+  }
 }
 </script>

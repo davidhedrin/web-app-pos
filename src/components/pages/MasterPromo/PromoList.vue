@@ -343,7 +343,7 @@ export default {
     this.loadAllData();
   },
   methods: {
-    async loadAllData() {
+    loadAllData: async function () {
       try{
         const getAllData = await axios({
           method: 'get',
@@ -369,7 +369,7 @@ export default {
       }
     },
 
-    async actionSubmitNewPromo(){
+    actionSubmitNewPromo: async function (){
       if (this.modalAddOrEditPromo == true){
         try{
           $('#modalAddEditPromo').modal('hide');
@@ -445,7 +445,7 @@ export default {
       }
     },
 
-    async actionDeletePromo(){
+    actionDeletePromo: async function (){
       try{
         $('#modalConfirmDeletePromo').modal('hide');
         this.$root.showLoading();
@@ -475,7 +475,7 @@ export default {
       }
     },
 
-    onChangeTipePromo(){
+    onChangeTipePromo: function (){
       if (this.modalAddOrEditPromo == true) {
         this.dataMasterPromo.product_promo_buy_get = [];
         this.dataMasterPromo.products_promo_percent = [];
@@ -491,7 +491,7 @@ export default {
       }
     },
 
-    addMoreProductBundle(){
+    addMoreProductBundle: function (){
       const getLengthProductBundle = this.dataMasterPromo.product_promo_buy_get.length;
       const setObject = {
         index: getLengthProductBundle + 1,
@@ -501,7 +501,7 @@ export default {
       this.dataMasterPromo.product_promo_buy_get.push(setObject);
     },
 
-    removeMoreProductBundle(index){
+    removeMoreProductBundle: function (index){
       const findIndexProduct = this.dataMasterPromo.product_promo_buy_get.findIndex((item) => item.index === index);
       if (findIndexProduct !== -1) {
         this.dataMasterPromo.product_promo_buy_get.splice(findIndexProduct, 1);
@@ -510,7 +510,7 @@ export default {
       }
     },
 
-    openModalAddPromo(){
+    openModalAddPromo: function (){
       for (let prop in this.dataMasterPromo) {
         if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
           this.dataMasterPromo[prop] = '';
@@ -522,7 +522,7 @@ export default {
       this.modalAddOrEditPromo = true;
     },
     
-    openModalEditPromo(promo){
+    openModalEditPromo: function (promo){
       for (let prop in this.dataMasterPromo) {
         if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
           this.dataMasterPromo[prop] = '';
@@ -558,7 +558,7 @@ export default {
       this.modalAddOrEditPromo = false;
     },
 
-    formatDateTime(dateTimeString) {
+    formatDateTime: function (dateTimeString) {
       const isTFormat = dateTimeString.includes('T');
       const separator = isTFormat ? 'T' : ' ';
       const [datePart, timePart] = dateTimeString.split(separator);

@@ -53,13 +53,14 @@ export default {
     const API_URL = import.meta.env.VITE_API_URL;
     const APP_SSO_URL = import.meta.env.VITE_APP_SSO_URL;
     const APP_SSO_TOKEN_STATUS = import.meta.env.VITE_APP_SSO_TOKEN_STATUS;
+    // const APP_SSO_URL = 'http://178.1.7.230:8072?t=sso&app_id=019e4e2609fc2c0eb334a1901797f856';
+    // const APP_SSO_TOKEN_STATUS = 'http://178.1.7.230:8071';
 
     return {
       API_URL: API_URL,
       APP_SSO_URL: APP_SSO_URL,
       APP_SSO_TOKEN_STATUS: APP_SSO_TOKEN_STATUS,
       dataAuthToken: null,
-      emailUserFromSSO: null,
 
       current_page: sessionStorage.getItem('current_page'),
       activeRoute: markRaw(routeComponent['dashboard']),
@@ -91,7 +92,7 @@ export default {
   },
 
   async mounted(){
-    // await this.checkSessionAuthSSO();
+    await this.checkSessionAuthSSO();
   },
   
   methods: {
@@ -103,28 +104,38 @@ export default {
 
       this.activeRoute = markRaw(routeComponent[comp]);
       sessionStorage.setItem('current_page', comp);
-      // if(this.dataAuthToken){
-      // }else{
-      //   this.activeRoute = markRaw(routeComponent['profilepage']);
-      //   sessionStorage.setItem('current_page', 'profilepage');
-      // }
     },
     
-    async checkSessionAuthSSO(){
-      this.showLoading();
-      const getStatusToken = await this.checkAuthenticationToken();
-      if(!getStatusToken){
+    checkSessionAuthSSO: async function(){
+      // this.showLoading();
+      const check_uuid = localStorage.getItem("is_dynamic");
+
+      if(!check_uuid){
+        const getStatusToken = await this.checkAuthenticationToken();
+        if(!getStatusToken){
+          this.clearSessionLocalStorege();
+          this.hideLoading();
+          return false;
+        }
+        check_uuid = getStatusToken.uuid;
+      }
+
+      const getDatUserRegis = await this.checkUserRegistered(check_uuid);
+      if(!getDatUserRegis){
         this.clearSessionLocalStorege();
         this.hideLoading();
         return false;
       }
+      this.dataAuthToken = getDatUserRegis;
 
-      await this.checkUserRegistered(getStatusToken.uuid);
-      this.emailUserFromSSO = getStatusToken.email;
-      this.hideLoading();
+      if(getDatUserRegis.flag_active == false){
+        this.$root.goto('profilepage');
+      }
+      
+      // this.hideLoading();
     },
 
-    async checkUserRegistered(uuid){
+    checkUserRegistered: async function(uuid){
       try{
         const checkUserAxios = await axios({
           method: 'get',
@@ -132,7 +143,6 @@ export default {
         });
 
         if(checkUserAxios.data.status == 200){
-          this.dataAuthToken = checkUserAxios.data.data;
           return checkUserAxios.data.data;
         }
         if(checkUserAxios.data.status == 404){
@@ -145,7 +155,7 @@ export default {
       }
     },
 
-    async checkAuthenticationToken(){
+    checkAuthenticationToken: async function(){
       try{
         const token_sso = localStorage.getItem("token_sso");
 
@@ -187,31 +197,52 @@ export default {
         return null;
       }
     },
+    
+    getProfileUserSSO: async function (token){
+      try{
+        const AuthStr = "bearer " + token;
+        const URL = this.APP_SSO_TOKEN_STATUS + '/mng/user/profile/check';
 
-    clearSessionLocalStorege(){
+        const store = await axios({
+          method: 'get',
+          url: URL,
+          headers: {
+            Authorization: AuthStr,
+          },
+        });
+
+        const dataUser = store.data.data;
+        return dataUser;
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
+    },
+
+    clearSessionLocalStorege: function(){
       this.dataAuthToken = null;
       localStorage.clear();
       sessionStorage.clear();
       this.activeRoute = markRaw(routeComponent['login']);
     },
     
-    gotoCompoWithParam(param, goto){
+    gotoCompoWithParam: function(param, goto){
       this.valueParam = param;
       this.goto(goto);
     },
 
-    showAlertFunction(status, title, msg){
+    showAlertFunction: function(status, title, msg){
       this.alertParam.status = status;
       this.alertParam.title = title;
       this.alertParam.msg = msg;
       this.showAlert = true;
     },
 
-    trimString(string){
+    trimString: function(string){
       return string.trim();
     },
     
-    copyTextClipboard(text, title = null) {
+    copyTextClipboard: function(text, title = null) {
       const textArea = document.createElement("textarea");
       textArea.value = text;
       document.body.appendChild(textArea);
@@ -223,7 +254,7 @@ export default {
       this.showAlertFunction('info', 'Well Done', generateMsgAlert + ' telah berhasil disalin');
     },
     
-    formatPrice(price) {
+    formatPrice: function(price) {
       // if (price) {
       //   const number = parseFloat(price);
       //   if (isNaN(number)) {
@@ -244,16 +275,16 @@ export default {
       }
     },
 
-    formatCurrencyRemoveSeparator(price){
+    formatCurrencyRemoveSeparator: function(price){
       return price.replace(/\./g, '');
     },
     
-    formatDate(dateString) {
+    formatDate: function(dateString) {
       const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
       return new Date(dateString).toLocaleDateString(undefined, options);
     },
 
-    formatDateIdn(dateString) {
+    formatDateIdn: function(dateString) {
       const date = new Date(dateString);
       const options = {
         year: 'numeric',
@@ -263,16 +294,16 @@ export default {
       return date.toLocaleDateString('id-ID', options);
     },
 
-    formatPhoneNumber(phoneNumber) {
+    formatPhoneNumber: function(phoneNumber) {
       // Memformat nomor telepon dengan format tiap 4 digit
       const formatted = phoneNumber.replace(/(\d{4})(?=\d)/g, "$1.");
       return formatted;
     },
 
-    showLoading(){
+    showLoading: function(){
       this.isLoading = true;
     },
-    hideLoading(){
+    hideLoading: function(){
       this.isLoading = false;
     },
   }

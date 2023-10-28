@@ -230,7 +230,7 @@
           <h5 class="card-title text-center mb-2">Billing Detail</h5>
           <div class="input-group mb-3">
             <input class="form-control" type="text" placeholder="Voucher code">
-            <button class="btn btn-primary card-link" style="z-index: 1"><span class="fas fa-percent"></span></button>
+            <button class="btn btn-primary card-link" style="z-index: 1">Rp</button>
           </div>
           <hr class="m-0">
           <table class="table fs--1 mb-3">
@@ -1357,7 +1357,6 @@ export default {
 
     selectEditMemberForm: function(member){
       for (let prop in this.dataInputMember) {
-        console.log(member[prop]);
         this.dataInputMember[prop] = member[prop];
       }
 
@@ -2353,6 +2352,7 @@ export default {
 
       this.$root.showAlertFunction('success', 'Traksaksi Berhasil!', 'Selamat, transaksi baru telah berhasil disimpan.');
 
+      this.isBuatkanTiketBtn = true;
       this.generatePdfCheckout();
     },
   },

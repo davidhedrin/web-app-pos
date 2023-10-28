@@ -176,7 +176,7 @@
       this.loadAllData();
     },
     methods: {
-      async loadAllData(){
+      loadAllData: async function (){
         try{
           const getAllData = await axios({
             method: 'get',
