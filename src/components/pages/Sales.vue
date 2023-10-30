@@ -9,8 +9,16 @@
             <span class="badge rounded-pill badge-subtle-primary fs-0 ms-1">{{ dataProductInList.length > 0 ? dataProductInList.length : '0' }} item{{ dataProductInList.length > 1 ? 's' : '' }} <span v-if="dataProductInList.length > 0" class="fs--1">({{ totalPcsItemOrder }} pcs)</span></span>
             <!-- <span class="badge rounded-pill bg-info fs--1 ms-1"></span> -->
           </h5>
-          <div>
-            <button class="btn btn-primary card-link" type="submit" @click="showListModalTiket()">Tiket <span class="far fa-list-alt"></span></button>
+          <div class="d-flex">
+            <div>
+              <form class="input-group">
+                <input class="form-control form-control-sm ps-2 pe-0" type="search" placeholder="#No Tiket" style="width: 90px;">
+                <button class="btn btn-primary btn-sm card-link" type="submit"><span class="fas fa-ticket-alt"></span></button>
+              </form>
+            </div>
+            <div class="ms-2">
+              <button class="btn btn-primary btn-sm card-link" type="submit" @click="showListModalTiket()">Tiket <span class="far fa-list-alt"></span></button>
+            </div>
           </div>
         </div>
         <hr class="m-1">
@@ -230,7 +238,7 @@
           <h5 class="card-title text-center mb-2">Billing Detail</h5>
           <div class="input-group mb-3">
             <input class="form-control" type="text" placeholder="Voucher code">
-            <button class="btn btn-primary card-link" style="z-index: 1">Rp</button>
+            <button class="btn btn-primary card-link">Rp</button>
           </div>
           <hr class="m-0">
           <table class="table fs--1 mb-3">
@@ -298,7 +306,7 @@
   </div>
   
   <div class="modal fade" id="modalListTicket" tabindex="-1" aria-hidden="true" data-bs-keyboard="false" data-bs-backdrop="static">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="width: 700px;">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width: 700px;">
       <div class="modal-content position-relative border-0">
         <div class="modal-body p-0">
           <div class="card">
@@ -323,7 +331,12 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-if="dataFilterAllTicket.length > 0" v-for="(ticket, index) in dataFilterAllTicket" :key="ticket.member_id" style="cursor: pointer;" @click="clickRowTicketList(ticket)">
+                      <tr v-if="showLoadingTicket">
+                        <td class="text-center" colspan="4">
+                          <component :is="loadingBlack"></component>
+                        </td>
+                      </tr>
+                      <tr v-if="dataFilterAllTicket.length > 0 && !showLoadingTicket" v-for="(ticket, index) in dataFilterAllTicket" :key="ticket.member_id" style="cursor: pointer;" @click="clickRowTicketList(ticket)">
                         <td>{{ index+1 }}</td>
                         <td>{{ ticket.member.nama }}</td>
                         <td>{{ ticket.member.no_hp }}</td>
@@ -333,9 +346,9 @@
                           </span>
                         </td>
                       </tr>
-                      <tr v-else>
+                      <tr v-if="!showLoadingTicket">
                         <td class="text-center" colspan="4">
-                          <component :is="loadingBlack"></component>
+                          <h5 class="fs--1">Tidak ada tiket terdaftar</h5>
                         </td>
                       </tr>
                     </tbody>
@@ -832,1531 +845,1536 @@
 </template>
 
 <script>
-import axios from "axios";
-import { markRaw } from 'vue';
+  import axios from "axios";
+  import { markRaw } from 'vue';
 
-import LoadingBlack from '@/components/layouts/LoadingBlack.vue';
+  import LoadingBlack from '@/components/layouts/LoadingBlack.vue';
 
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import imageMts from '@/assets/img/mtsiconland.png';
+  import jsPDF from 'jspdf';
+  import autoTable from 'jspdf-autotable';
+  import imageMts from '@/assets/img/mtsiconland.png';
 
-export default {
-  name: 'SalesPage',
-  data() {
-    return {
-      loadingBlack: markRaw(LoadingBlack),
-      currentTime: new Date(),
+  export default {
+    name: 'SalesPage',
+    data() {
+      return {
+        loadingBlack: markRaw(LoadingBlack),
+        currentTime: new Date(),
 
-      memberFindOrRegis: true,
-      dataAllProducts: [],
-      dataAllProductsPromo: [],
-      dataProductInList: [],
-      dataBrandProduct: [],
-      dataAllMembers: [],
-      dataAllGelars: [],
-      dataAllKodeResellers: [],
-      dataAllKodeToko: [],
-      dataAllMasterSalesBy: [],
+        memberFindOrRegis: true,
+        dataAllProducts: [],
+        dataAllProductsPromo: [],
+        dataProductInList: [],
+        dataBrandProduct: [],
+        dataAllMembers: [],
+        dataAllGelars: [],
+        dataAllKodeResellers: [],
+        dataAllKodeToko: [],
+        dataAllMasterSalesBy: [],
 
-      dataAllTicket: [],
-      dataFilterAllTicket: [],
+        dataAllTicket: [],
+        dataFilterAllTicket: [],
 
-      dataAllMetodeBayar: [],
-      metodeBayarCash: {},
-      metodeBayarKaryawan: {},
-      dataMetodeBayarTF: [],
-      dataMetodeBayarEWal: [],
-      dataMetodeBayarCC: [],
-      dataMoreMetodeBayar: [],
-      selectedMetodeBayar: {},
-      modelInputSelectedMetodeBayar: '',
-      modelInputMoreMetodeBayar:[],
-      validasiMetodePembayaran: [],
-      checkMetodeCashSelect: false,
+        dataAllMetodeBayar: [],
+        metodeBayarCash: {},
+        metodeBayarKaryawan: {},
+        dataMetodeBayarTF: [],
+        dataMetodeBayarEWal: [],
+        dataMetodeBayarCC: [],
+        dataMoreMetodeBayar: [],
+        selectedMetodeBayar: {},
+        modelInputSelectedMetodeBayar: '',
+        modelInputMoreMetodeBayar:[],
+        validasiMetodePembayaran: [],
+        checkMetodeCashSelect: false,
 
-      memberOverview: {},
+        memberOverview: {},
 
-      subTotalPrice: 0,
-      diskonPrice: 0,
-      totalBayarPrice: 0,
-      calculateTotalBayarPrice: 0,
-      nominalMoreMetodeBayar: [],
-      tempValueInputMoreMetode: 0,
-      totalPcsItemOrder: 0,
+        subTotalPrice: 0,
+        diskonPrice: 0,
+        totalBayarPrice: 0,
+        calculateTotalBayarPrice: 0,
+        nominalMoreMetodeBayar: [],
+        tempValueInputMoreMetode: 0,
+        totalPcsItemOrder: 0,
 
-      // For register new member
-      dataInputMember: {
-        id: '',
-        nama: '',
-        no_hp: '',
-        email: '',
-        jenis_kelamin: '',
-        tanggal_lahir: '',
-      },
+        // For register new member
+        dataInputMember: {
+          id: '',
+          nama: '',
+          no_hp: '',
+          email: '',
+          jenis_kelamin: '',
+          tanggal_lahir: '',
+        },
 
-      select_kode_reseller: '',
-      select_kode_toko: '',
-      
-      selectMethodPayment: '',
-      keteranganTransaksi: '',
+        select_kode_reseller: '',
+        select_kode_toko: '',
+        
+        selectMethodPayment: '',
+        keteranganTransaksi: '',
 
-      selectedFilterBrand: '',
-      inputSearchMember: '',
-      selectSalesBy: '1',
-      selectedBscWa: '',
+        selectedFilterBrand: '',
+        inputSearchMember: '',
+        selectSalesBy: '1',
+        selectedBscWa: '',
 
-      invalidMemberSelect: false,
-      invalidMetodePembayaran: false,
-      invalidSelectSalesBsc: false,
+        invalidMemberSelect: false,
+        invalidMetodePembayaran: false,
+        invalidSelectSalesBsc: false,
 
-      productShowDetail: {},
-      qtyProductShowDetail: 1,
+        productShowDetail: {},
+        qtyProductShowDetail: 1,
 
-      getCheckGelarPembelian: {},
+        getCheckGelarPembelian: {},
 
-      isCheckBoxPromo: false,
-      isCheckBoxFlushOut: false,
-      isCheckBoxKaryawan: false,
+        isCheckBoxPromo: false,
+        isCheckBoxFlushOut: false,
+        isCheckBoxKaryawan: false,
 
-      checkboxProducts: {
-        bestSellerAll: false,
-        bestSellerToko: false,
-        topThisMonth: false,
-        promo: false,
-        flushOut: false,
-        promoKaryawan: false
-      },
+        checkboxProducts: {
+          bestSellerAll: false,
+          bestSellerToko: false,
+          topThisMonth: false,
+          promo: false,
+          flushOut: false,
+          promoKaryawan: false
+        },
 
-      numberTicketOrder: '',
-      isBuatkanTiketBtn: true,
-    };
-  },
+        numberTicketOrder: '',
+        isBuatkanTiketBtn: true,
+        showLoadingTicket: true,
+      };
+    },
 
-  beforeMount(){
-    this.loadAlldatas();
-  },
+    beforeMount(){
+      this.loadAlldatas();
+    },
 
-  mounted() {
-    setInterval(() => {
-      this.currentTime = new Date();
-    }, 1000);
-  },
+    mounted() {
+      setInterval(() => {
+        this.currentTime = new Date();
+      }, 1000);
+    },
 
-  computed: {
-    filteredProducts() {
-      // console.log(this.dataAllProducts);
-      const valueSeletedBrand = this.selectedFilterBrand.toLowerCase();
-      const hasTruecheckboxProducts = Object.values(this.checkboxProducts).some(value => value);
+    computed: {
+      filteredProducts() {
+        // console.log(this.dataAllProducts);
+        const valueSeletedBrand = this.selectedFilterBrand.toLowerCase();
+        const hasTruecheckboxProducts = Object.values(this.checkboxProducts).some(value => value);
 
-      return this.dataAllProducts.filter(product => {
-        if(hasTruecheckboxProducts){ // Filter jika ada checkbox promo yang true
-          if(product.master_promo_id){
-            if(this.checkboxProducts.bestSellerAll){ // Filter Checkbox Best Seller All
-              if(product.master_promo.master_kode_promo.id == '1'){
-                return (
-                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
-                );
+        return this.dataAllProducts.filter(product => {
+          if(hasTruecheckboxProducts){ // Filter jika ada checkbox promo yang true
+            if(product.master_promo_id){
+              if(this.checkboxProducts.bestSellerAll){ // Filter Checkbox Best Seller All
+                if(product.master_promo.master_kode_promo.id == '1'){
+                  return (
+                    product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                  );
+                }
               }
-            }
-            if(this.checkboxProducts.bestSellerToko){ // Filter Checkbox Best Seller Toko
-              if(product.master_promo.master_kode_promo.id == '2'){
-                return (
-                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
-                );
+              if(this.checkboxProducts.bestSellerToko){ // Filter Checkbox Best Seller Toko
+                if(product.master_promo.master_kode_promo.id == '2'){
+                  return (
+                    product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                  );
+                }
               }
-            }
-            if(this.checkboxProducts.topThisMonth){ // Filter Checkbox Top This Month
-              if(product.master_promo.master_kode_promo.id == '3'){
-                return (
-                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
-                );
+              if(this.checkboxProducts.topThisMonth){ // Filter Checkbox Top This Month
+                if(product.master_promo.master_kode_promo.id == '3'){
+                  return (
+                    product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                  );
+                }
               }
-            }
-            if(this.checkboxProducts.promo){
-              if(product.master_promo.master_kode_promo.id == '4'){ // Filter Checkbox Promo
-                return (
-                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
-                );
+              if(this.checkboxProducts.promo){
+                if(product.master_promo.master_kode_promo.id == '4'){ // Filter Checkbox Promo
+                  return (
+                    product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                  );
+                }
               }
-            }
-            if(this.checkboxProducts.flushOut){
-              if(product.master_promo.master_kode_promo.id == '5'){ // Filter Checkbox Flushout
-                return (
-                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
-                );
+              if(this.checkboxProducts.flushOut){
+                if(product.master_promo.master_kode_promo.id == '5'){ // Filter Checkbox Flushout
+                  return (
+                    product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                  );
+                }
               }
-            }
-            if(this.checkboxProducts.promoKaryawan){
-              if(product.master_promo.master_kode_promo.id == '6'){ // Filter Checkbox Promo Karyawan
-                return (
-                  product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
-                );
+              if(this.checkboxProducts.promoKaryawan){
+                if(product.master_promo.master_kode_promo.id == '6'){ // Filter Checkbox Promo Karyawan
+                  return (
+                    product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+                  );
+                }
               }
-            }
-          }
-        }else{
-          if(product.master_promo_id){
-            if (
-              (Object.keys(this.memberOverview).length > 0 && this.memberOverview.tipe_konsumen.id == '3') ||
-              product.master_promo.master_kode_promo.id != '6'
-            ) {
-              return product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand);
             }
           }else{
-            return (
-              product.brand.slug.toLowerCase().includes(valueSeletedBrand)
-            );
-          }
-        }
-      });
-    },
-    
-    filteredMembers() {
-      const query = this.inputSearchMember.toLowerCase();
-      return this.dataAllMembers.filter(member => {
-        return (
-          member.no_hp.toLowerCase().includes(query) ||
-          member.email.toLowerCase().includes(query)
-        );
-      });
-    },
-
-    formattedTimeNow() {
-      const hours = this.currentTime.getHours().toString().padStart(2, '0');
-      const minutes = this.currentTime.getMinutes().toString().padStart(2, '0');
-      const seconds = this.currentTime.getSeconds().toString().padStart(2, '0');
-      return `${hours}:${minutes}:${seconds}`;
-    },
-    formattedDateNow() {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return this.currentTime.toLocaleDateString('id-ID', options);
-    },
-  },
-
-  methods: {
-    loadAlldatas: async function(){
-      try {
-        const getAllDataSales = await axios({
-          method: 'get',
-          url: this.$root.API_URL + '/sales',
-          // withCredentials: false,
-        });
-        const allData = getAllDataSales.data;
-        this.dataBrandProduct = allData.getAllBrand; //All Brand
-        this.dataAllMembers = allData.getAllMember; //All Member
-        this.dataAllGelars = allData.getAllGelar; //All Gelar
-        this.dataAllKodeResellers = allData.getAllKodeReseller; //All Kode Reseller
-        this.dataAllKodeToko = allData.getAllKodeToko; //All Kode Toko
-        this.select_kode_toko = allData.getAllKodeToko[0].id;
-        this.dataAllMetodeBayar = allData.getAllMetodeBayar; //All Metode Bayar
-        this.dataAllMasterSalesBy = allData.getAllMasterSalesBy; //All Master Sales By
-        this.metodeBayarCash = this.dataAllMetodeBayar.find((m) => m.kode == 'cash'); // Metode Bayar Cash
-        this.metodeBayarKaryawan = this.dataAllMetodeBayar.find((m) => m.kode == 'karyawan'); // Metode Bayar Karyawan
-        allData.getAllMetodeBayar.forEach(metode => {
-          if(metode.kode === 'tf'){
-            this.dataMetodeBayarTF.push(metode);
-          }
-          if(metode.kode === 'ewal'){
-            this.dataMetodeBayarEWal.push(metode);
-          }
-          if(metode.kode === 'cc'){
-            this.dataMetodeBayarCC.push(metode);
-          }
-        });
-
-        const getAllProduct = await axios({
-          method: 'get',
-          url: this.$root.API_URL + '/sales/getAllProduct',
-        });
-        var getDataProduct = getAllProduct.data;
-
-        // Logic load master promo product
-        const today = new Date();
-        for(let i in getDataProduct.getAllMasterPromo){
-          const startDate = new Date(getDataProduct.getAllMasterPromo[i].start_date);
-          const endDate = new Date(getDataProduct.getAllMasterPromo[i].end_date);
-          if(today >= startDate && today <= endDate){
-            for(let j in getDataProduct.getAllMasterPromo[i].all_promo_product){
-              this.dataAllProducts.push(getDataProduct.getAllMasterPromo[i].all_promo_product[j]);
+            if(product.master_promo_id){
+              if (
+                (Object.keys(this.memberOverview).length > 0 && this.memberOverview.tipe_konsumen.id == '3') ||
+                product.master_promo.master_kode_promo.id != '6'
+              ) {
+                return product.for_product.brand.slug.toLowerCase().includes(valueSeletedBrand);
+              }
+            }else{
+              return (
+                product.brand.slug.toLowerCase().includes(valueSeletedBrand)
+              );
             }
           }
-        }
-
-        // Logic load regular product
-        getDataProduct.getAllProduct.forEach(product => {
-          this.dataAllProducts.push(product);
         });
+      },
+      
+      filteredMembers() {
+        const query = this.inputSearchMember.toLowerCase();
+        return this.dataAllMembers.filter(member => {
+          return (
+            member.no_hp.toLowerCase().includes(query) ||
+            member.email.toLowerCase().includes(query)
+          );
+        });
+      },
 
-        // console.log(this.dataAllProductsPromo);
+      formattedTimeNow() {
+        const hours = this.currentTime.getHours().toString().padStart(2, '0');
+        const minutes = this.currentTime.getMinutes().toString().padStart(2, '0');
+        const seconds = this.currentTime.getSeconds().toString().padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+      },
+      formattedDateNow() {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return this.currentTime.toLocaleDateString('id-ID', options);
+      },
+    },
 
-        for (let i in getDataProduct.getAllMasterPromo) {
-          const startDate = new Date(getDataProduct.getAllMasterPromo[i].start_date);
-          const endDate = new Date(getDataProduct.getAllMasterPromo[i].end_date);
-          if(today >= startDate && today <= endDate){
-            if(getDataProduct.getAllMasterPromo[i].kode_promo_id == '4'){ // Promo
-              this.isCheckBoxPromo = true;
-            };
-            if(getDataProduct.getAllMasterPromo[i].kode_promo_id == '5'){ // Flushout
-              this.isCheckBoxFlushOut = true;
-            };
-            if(getDataProduct.getAllMasterPromo[i].kode_promo_id == '6'){ // Karyawan
-              this.isCheckBoxKaryawan = true;
-            };
+    methods: {
+      loadAlldatas: async function(){
+        this.$root.showLoading();
+
+        try {
+          const getAllDataSales = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/sales',
+            // withCredentials: false,
+          });
+          const allData = getAllDataSales.data;
+          this.dataBrandProduct = allData.getAllBrand; //All Brand
+          this.dataAllMembers = allData.getAllMember; //All Member
+          this.dataAllGelars = allData.getAllGelar; //All Gelar
+          this.dataAllKodeResellers = allData.getAllKodeReseller; //All Kode Reseller
+          this.dataAllKodeToko = allData.getAllKodeToko; //All Kode Toko
+          this.select_kode_toko = allData.getAllKodeToko[0].id;
+          this.dataAllMetodeBayar = allData.getAllMetodeBayar; //All Metode Bayar
+          this.dataAllMasterSalesBy = allData.getAllMasterSalesBy; //All Master Sales By
+          this.metodeBayarCash = this.dataAllMetodeBayar.find((m) => m.kode == 'cash'); // Metode Bayar Cash
+          this.metodeBayarKaryawan = this.dataAllMetodeBayar.find((m) => m.kode == 'karyawan'); // Metode Bayar Karyawan
+          allData.getAllMetodeBayar.forEach(metode => {
+            if(metode.kode === 'tf'){
+              this.dataMetodeBayarTF.push(metode);
+            }
+            if(metode.kode === 'ewal'){
+              this.dataMetodeBayarEWal.push(metode);
+            }
+            if(metode.kode === 'cc'){
+              this.dataMetodeBayarCC.push(metode);
+            }
+          });
+
+          const getAllProduct = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/sales/getAllProduct',
+          });
+          var getDataProduct = getAllProduct.data;
+
+          // Logic load master promo product
+          const today = new Date();
+          for(let i in getDataProduct.getAllMasterPromo){
+            const startDate = new Date(getDataProduct.getAllMasterPromo[i].start_date);
+            const endDate = new Date(getDataProduct.getAllMasterPromo[i].end_date);
+            if(today >= startDate && today <= endDate){
+              for(let j in getDataProduct.getAllMasterPromo[i].all_promo_product){
+                this.dataAllProducts.push(getDataProduct.getAllMasterPromo[i].all_promo_product[j]);
+              }
+            }
           }
+
+          // Logic load regular product
+          getDataProduct.getAllProduct.forEach(product => {
+            this.dataAllProducts.push(product);
+          });
+
+          // console.log(this.dataAllProductsPromo);
+
+          for (let i in getDataProduct.getAllMasterPromo) {
+            const startDate = new Date(getDataProduct.getAllMasterPromo[i].start_date);
+            const endDate = new Date(getDataProduct.getAllMasterPromo[i].end_date);
+            if(today >= startDate && today <= endDate){
+              if(getDataProduct.getAllMasterPromo[i].kode_promo_id == '4'){ // Promo
+                this.isCheckBoxPromo = true;
+              };
+              if(getDataProduct.getAllMasterPromo[i].kode_promo_id == '5'){ // Flushout
+                this.isCheckBoxFlushOut = true;
+              };
+              if(getDataProduct.getAllMasterPromo[i].kode_promo_id == '6'){ // Karyawan
+                this.isCheckBoxKaryawan = true;
+              };
+            }
+          }
+        } catch (error) {
+          console.log(error);
         }
 
         this.$root.hideLoading();
-      } catch (error) {
-        console.log(error);
-      }
-    },
+      },
 
-    storeNewMember: async function(){
-      try{
-        $('#modalFindMember').modal('hide');
-        this.$root.showLoading();
-        const store = await axios({
-          method: 'post',
-          url: this.$root.API_URL + '/sales/storeNewMember',
-          data: this.dataInputMember,
-        });
+      storeNewMember: async function(){
+        try{
+          $('#modalFindMember').modal('hide');
+          this.$root.showLoading();
+          const store = await axios({
+            method: 'post',
+            url: this.$root.API_URL + '/sales/storeNewMember',
+            data: this.dataInputMember,
+          });
 
-        if(store.status == 201 || store.status == 200){
-          var getResponsStore = store.data;
-          var getDataUser = getResponsStore.data;
-          this.memberOverview = getDataUser;
-          this.dataAllMembers.push(getDataUser);
-  
-          for (let prop in this.dataInputMember) {
-            this.dataInputMember[prop] = '';
+          if(store.status == 201 || store.status == 200){
+            var getResponsStore = store.data;
+            var getDataUser = getResponsStore.data;
+            this.memberOverview = getDataUser;
+            this.dataAllMembers.push(getDataUser);
+    
+            for (let prop in this.dataInputMember) {
+              this.dataInputMember[prop] = '';
+            }
+            
+            this.$root.showAlertFunction('success', 'Pendaftaran Berhasil!', 'Selamat, Member baru telah berhasil ditambahkan.');
+          }else{
+            this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           }
           
-          this.$root.showAlertFunction('success', 'Pendaftaran Berhasil!', 'Selamat, Member baru telah berhasil ditambahkan.');
-        }else{
+          this.$root.hideLoading();
+        } catch (error) {
           this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          this.$root.hideLoading();
+          console.log(error);
         }
-        
-        this.$root.hideLoading();
-      } catch (error) {
-        this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-        this.$root.hideLoading();
-        console.log(error);
-      }
-    },
+      },
 
-    updateEditDataMember: async function (){
-      try{
-        $('#modalEditMember').modal('hide');
-        this.$root.showLoading();
-        const store = await axios({
-          method: 'put',
-          url: this.$root.API_URL + '/sales/updateDataMember',
-          data: this.dataInputMember,
+      updateEditDataMember: async function (){
+        try{
+          $('#modalEditMember').modal('hide');
+          this.$root.showLoading();
+          const store = await axios({
+            method: 'put',
+            url: this.$root.API_URL + '/sales/updateDataMember',
+            data: this.dataInputMember,
+          });
+          
+          if(store.status == 201 || store.status == 200){
+            var getDataStore = store.data.data;
+            var findIndexMember = this.dataAllMembers.findIndex((member) => member.id == getDataStore.id);
+            this.dataAllMembers[findIndexMember] = getDataStore;
+
+            this.$root.showAlertFunction('success', 'Update Berhasil!', 'Selamat, Data member telah berhasil diperbaharui.');
+          }else{
+            this.$root.showAlertFunction('warning', 'Mengubah Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+          
+          this.$root.hideLoading();
+        } catch (error) {
+          this.$root.showAlertFunction('warning', 'Update Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          this.$root.hideLoading();
+          console.log(error);
+        }
+      },
+
+      calculateAmoutPrice: function(){
+        this.subTotalPrice = 0;
+        this.totalBayarPrice = 0;
+        this.dataProductInList.forEach((product) => {
+          var getProduct = product.product;
+          
+          var formatHarga = parseFloat(getProduct.harga);
+          var calculatePrice = formatHarga * product.qty;
+          this.subTotalPrice += calculatePrice;
         });
         
-        if(store.status == 201 || store.status == 200){
-          var getDataStore = store.data.data;
-          var findIndexMember = this.dataAllMembers.findIndex((member) => member.id == getDataStore.id);
-          this.dataAllMembers[findIndexMember] = getDataStore;
+        var tatalUntukBayar = this.subTotalPrice - this.diskonPrice;
+        this.totalBayarPrice = tatalUntukBayar;
+        this.calculateTotalBayarPrice = tatalUntukBayar;
+      },
 
-          this.$root.showAlertFunction('success', 'Update Berhasil!', 'Selamat, Data member telah berhasil diperbaharui.');
-        }else{
-          this.$root.showAlertFunction('warning', 'Mengubah Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-        }
-        
-        this.$root.hideLoading();
-      } catch (error) {
-        this.$root.showAlertFunction('warning', 'Update Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-        this.$root.hideLoading();
-        console.log(error);
-      }
-    },
+      calculatePcsItemOrderList: function(){
+        this.totalPcsItemOrder = 0;
+        let qtyPcs = 0;
+        this.dataProductInList.forEach(item => {
+          qtyPcs += item.qty;
+        });
 
-    calculateAmoutPrice: function(){
-      this.subTotalPrice = 0;
-      this.totalBayarPrice = 0;
-      this.dataProductInList.forEach((product) => {
-        var getProduct = product.product;
-        
-        var formatHarga = parseFloat(getProduct.harga);
-        var calculatePrice = formatHarga * product.qty;
-        this.subTotalPrice += calculatePrice;
-      });
-      
-      var tatalUntukBayar = this.subTotalPrice - this.diskonPrice;
-      this.totalBayarPrice = tatalUntukBayar;
-      this.calculateTotalBayarPrice = tatalUntukBayar;
-    },
+        this.totalPcsItemOrder = qtyPcs;
+      },
 
-    calculatePcsItemOrderList: function(){
-      this.totalPcsItemOrder = 0;
-      let qtyPcs = 0;
-      this.dataProductInList.forEach(item => {
-        qtyPcs += item.qty;
-      });
-
-      this.totalPcsItemOrder = qtyPcs;
-    },
-
-    addProductToList: function(product, qty = 1){
-      let existingProduct = {};
-      if(qty > 0){
-        if(product.master_promo_id){ // Jika product promo
-          try{
-            existingProduct = this.dataProductInList.find( (p) => {
-              if(p.is_promo_product){ // Jika sudah ada di list product yang diorder
-                return p.is_promo_product.master_promo_id === product.master_promo_id &&
-                p.is_promo_product.for_product.sku === product.for_product.sku
-              }
-            });
-          }catch(error){
-            console.log(error);
+      addProductToList: function(product, qty = 1){
+        let existingProduct = {};
+        if(qty > 0){
+          if(product.master_promo_id){ // Jika product promo
+            try{
+              existingProduct = this.dataProductInList.find( (p) => {
+                if(p.is_promo_product){ // Jika sudah ada di list product yang diorder
+                  return p.is_promo_product.master_promo_id === product.master_promo_id &&
+                  p.is_promo_product.for_product.sku === product.for_product.sku
+                }
+              });
+            }catch(error){
+              console.log(error);
+            }
+          }else{ // Jika product reguler
+            existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.sku === product.sku);
           }
-        }else{ // Jika product reguler
-          existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.sku === product.sku);
-        }
 
-        if (existingProduct) {
-          existingProduct.qty = existingProduct.qty + qty;
-        }else{
-          const productObj = {
-            product: product.master_promo_id ? product.for_product : product,
-            qty: qty,
-            is_promo_product: product.master_promo_id ? product : null,
-          };
-          this.dataProductInList.push(productObj);
+          if (existingProduct) {
+            existingProduct.qty = existingProduct.qty + qty;
+          }else{
+            const productObj = {
+              product: product.master_promo_id ? product.for_product : product,
+              qty: qty,
+              is_promo_product: product.master_promo_id ? product : null,
+            };
+            this.dataProductInList.push(productObj);
+          }
+    
+          this.qtyProductShowDetail = 1;
+          this.calculatePcsItemOrderList();
+          this.calculateAmoutPrice();
         }
-  
-        this.qtyProductShowDetail = 1;
+      },
+      
+      deleteProductById: function(product) {
+        let indexToDelete = 0;
+        if(product.is_promo_product){ // Jika product promo
+          try{
+            indexToDelete = this.dataProductInList.findIndex((p) => 
+              p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
+              p.is_promo_product.for_product.sku === product.product.sku
+            );
+          }catch(error){}
+        }else{ // Jika product reguler
+          indexToDelete = this.dataProductInList.findIndex((p) => !p.is_promo_product && p.product.sku === product.product.sku);
+        }
+        
+        // this.dataProductInList.findIndex((item) => item.product.sku === sku);
+        if (indexToDelete !== -1) {
+          this.dataProductInList.splice(indexToDelete, 1);
+        } else {
+          console.log('Product not found');
+        }
+        
+        if(this.dataProductInList.length == 0){
+          this.isBuatkanTiketBtn = true;
+        }
         this.calculatePcsItemOrderList();
         this.calculateAmoutPrice();
-      }
-    },
-    
-    deleteProductById: function(product) {
-      let indexToDelete = 0;
-      if(product.is_promo_product){ // Jika product promo
-        try{
-          indexToDelete = this.dataProductInList.findIndex((p) => 
-            p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
-            p.is_promo_product.for_product.sku === product.product.sku
-          );
-        }catch(error){}
-      }else{ // Jika product reguler
-        indexToDelete = this.dataProductInList.findIndex((p) => !p.is_promo_product && p.product.sku === product.product.sku);
-      }
-      
-      // this.dataProductInList.findIndex((item) => item.product.sku === sku);
-      if (indexToDelete !== -1) {
-        this.dataProductInList.splice(indexToDelete, 1);
-      } else {
-        console.log('Product not found');
-      }
-      
-      if(this.dataProductInList.length == 0){
-        this.isBuatkanTiketBtn = true;
-      }
-      this.calculatePcsItemOrderList();
-      this.calculateAmoutPrice();
-    },
+      },
 
-    emptyProductList: function(){
-      this.dataProductInList = [];
-      this.isBuatkanTiketBtn = true;
-      this.calculatePcsItemOrderList();
-      this.calculateAmoutPrice();
-    },
-
-    incDecQtyInput: function(event, product){
-      const newValue = parseInt(event.target.value);
-      let existingProduct = {};
-      if(product.is_promo_product){ // Jika product promo
-        try{
-          existingProduct = this.dataProductInList.find((p) => {
-            if(p.is_promo_product){
-              return p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
-              p.is_promo_product.for_product.sku === product.product.sku
-            }
-          });
-        }catch(error){}
-      }else{ // Jika product reguler
-        existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.sku === product.product.sku);
-      }
-
-      existingProduct.qty = newValue;
-      this.calculatePcsItemOrderList();
-      if (!isNaN(newValue) || newValue > 0) {
-        this.calculateAmoutPrice();
-      }
-    },
-
-    incDecQtyChange: function(event, product){
-      const newValue = parseInt(event.target.value);
-      let existingProduct = {};
-      if(product.is_promo_product){ // Jika product promo
-        try{
-          existingProduct = this.dataProductInList.find((p) => {
-            if(p.is_promo_product){
-              return p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
-              p.is_promo_product.for_product.sku === product.product.sku
-            }
-          });
-        }catch(error){}
-      }else{ // Jika product reguler
-        existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.sku === product.product.sku);
-      }
-
-      if (!isNaN(newValue) || newValue > 0) {
-        existingProduct.qty = newValue;
-      }else{
-        existingProduct.qty = 1;
-      }
-      
-      this.calculatePcsItemOrderList();
-      this.calculateAmoutPrice();
-    },
-
-    incDecQtyInputCanvas: function(event){
-      const newValue = parseInt(event.target.value);
-      this.qtyProductShowDetail = newValue;
-      this.calculatePcsItemOrderList();
-    },
-
-    incDecQtyChangeCanvas: function(event){
-      const newValue = parseInt(event.target.value);
-      if (isNaN(newValue) || newValue < 1) {
-        this.qtyProductShowDetail = 1;
-      }
-      this.calculatePcsItemOrderList();
-    },
-
-    disableBackspace: function(event, product) {
-      if (product.qty <= 1 && event.key === 'Backspace') {
-        event.preventDefault();
-      }
-    },
-
-    selectMemberOverview: function(member){
-      if(Object.keys(this.memberOverview).length > 0 && this.memberOverview.member_id != member.member_id){
+      emptyProductList: function(){
         this.dataProductInList = [];
-      }
-      this.memberOverview = member;
-      this.invalidMemberSelect = false;
-      $('#modalFindMember').modal('hide');
-    },
+        this.isBuatkanTiketBtn = true;
+        this.calculatePcsItemOrderList();
+        this.calculateAmoutPrice();
+      },
 
-    openModalFindOrRegis: function(){
-      this.memberFindOrRegis = true;
-      for (let prop in this.dataInputMember) {
-        this.dataInputMember[prop] = '';
-      }
-      $('#modalEditMember').modal('hide');
-      $('#modalFindMember').modal('show');
-    },
-
-    selectEditMemberForm: function(member){
-      for (let prop in this.dataInputMember) {
-        this.dataInputMember[prop] = member[prop];
-      }
-
-      $('#modalFindMember').modal('hide');
-      $('#modalEditMember').modal('show');
-    },
-
-    onChangeSelectedMetodeBayar: function(){
-      this.validasiMetodePembayaran = [];
-      this.selectedMetodeBayar = {};
-      this.invalidMetodePembayaran = false;
-    },
-
-    addMoreMetodeBayar: function(metode){
-       // Metode pembayaran tidak boleh lebih dari 3
-      // if(this.dataMoreMetodeBayar.length > 1){
-      //   this.$root.showAlertFunction('info', 'Ops...!', 'Metode pembayaran sudah mencapai batas (Maksimal 3).');
-      //   return false;
-      // }
-      
-      // Metode pembayaran yang sama tidak boleh bertambah
-      const existingMetode = this.dataMoreMetodeBayar.find((m) => m.id === metode.id);
-      if(existingMetode || metode.id === this.selectedMetodeBayar.id){
-        return false;
-      }
-      
-      // Validasi jika ada metode pembayaran cash
-      if(metode.kode == 'cash'){
-        this.checkMetodeCashSelect = true;
-      }
-
-      // Metode pembayaran kartu kredit tidak dapat dikombinasikan atau ditambahkan jika sudah ada yang lain
-      // if(this.selectedMetodeBayar.kode !== 'cc'){
-      //   if(metode.kode === 'cc'){
-      //     this.$root.showAlertFunction('info', 'Ops...!', "Metode pembayaran 'Kredit' tidak dapat dikombinasi.");
-      //     return false;
-      //   }
-      // }
-
-      // Hanya boleh metode pembayaran kartu kredit jika dipilih dari awal
-      // if(this.selectedMetodeBayar.kode === 'cc'){
-      //   this.$root.showAlertFunction('info', 'Ops...!', 'Metode pembayaran hanya boleh Kartu Kredit.');
-      //   return false;
-      // }
-
-      // Hanya boleh metode pembayaran karyawan jika dipilih dari awal
-      // if(this.selectedMetodeBayar.kode === 'karyawan'){
-      //   this.$root.showAlertFunction('info', 'Ops...!', 'Metode pembayaran hanya boleh Karyawan.');
-      //   return false;
-      // }
-
-      // Metode pembayaran debit dan kartu kredit tidak dapat dikombinasikan
-      // if(
-      //   (this.selectedMetodeBayar.kode === 'cc' && metode.kode === 'tf') || 
-      //   (this.selectedMetodeBayar.kode === 'tf' && metode.kode === 'cc')
-      // ){
-      //   this.$root.showAlertFunction('info', 'Ops...!', "Metode pembayaran 'Debit' dan 'Kredit' tidak dapat dikombinasi.");
-      //   return false;
-      // }
-
-      // Metode pembayaran debit tidak boleh lebih dari 1
-      // const existingMetodeDebit = this.dataMoreMetodeBayar.find((m) => m.kode === 'tf');
-      // if((this.selectedMetodeBayar.kode === 'tf' && metode.kode === 'tf') || (existingMetodeDebit && metode.kode === 'tf')){
-      //   this.$root.showAlertFunction('info', 'Ops...!', "Metode pembayaran 'Debit' tidak boleh lebih.");
-      //   return false;
-      // }
-
-      this.dataMoreMetodeBayar.push(metode);
-    },
-
-    formatCalculatePriceMoreMetode: function(event, index) {
-      var inputId = event.target;
-      var valueInput = inputId.value;
-      
-      if (valueInput || valueInput.length > 0){
-        inputId.classList.remove('border-red');
-      }else{
-        inputId.classList.add('border-red');
-      }
-
-      let total = 0;
-      for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
-        if (this.nominalMoreMetodeBayar[i] !== '') {
-          const value = this.nominalMoreMetodeBayar[i] ? parseFloat(this.nominalMoreMetodeBayar[i].replace(/\./g, '')) || 0 : 0;
-          total += value;
+      incDecQtyInput: function(event, product){
+        const newValue = parseInt(event.target.value);
+        let existingProduct = {};
+        if(product.is_promo_product){ // Jika product promo
+          try{
+            existingProduct = this.dataProductInList.find((p) => {
+              if(p.is_promo_product){
+                return p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
+                p.is_promo_product.for_product.sku === product.product.sku
+              }
+            });
+          }catch(error){}
+        }else{ // Jika product reguler
+          existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.sku === product.product.sku);
         }
-      }
 
-      this.calculateTotalMoreMetode(index);
-      
-      if (total > this.totalBayarPrice) {
-        return;
-      }
-      const price = event.target.value;
-      const numericPrice = price.replace(/[^0-9]/g, '');
-      
-      if (numericPrice === null || numericPrice.trim() === "") {
-        return;
-      }
-      
-      const number = parseFloat(numericPrice);
+        existingProduct.qty = newValue;
+        this.calculatePcsItemOrderList();
+        if (!isNaN(newValue) || newValue > 0) {
+          this.calculateAmoutPrice();
+        }
+      },
 
-      const formattedPrice = new Intl.NumberFormat('id-ID', {
-        style: 'decimal',
-        minimumFractionDigits: 0,
-      }).format(number);
+      incDecQtyChange: function(event, product){
+        const newValue = parseInt(event.target.value);
+        let existingProduct = {};
+        if(product.is_promo_product){ // Jika product promo
+          try{
+            existingProduct = this.dataProductInList.find((p) => {
+              if(p.is_promo_product){
+                return p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
+                p.is_promo_product.for_product.sku === product.product.sku
+              }
+            });
+          }catch(error){}
+        }else{ // Jika product reguler
+          existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.sku === product.product.sku);
+        }
 
-      return formattedPrice;
-    },
+        if (!isNaN(newValue) || newValue > 0) {
+          existingProduct.qty = newValue;
+        }else{
+          existingProduct.qty = 1;
+        }
+        
+        this.calculatePcsItemOrderList();
+        this.calculateAmoutPrice();
+      },
 
-    removeMoreMetodeBayar: function(metode, indexInpNominal){
-      const indexToDelete = this.dataMoreMetodeBayar.findIndex((item) => item.id === metode.id);
-      if (indexToDelete !== -1) {
-        this.dataMoreMetodeBayar.splice(indexToDelete, 1);
-        this.nominalMoreMetodeBayar.splice(indexInpNominal, 1);
-        this.calculateTotalMoreMetode(indexInpNominal);
+      incDecQtyInputCanvas: function(event){
+        const newValue = parseInt(event.target.value);
+        this.qtyProductShowDetail = newValue;
+        this.calculatePcsItemOrderList();
+      },
 
+      incDecQtyChangeCanvas: function(event){
+        const newValue = parseInt(event.target.value);
+        if (isNaN(newValue) || newValue < 1) {
+          this.qtyProductShowDetail = 1;
+        }
+        this.calculatePcsItemOrderList();
+      },
+
+      disableBackspace: function(event, product) {
+        if (product.qty <= 1 && event.key === 'Backspace') {
+          event.preventDefault();
+        }
+      },
+
+      selectMemberOverview: function(member){
+        if(Object.keys(this.memberOverview).length > 0 && this.memberOverview.member_id != member.member_id){
+          this.dataProductInList = [];
+        }
+        this.memberOverview = member;
+        this.invalidMemberSelect = false;
+        $('#modalFindMember').modal('hide');
+      },
+
+      openModalFindOrRegis: function(){
+        this.memberFindOrRegis = true;
+        for (let prop in this.dataInputMember) {
+          this.dataInputMember[prop] = '';
+        }
+        $('#modalEditMember').modal('hide');
+        $('#modalFindMember').modal('show');
+      },
+
+      selectEditMemberForm: function(member){
+        for (let prop in this.dataInputMember) {
+          this.dataInputMember[prop] = member[prop];
+        }
+
+        $('#modalFindMember').modal('hide');
+        $('#modalEditMember').modal('show');
+      },
+
+      onChangeSelectedMetodeBayar: function(){
+        this.validasiMetodePembayaran = [];
+        this.selectedMetodeBayar = {};
+        this.invalidMetodePembayaran = false;
+      },
+
+      addMoreMetodeBayar: function(metode){
+        // Metode pembayaran tidak boleh lebih dari 3
+        // if(this.dataMoreMetodeBayar.length > 1){
+        //   this.$root.showAlertFunction('info', 'Ops...!', 'Metode pembayaran sudah mencapai batas (Maksimal 3).');
+        //   return false;
+        // }
+        
+        // Metode pembayaran yang sama tidak boleh bertambah
+        const existingMetode = this.dataMoreMetodeBayar.find((m) => m.id === metode.id);
+        if(existingMetode || metode.id === this.selectedMetodeBayar.id){
+          return false;
+        }
+        
         // Validasi jika ada metode pembayaran cash
         if(metode.kode == 'cash'){
-          this.checkMetodeCashSelect = false;
+          this.checkMetodeCashSelect = true;
         }
-      } else {
-        console.log('Metode bayar not found');
-      }
-    },
 
-    batalModalCheckoutConfirm: function(){
-      this.dataMoreMetodeBayar = [];
-      this.validasiMetodePembayaran = [];
-      this.nominalMoreMetodeBayar = [];
-      this.getCheckGelarPembelian = {};
-      this.calculateTotalMoreMetode();
-    },
+        // Metode pembayaran kartu kredit tidak dapat dikombinasikan atau ditambahkan jika sudah ada yang lain
+        // if(this.selectedMetodeBayar.kode !== 'cc'){
+        //   if(metode.kode === 'cc'){
+        //     this.$root.showAlertFunction('info', 'Ops...!', "Metode pembayaran 'Kredit' tidak dapat dikombinasi.");
+        //     return false;
+        //   }
+        // }
 
-    calculateTotalMoreMetode: function(index = null){
-      let total = 0;
-      for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
-        if (this.nominalMoreMetodeBayar[i] !== '') {
-          const value = this.nominalMoreMetodeBayar[i] ? parseFloat(this.nominalMoreMetodeBayar[i].replace(/\./g, '')) || 0 : 0;
-          total += value;
+        // Hanya boleh metode pembayaran kartu kredit jika dipilih dari awal
+        // if(this.selectedMetodeBayar.kode === 'cc'){
+        //   this.$root.showAlertFunction('info', 'Ops...!', 'Metode pembayaran hanya boleh Kartu Kredit.');
+        //   return false;
+        // }
+
+        // Hanya boleh metode pembayaran karyawan jika dipilih dari awal
+        // if(this.selectedMetodeBayar.kode === 'karyawan'){
+        //   this.$root.showAlertFunction('info', 'Ops...!', 'Metode pembayaran hanya boleh Karyawan.');
+        //   return false;
+        // }
+
+        // Metode pembayaran debit dan kartu kredit tidak dapat dikombinasikan
+        // if(
+        //   (this.selectedMetodeBayar.kode === 'cc' && metode.kode === 'tf') || 
+        //   (this.selectedMetodeBayar.kode === 'tf' && metode.kode === 'cc')
+        // ){
+        //   this.$root.showAlertFunction('info', 'Ops...!', "Metode pembayaran 'Debit' dan 'Kredit' tidak dapat dikombinasi.");
+        //   return false;
+        // }
+
+        // Metode pembayaran debit tidak boleh lebih dari 1
+        // const existingMetodeDebit = this.dataMoreMetodeBayar.find((m) => m.kode === 'tf');
+        // if((this.selectedMetodeBayar.kode === 'tf' && metode.kode === 'tf') || (existingMetodeDebit && metode.kode === 'tf')){
+        //   this.$root.showAlertFunction('info', 'Ops...!', "Metode pembayaran 'Debit' tidak boleh lebih.");
+        //   return false;
+        // }
+
+        this.dataMoreMetodeBayar.push(metode);
+      },
+
+      formatCalculatePriceMoreMetode: function(event, index) {
+        var inputId = event.target;
+        var valueInput = inputId.value;
+        
+        if (valueInput || valueInput.length > 0){
+          inputId.classList.remove('border-red');
+        }else{
+          inputId.classList.add('border-red');
         }
-      }
-      
-      if(index != null){
-        if (total >= this.totalBayarPrice) {
-          let thisNominalTotal = 0;
-          for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
-            if (i !== index && this.nominalMoreMetodeBayar[i] !== '') {
-              const value = this.nominalMoreMetodeBayar[i] ? parseFloat(this.nominalMoreMetodeBayar[i].replace(/\./g, '')) || 0 : 0;
-              thisNominalTotal += value;
-            }
+
+        let total = 0;
+        for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
+          if (this.nominalMoreMetodeBayar[i] !== '') {
+            const value = this.nominalMoreMetodeBayar[i] ? parseFloat(this.nominalMoreMetodeBayar[i].replace(/\./g, '')) || 0 : 0;
+            total += value;
           }
-          this.calculateTotalBayarPrice = this.totalBayarPrice - thisNominalTotal;
+        }
+
+        this.calculateTotalMoreMetode(index);
+        
+        if (total > this.totalBayarPrice) {
           return;
         }
-      }
-
-      this.calculateTotalBayarPrice = this.totalBayarPrice - total;
-    },
-
-    checkValidasiGelarMember: function(){
-      let gelarTerpilih = this.dataAllGelars.find((gelar) => {
-        const minimalNilai = parseFloat(gelar.minimal_nilai);
-        const maksimalNilai = parseFloat(gelar.maksimal_nilai);
-
-        if (gelar.minimal_nilai !== null && gelar.maksimal_nilai !== null) {
-          return this.totalBayarPrice >= minimalNilai && this.totalBayarPrice <= maksimalNilai;
-        } else if (gelar.minimal_nilai !== null) {
-          return this.totalBayarPrice >= minimalNilai;
-        } else if (gelar.maksimal_nilai !== null) {
-          return this.totalBayarPrice <= maksimalNilai;
-        }
-
-        return false;
-      });
-
-      if (!gelarTerpilih) {
-        gelarTerpilih = this.dataAllGelars.find((gelar) => gelar.id === 1);
-      }
-
-      return gelarTerpilih;
-    },
-
-    validationBeforeContinueBtnBilling: function(){
-      if(this.dataProductInList.length < 1){
-        this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
-        return false;
-      }
-
-      if(Object.keys(this.memberOverview).length < 1){
-        this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih dan tentukan member!');
-        this.invalidMemberSelect = true;
-        return false;
-      }
-
-      if(this.selectMethodPayment == ''){
-        this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih metode pembayaran!');
-        this.invalidMetodePembayaran = true;
-        return false;
-      }
-    },
-
-    confirmationPayment: function(){
-      if(this.validationBeforeContinueBtnBilling() == false){
-        return false;
-      }
-      
-      const findMetodeBayar = this.dataAllMetodeBayar.find((metode) => metode.id === this.selectMethodPayment);
-
-      // Penentuan tambahan metode pembayaran pada struk checkout apa saja berdasarkan logic
-      this.validasiMetodePembayaran = this.dataAllMetodeBayar.filter((metode) => {
-        if(this.selectSalesBy == '3'){
-          return metode.kode == 'tf';
-        }else{
-          if(findMetodeBayar.kode != 'cc' && findMetodeBayar.kode != 'karyawan'){
-            if(this.selectSalesBy != '1'){
-              return metode.kode != 'cash' && metode.kode != 'cc' && metode.kode != 'karyawan';
-            }else{
-              return metode.kode != 'cc' && metode.kode != 'karyawan';
-            }
-          }
-        }
-      });
-
-      // Tentukan metode pembayaran pertama
-      if(findMetodeBayar){
-        this.selectedMetodeBayar = findMetodeBayar;
-      }
-
-      // Validasi jika ada metode pembayaran cash
-      if(findMetodeBayar.kode == 'cash'){
-        this.checkMetodeCashSelect = true;
-      }else{
-        this.checkMetodeCashSelect = false;
-      }
-      
-      var checkGelarPembelian = this.checkValidasiGelarMember();
-      this.getCheckGelarPembelian = checkGelarPembelian;
-
-      $('#modalConfirmPay').modal('show');
-
-      // this.generatePdfCheckout();
-    },
-
-    buatkanSebagaiTiket: function(){
-      if(this.dataProductInList.length < 1){
-        this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
-        return false;
-      }
-
-      if(Object.keys(this.memberOverview).length < 1){
-        this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih dan tentukan member!');
-        this.invalidMemberSelect = true;
-        return false;
-      }
-
-      $('#modalConfirmCreateTicket').modal('show');
-    },
-
-    confirmasiBuatTiket: async function (){
-      try{
-        $('#modalConfirmCreateTicket').modal('hide');
-        this.$root.showLoading();
-
-        const dataPost = {
-          member_id: this.memberOverview.id,
-          products: this.dataProductInList,
-          created_by: 'David Simbolon',
-        };
-
-        const store = await axios({
-          method: 'post',
-          url: this.$root.API_URL + '/sales/storeNewTicket',
-          data: dataPost,
-        });
+        const price = event.target.value;
+        const numericPrice = price.replace(/[^0-9]/g, '');
         
-        if(store.status == 201 || store.status == 200){
-          this.numberTicketOrder = store.data.data.no_ticket;
-          $('#showCreateNoTicket').modal('show');
-
-          this.memberOverview = {};
-          this.dataProductInList = [];
-        }else{
-          this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+        if (numericPrice === null || numericPrice.trim() === "") {
+          return;
         }
+        
+        const number = parseFloat(numericPrice);
 
-        this.$root.hideLoading();
-      } catch (error) {
-        this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-        this.$root.hideLoading();
-        console.log(error);
-      }
-    },
+        const formattedPrice = new Intl.NumberFormat('id-ID', {
+          style: 'decimal',
+          minimumFractionDigits: 0,
+        }).format(number);
 
-    showListModalTiket: async function (){
-      try{
-        this.dataFilterAllTicket = [];
-        $('#modalListTicket').modal('show');
+        return formattedPrice;
+      },
 
-        const store = await axios({
-          method: 'get',
-          url: this.$root.API_URL + '/sales/getAllTicket',
-        });
+      removeMoreMetodeBayar: function(metode, indexInpNominal){
+        const indexToDelete = this.dataMoreMetodeBayar.findIndex((item) => item.id === metode.id);
+        if (indexToDelete !== -1) {
+          this.dataMoreMetodeBayar.splice(indexToDelete, 1);
+          this.nominalMoreMetodeBayar.splice(indexInpNominal, 1);
+          this.calculateTotalMoreMetode(indexInpNominal);
 
-        this.dataAllTicket = store.data;
-
-        // const groupedData = {};
-        // store.data.forEach(item => {
-        //   const key = `${item.member_id}_${item.member}`;
-          
-        //   if (!groupedData[key]) {
-        //     groupedData[key] = {
-        //       member_id: item.member_id,
-        //       no_ticket: [],
-        //       member: item.member,
-        //     };
-        //   }
-          
-        //   groupedData[key].no_ticket.push(item.no_ticket);
-        // });
-
-        // const finishDataFilter = Object.values(groupedData);
-
-        const groupedData = {};
-        store.data.forEach((data) => {
-          const member_id = data.member_id;
-
-          if (!groupedData[member_id]) {
-            groupedData[member_id] = {
-              member_id: member_id,
-              no_ticket: [],
-              member: data.member,
-              products: [],
-            };
+          // Validasi jika ada metode pembayaran cash
+          if(metode.kode == 'cash'){
+            this.checkMetodeCashSelect = false;
           }
-          groupedData[member_id].no_ticket.push(data.no_ticket);
+        } else {
+          console.log('Metode bayar not found');
+        }
+      },
 
-          data.products.forEach((product) => {
-            const isPromo = product.is_promo_product !== null;
+      batalModalCheckoutConfirm: function(){
+        this.dataMoreMetodeBayar = [];
+        this.validasiMetodePembayaran = [];
+        this.nominalMoreMetodeBayar = [];
+        this.getCheckGelarPembelian = {};
+        this.calculateTotalMoreMetode();
+      },
 
-            if (!isPromo) {
-              // Produk tidak memiliki is_promo_product
-              const existingProduct = groupedData[member_id].products.find(
-                (p) => p.product && p.product.id === product.product.id
-              );
-
-              if (existingProduct) {
-                // Produk yang sama ditemukan, tambahkan qty
-                existingProduct.qty += product.qty;
-              } else {
-                // Tambahkan produk baru
-                groupedData[member_id].products.push({
-                  qty: product.qty,
-                  product: product.product,
-                  is_promo_product: product.is_promo_product,
-                });
-              }
-            } else {
-              // Produk memiliki is_promo_product, cek produk yang ada di hasil sebelumnya
-              const existingProduct = groupedData[member_id].products.find(
-                (p) =>
-                  p.product &&
-                  p.product.id === product.product.id &&
-                  p.is_promo_product &&
-                  p.is_promo_product.id === product.is_promo_product.id
-              );
-
-              if (existingProduct) {
-                // Produk yang sama ditemukan, tambahkan qty
-                existingProduct.qty += product.qty;
-              } else {
-                // Produk dengan is_promo_product yang berbeda, tambahkan sebagai produk baru
-                groupedData[member_id].products.push({
-                  qty: product.qty,
-                  product: product.product,
-                  is_promo_product: product.is_promo_product,
-                });
+      calculateTotalMoreMetode: function(index = null){
+        let total = 0;
+        for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
+          if (this.nominalMoreMetodeBayar[i] !== '') {
+            const value = this.nominalMoreMetodeBayar[i] ? parseFloat(this.nominalMoreMetodeBayar[i].replace(/\./g, '')) || 0 : 0;
+            total += value;
+          }
+        }
+        
+        if(index != null){
+          if (total >= this.totalBayarPrice) {
+            let thisNominalTotal = 0;
+            for (let i = 0; i < this.nominalMoreMetodeBayar.length; i++) {
+              if (i !== index && this.nominalMoreMetodeBayar[i] !== '') {
+                const value = this.nominalMoreMetodeBayar[i] ? parseFloat(this.nominalMoreMetodeBayar[i].replace(/\./g, '')) || 0 : 0;
+                thisNominalTotal += value;
               }
             }
-          });
-        });
-
-        const finishDataFilter = Object.values(groupedData);
-        this.dataFilterAllTicket = finishDataFilter;
-        console.log(finishDataFilter);
-      } catch (error) {
-        this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-        this.$root.hideLoading();
-        console.log(error);
-      }
-    },
-
-    clickRowTicketList: function (ticket){
-      this.dataProductInList = ticket.products;
-      this.memberOverview = ticket.member;
-      this.calculateAmoutPrice();
-      this.calculatePcsItemOrderList();
-      this.isBuatkanTiketBtn = false;
-      $('#modalListTicket').modal('hide');
-    },
-
-    submitFindOrderWithTiket: async function (ticket){
-      try{
-        this.$root.showLoading();
-        const store = await axios({
-          method: 'get',
-          url: this.$root.API_URL + '/sales/findOrderWithTicket/' + ticket,
-        });
-
-        if(store.status == 200){
-          const response = store.data;
-          const responseData = response.data;
-
-          this.calculateAmoutPrice();
-          this.calculatePcsItemOrderList();
-          this.$root.showAlertFunction('success', 'Tiket Ditemukan!', 'Tiket pesanan telah berhasil ditambahkan.');
-        }
-        else{
-          this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-        }
-
-        this.$root.hideLoading();
-      } catch (error) {
-        if(error.response.status == 404){
-          this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Maaf, Tiket pesanan tidak ditemukan.');
-        }else{
-          this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-        }
-        this.$root.hideLoading();
-        console.log(error);
-      }
-    },
-
-    onChangeCheckVal: function(event){
-      var inputId = event.target;
-      var valueInput = inputId.value;
-      
-      if (valueInput || valueInput.length > 0){
-        inputId.classList.remove('border-red');
-      }else{
-        inputId.classList.add('border-red');
-      }
-    },
-
-    onChangeCheckNumberVal: function(event){
-      var inputId = event.target;
-      var valueInput = inputId.value;
-
-      const numberInput = valueInput.replace(/[^0-9]/g, '');
-      
-      if (numberInput === null || numberInput.trim() === "") {
-        inputId.classList.add('border-red');
-        return;
-      }
-      
-      if (valueInput || valueInput.length > 0){
-        inputId.classList.remove('border-red');
-      }else{
-        inputId.classList.add('border-red');
-      }
-
-      return numberInput;
-    },
-
-    openModalCheckoutConfirm: function(){
-      this.invalidSelectSalesBsc = false;
-
-      function checkAllInputMetodAndNominal(selectedMetodeBayar, dataMoreMetodeBayar, nominalMoreMetodeBayar) {
-        var result = true;
-      
-        if(selectedMetodeBayar.kode != 'cash' && selectedMetodeBayar.kode != 'karyawan'){
-          var inputSelectedMetodeBayar = $("#inputSelectedMetodeBayar");
-          var inputSelectedMetodeBayarVal = inputSelectedMetodeBayar.val().trim();
-  
-          if (inputSelectedMetodeBayarVal === "" ){
-            inputSelectedMetodeBayar.addClass('border-red');
-            result = false;
+            this.calculateTotalBayarPrice = this.totalBayarPrice - thisNominalTotal;
+            return;
           }
         }
 
-        for(let i=0; i < dataMoreMetodeBayar.length; i++){
-          if(dataMoreMetodeBayar[i].kode != 'cash' && dataMoreMetodeBayar[i].kode != 'karyawan'){
-            var inputMoreMetode = $('#inputMoreMetodeBayar_' + i);
-            var inputMoreMetodeVal = inputMoreMetode.val().trim();
-            if (inputMoreMetodeVal === ""){
-              inputMoreMetode.addClass('border-red');
+        this.calculateTotalBayarPrice = this.totalBayarPrice - total;
+      },
+
+      checkValidasiGelarMember: function(){
+        let gelarTerpilih = this.dataAllGelars.find((gelar) => {
+          const minimalNilai = parseFloat(gelar.minimal_nilai);
+          const maksimalNilai = parseFloat(gelar.maksimal_nilai);
+
+          if (gelar.minimal_nilai !== null && gelar.maksimal_nilai !== null) {
+            return this.totalBayarPrice >= minimalNilai && this.totalBayarPrice <= maksimalNilai;
+          } else if (gelar.minimal_nilai !== null) {
+            return this.totalBayarPrice >= minimalNilai;
+          } else if (gelar.maksimal_nilai !== null) {
+            return this.totalBayarPrice <= maksimalNilai;
+          }
+
+          return false;
+        });
+
+        if (!gelarTerpilih) {
+          gelarTerpilih = this.dataAllGelars.find((gelar) => gelar.id === 1);
+        }
+
+        return gelarTerpilih;
+      },
+
+      validationBeforeContinueBtnBilling: function(){
+        if(this.dataProductInList.length < 1){
+          this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
+          return false;
+        }
+
+        if(Object.keys(this.memberOverview).length < 1){
+          this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih dan tentukan member!');
+          this.invalidMemberSelect = true;
+          return false;
+        }
+
+        if(this.selectMethodPayment == ''){
+          this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih metode pembayaran!');
+          this.invalidMetodePembayaran = true;
+          return false;
+        }
+      },
+
+      confirmationPayment: function(){
+        if(this.validationBeforeContinueBtnBilling() == false){
+          return false;
+        }
+        
+        const findMetodeBayar = this.dataAllMetodeBayar.find((metode) => metode.id === this.selectMethodPayment);
+
+        // Penentuan tambahan metode pembayaran pada struk checkout apa saja berdasarkan logic
+        this.validasiMetodePembayaran = this.dataAllMetodeBayar.filter((metode) => {
+          if(this.selectSalesBy == '3'){
+            return metode.kode == 'tf';
+          }else{
+            if(findMetodeBayar.kode != 'cc' && findMetodeBayar.kode != 'karyawan'){
+              if(this.selectSalesBy != '1'){
+                return metode.kode != 'cash' && metode.kode != 'cc' && metode.kode != 'karyawan';
+              }else{
+                return metode.kode != 'cc' && metode.kode != 'karyawan';
+              }
+            }
+          }
+        });
+
+        // Tentukan metode pembayaran pertama
+        if(findMetodeBayar){
+          this.selectedMetodeBayar = findMetodeBayar;
+        }
+
+        // Validasi jika ada metode pembayaran cash
+        if(findMetodeBayar.kode == 'cash'){
+          this.checkMetodeCashSelect = true;
+        }else{
+          this.checkMetodeCashSelect = false;
+        }
+        
+        var checkGelarPembelian = this.checkValidasiGelarMember();
+        this.getCheckGelarPembelian = checkGelarPembelian;
+
+        $('#modalConfirmPay').modal('show');
+
+        // this.generatePdfCheckout();
+      },
+
+      buatkanSebagaiTiket: function(){
+        if(this.dataProductInList.length < 1){
+          this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
+          return false;
+        }
+
+        if(Object.keys(this.memberOverview).length < 1){
+          this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih dan tentukan member!');
+          this.invalidMemberSelect = true;
+          return false;
+        }
+
+        $('#modalConfirmCreateTicket').modal('show');
+      },
+
+      confirmasiBuatTiket: async function (){
+        try{
+          $('#modalConfirmCreateTicket').modal('hide');
+          this.$root.showLoading();
+
+          const dataPost = {
+            member_id: this.memberOverview.id,
+            products: this.dataProductInList,
+            created_by: 'David Simbolon',
+          };
+
+          const store = await axios({
+            method: 'post',
+            url: this.$root.API_URL + '/sales/storeNewTicket',
+            data: dataPost,
+          });
+          
+          if(store.status == 201 || store.status == 200){
+            this.numberTicketOrder = store.data.data.no_ticket;
+            $('#showCreateNoTicket').modal('show');
+
+            this.memberOverview = {};
+            this.dataProductInList = [];
+          }else{
+            this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+
+          this.$root.hideLoading();
+        } catch (error) {
+          this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          this.$root.hideLoading();
+          console.log(error);
+        }
+      },
+
+      showListModalTiket: async function (){
+        try{
+          this.showLoadingTicket = true;
+          $('#modalListTicket').modal('show');
+
+          const store = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/sales/getAllTicket',
+          });
+
+          this.dataAllTicket = store.data;
+
+          // const groupedData = {};
+          // store.data.forEach(item => {
+          //   const key = `${item.member_id}_${item.member}`;
+            
+          //   if (!groupedData[key]) {
+          //     groupedData[key] = {
+          //       member_id: item.member_id,
+          //       no_ticket: [],
+          //       member: item.member,
+          //     };
+          //   }
+            
+          //   groupedData[key].no_ticket.push(item.no_ticket);
+          // });
+
+          // const finishDataFilter = Object.values(groupedData);
+
+          const groupedData = {};
+          store.data.forEach((data) => {
+            const member_id = data.member_id;
+
+            if (!groupedData[member_id]) {
+              groupedData[member_id] = {
+                member_id: member_id,
+                no_ticket: [],
+                member: data.member,
+                products: [],
+              };
+            }
+            groupedData[member_id].no_ticket.push(data.no_ticket);
+
+            data.products.forEach((product) => {
+              const isPromo = product.is_promo_product !== null;
+
+              if (!isPromo) {
+                // Produk tidak memiliki is_promo_product
+                const existingProduct = groupedData[member_id].products.find(
+                  (p) => p.product && p.product.id === product.product.id
+                );
+
+                if (existingProduct) {
+                  // Produk yang sama ditemukan, tambahkan qty
+                  existingProduct.qty += product.qty;
+                } else {
+                  // Tambahkan produk baru
+                  groupedData[member_id].products.push({
+                    qty: product.qty,
+                    product: product.product,
+                    is_promo_product: product.is_promo_product,
+                  });
+                }
+              } else {
+                // Produk memiliki is_promo_product, cek produk yang ada di hasil sebelumnya
+                const existingProduct = groupedData[member_id].products.find(
+                  (p) =>
+                    p.product &&
+                    p.product.id === product.product.id &&
+                    p.is_promo_product &&
+                    p.is_promo_product.id === product.is_promo_product.id
+                );
+
+                if (existingProduct) {
+                  // Produk yang sama ditemukan, tambahkan qty
+                  existingProduct.qty += product.qty;
+                } else {
+                  // Produk dengan is_promo_product yang berbeda, tambahkan sebagai produk baru
+                  groupedData[member_id].products.push({
+                    qty: product.qty,
+                    product: product.product,
+                    is_promo_product: product.is_promo_product,
+                  });
+                }
+              }
+            });
+          });
+
+          const finishDataFilter = Object.values(groupedData);
+          this.dataFilterAllTicket = finishDataFilter;
+          
+          this.showLoadingTicket = false;
+        } catch (error) {
+          this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          this.$root.hideLoading();
+          this.showLoadingTicket = false;
+          console.log(error);
+        }
+      },
+
+      clickRowTicketList: function (ticket){
+        this.dataProductInList = ticket.products;
+        this.memberOverview = ticket.member;
+        this.calculateAmoutPrice();
+        this.calculatePcsItemOrderList();
+        this.isBuatkanTiketBtn = false;
+        $('#modalListTicket').modal('hide');
+      },
+
+      submitFindOrderWithTiket: async function (ticket){
+        try{
+          this.$root.showLoading();
+          const store = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/sales/findOrderWithTicket/' + ticket,
+          });
+
+          if(store.status == 200){
+            const response = store.data;
+            const responseData = response.data;
+
+            this.calculateAmoutPrice();
+            this.calculatePcsItemOrderList();
+            this.$root.showAlertFunction('success', 'Tiket Ditemukan!', 'Tiket pesanan telah berhasil ditambahkan.');
+          }
+          else{
+            this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+
+          this.$root.hideLoading();
+        } catch (error) {
+          if(error.response.status == 404){
+            this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Maaf, Tiket pesanan tidak ditemukan.');
+          }else{
+            this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+          this.$root.hideLoading();
+          console.log(error);
+        }
+      },
+
+      onChangeCheckVal: function(event){
+        var inputId = event.target;
+        var valueInput = inputId.value;
+        
+        if (valueInput || valueInput.length > 0){
+          inputId.classList.remove('border-red');
+        }else{
+          inputId.classList.add('border-red');
+        }
+      },
+
+      onChangeCheckNumberVal: function(event){
+        var inputId = event.target;
+        var valueInput = inputId.value;
+
+        const numberInput = valueInput.replace(/[^0-9]/g, '');
+        
+        if (numberInput === null || numberInput.trim() === "") {
+          inputId.classList.add('border-red');
+          return;
+        }
+        
+        if (valueInput || valueInput.length > 0){
+          inputId.classList.remove('border-red');
+        }else{
+          inputId.classList.add('border-red');
+        }
+
+        return numberInput;
+      },
+
+      openModalCheckoutConfirm: function(){
+        this.invalidSelectSalesBsc = false;
+
+        function checkAllInputMetodAndNominal(selectedMetodeBayar, dataMoreMetodeBayar, nominalMoreMetodeBayar) {
+          var result = true;
+        
+          if(selectedMetodeBayar.kode != 'cash' && selectedMetodeBayar.kode != 'karyawan'){
+            var inputSelectedMetodeBayar = $("#inputSelectedMetodeBayar");
+            var inputSelectedMetodeBayarVal = inputSelectedMetodeBayar.val().trim();
+    
+            if (inputSelectedMetodeBayarVal === "" ){
+              inputSelectedMetodeBayar.addClass('border-red');
               result = false;
             }
           }
 
-          var inputMoreNominalMetode = $('#inputNominalMoreMetodeBayar_' + i);
-          var inputMoreNominalMetodeVal = inputMoreNominalMetode.val().trim();
-          if (inputMoreNominalMetodeVal === ""){
-            inputMoreNominalMetode.addClass('border-red');
-            result = false;
+          for(let i=0; i < dataMoreMetodeBayar.length; i++){
+            if(dataMoreMetodeBayar[i].kode != 'cash' && dataMoreMetodeBayar[i].kode != 'karyawan'){
+              var inputMoreMetode = $('#inputMoreMetodeBayar_' + i);
+              var inputMoreMetodeVal = inputMoreMetode.val().trim();
+              if (inputMoreMetodeVal === ""){
+                inputMoreMetode.addClass('border-red');
+                result = false;
+              }
+            }
+
+            var inputMoreNominalMetode = $('#inputNominalMoreMetodeBayar_' + i);
+            var inputMoreNominalMetodeVal = inputMoreNominalMetode.val().trim();
+            if (inputMoreNominalMetodeVal === ""){
+              inputMoreNominalMetode.addClass('border-red');
+              result = false;
+            }
           }
+
+          return result;
         }
 
-        return result;
-      }
+        if(!checkAllInputMetodAndNominal(this.selectedMetodeBayar, this.dataMoreMetodeBayar, this.nominalMoreMetodeBayar)){
+          return false;
+        }
 
-      if(!checkAllInputMetodAndNominal(this.selectedMetodeBayar, this.dataMoreMetodeBayar, this.nominalMoreMetodeBayar)){
-        return false;
-      }
+        if(this.selectSalesBy == '2' && this.selectedBscWa == ''){
+          this.invalidSelectSalesBsc = true;
+          return false;
+        }
+        $('#modalCheckoutConfirm').modal('show');
+      },
 
-      if(this.selectSalesBy == '2' && this.selectedBscWa == ''){
-        this.invalidSelectSalesBsc = true;
-        return false;
-      }
-      $('#modalCheckoutConfirm').modal('show');
+      generatePdfCheckout: function(){
+        const docStruk = new jsPDF();
+        const imgDataMts = imageMts;
+        
+        // Mengukur halaman dokumen
+        const pageWidth = docStruk.internal.pageSize.width;
+        const pageHeight = docStruk.internal.pageSize.height;
+
+        const imgWidth = 90;
+        const imgHeight = 17;
+
+        const x = (pageWidth - imgWidth) / 2;
+        const y = (pageHeight - imgHeight) / 2;
+
+        docStruk.addImage(imgDataMts, 'PNG', x, 14, imgWidth, imgHeight);
+        const tableProps = {
+          startY: 35,
+        };
+
+        autoTable(docStruk, {
+          ...tableProps,
+          body: [
+            [
+              {
+                content: 'Jl. Pulo Kambing II No.1, RW.11, Jatinegara, Kec. Cakung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13930',
+                styles: {
+                  halign: 'center',
+                  fontSize: 11,
+                  cellPadding: [0, 20, 0, 20],
+                }
+              }
+            ],
+
+            [
+              {
+                content: '021 59407217',
+                styles: {
+                  halign: 'center',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 0, 0],
+                }
+              }
+            ],
+          ],
+          theme: 'plain',
+        });
+
+        const startY1 = docStruk.autoTable.previous.finalY; // Mengambil posisi Y terakhir tabel
+        const lineY1 = startY1 + 3; // Atur tinggi garis horizontal
+        docStruk.setDrawColor(0); // Warna garis
+        docStruk.setLineWidth(0.4); // Lebar garis
+        docStruk.line(10, lineY1, 200, lineY1);
+
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: 'Ringkasan Produk:',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              },
+              {
+                content: '',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              }
+            ],
+
+            [
+              {
+                content: '3x OUR IN ONE GENTLE FACE & BODY WASH 245ml',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              },
+              {
+                content: '30.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              },
+              {
+                content: '78.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              },
+              {
+                content: '78.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              },
+              {
+                content: '78.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              },
+              {
+                content: '78.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              },
+              {
+                content: '78.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              },
+              {
+                content: '78.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              },
+              {
+                content: '78.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              },
+              {
+                content: '78.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [1, 0, 0, 0],
+                }
+              }
+            ]
+          ],
+          theme: 'plain',
+        });
+
+        const startY2 = docStruk.autoTable.previous.finalY; // Mengambil posisi Y terakhir tabel
+        const lineY2 = startY2 + 3; // Atur tinggi garis horizontal
+        docStruk.setDrawColor(0); // Warna garis
+        docStruk.setLineWidth(0.4); // Lebar garis
+        docStruk.line(10, lineY2, 200, lineY2);
+
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: 'Total:',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              },
+              {
+                content: 'Rp 1.500.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              }
+            ],
+          ],
+          theme: 'plain',
+        });
+
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: 'Billing Detail:',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              },
+              {
+                content: '',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: 'Member Reseller 20%',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              },
+              {
+                content: '- Rp 200.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: 'Hemat Diskon(%)',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              },
+              {
+                content: '- Rp 300.000',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: 'Total Bayar:',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              },
+              {
+                content: 'Rp 1.000.000,00',
+                styles: {
+                  halign: 'right',
+                  fontSize: 14,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              }
+            ]
+          ],
+          theme: 'plain',
+        });
+        
+        
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: 'Note:',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              },
+              {
+                content: '',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              }
+            ],
+            [
+              {
+                content: 'Barang yang sudah dibeli tidak dapat dikembalikan kembali! dengan alasan apapun dan kondisi apapun.',
+                styles: {
+                  halign: 'left',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              },
+              {
+                content: '',
+                styles: {
+                  halign: 'right',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              }
+            ],
+          ],
+          theme: 'plain',
+        });
+
+        const startY3 = docStruk.autoTable.previous.finalY; // Mengambil posisi Y terakhir tabel
+        const lineY3 = startY3 + 3; // Atur tinggi garis horizontal
+        docStruk.setDrawColor(0); // Warna garis
+        docStruk.setLineWidth(0.4); // Lebar garis
+        docStruk.line(10, lineY3, 200, lineY3);
+
+        
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: 'Terimakasih telah berbelanja di Martha Tilaar Shop.',
+                styles: {
+                  halign: 'center',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 1, 0],
+                }
+              },
+            ],
+          ],
+          theme: 'plain',
+        });
+
+        
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: 'Jl. Pulo Kambing II No.1, RW.11, Jatinegara, Kec. Cakung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13930',
+                styles: {
+                  halign: 'center',
+                  fontSize: 11,
+                  cellPadding: [0, 20, 0, 20],
+                }
+              }
+            ],
+
+            [
+              {
+                content: '021 59407217',
+                styles: {
+                  halign: 'center',
+                  fontSize: 11,
+                  cellPadding: [0, 0, 0, 0],
+                }
+              }
+            ],
+          ],
+          theme: 'plain',
+        });
+
+        // return docStruk.save('Struk Belanja');
+        const pdfDataUri = docStruk.output('datauristring');
+
+        // const iframe = this.$refs["pdf_struk_transaksi"];
+        // iframe.src = pdfDataUri;
+
+        const newWindow = window.open();
+        if (newWindow) {
+          const iframe = document.createElement('iframe');
+          iframe.src = pdfDataUri;
+          iframe.style.width = '100%';
+          iframe.style.height = '100%';
+          iframe.style.border = 'none';
+          newWindow.document.body.style.margin = '0';
+          newWindow.document.body.appendChild(iframe);
+        } else {
+          alert('Pop-up windows are blocked. Please enable pop-ups for this site.');
+        }
+      },
+      
+      checkoutBtn: function(){
+        this.dataProductInList = [];
+        this.memberOverview = {};
+
+        this.dataMoreMetodeBayar = [];
+        this.nominalMoreMetodeBayar = [];
+        this.selectedMetodeBayar = {};
+        this.selectMethodPayment = '';
+        this.modelInputSelectedMetodeBayar = '';
+        this.modelInputMoreMetodeBayar = [];
+
+        this.selectedFilterBrand = '';
+        this.selectedBscWa = '';
+        this.inputSearchMember = '';
+        this.keteranganTransaksi = '';
+        this.calculateAmoutPrice();
+        $('#modalCheckoutConfirm').modal('hide');
+        $('#modalConfirmPay').modal('hide');
+
+        this.$root.showAlertFunction('success', 'Traksaksi Berhasil!', 'Selamat, transaksi baru telah berhasil disimpan.');
+
+        this.isBuatkanTiketBtn = true;
+        this.generatePdfCheckout();
+      },
     },
-
-    generatePdfCheckout: function(){
-      const docStruk = new jsPDF();
-      const imgDataMts = imageMts;
-      
-      // Mengukur halaman dokumen
-      const pageWidth = docStruk.internal.pageSize.width;
-      const pageHeight = docStruk.internal.pageSize.height;
-
-      const imgWidth = 90;
-      const imgHeight = 17;
-
-      const x = (pageWidth - imgWidth) / 2;
-      const y = (pageHeight - imgHeight) / 2;
-
-      docStruk.addImage(imgDataMts, 'PNG', x, 14, imgWidth, imgHeight);
-      const tableProps = {
-        startY: 35,
-      };
-
-      autoTable(docStruk, {
-        ...tableProps,
-        body: [
-          [
-            {
-              content: 'Jl. Pulo Kambing II No.1, RW.11, Jatinegara, Kec. Cakung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13930',
-              styles: {
-                halign: 'center',
-                fontSize: 11,
-                cellPadding: [0, 20, 0, 20],
-              }
-            }
-          ],
-
-          [
-            {
-              content: '021 59407217',
-              styles: {
-                halign: 'center',
-                fontSize: 11,
-                cellPadding: [0, 0, 0, 0],
-              }
-            }
-          ],
-        ],
-        theme: 'plain',
-      });
-
-      const startY1 = docStruk.autoTable.previous.finalY; // Mengambil posisi Y terakhir tabel
-      const lineY1 = startY1 + 3; // Atur tinggi garis horizontal
-      docStruk.setDrawColor(0); // Warna garis
-      docStruk.setLineWidth(0.4); // Lebar garis
-      docStruk.line(10, lineY1, 200, lineY1);
-
-      autoTable(docStruk, {
-        body: [
-          [
-            {
-              content: 'Ringkasan Produk:',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            },
-            {
-              content: '',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            }
-          ],
-
-          [
-            {
-              content: '3x OUR IN ONE GENTLE FACE & BODY WASH 245ml',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            },
-            {
-              content: '30.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            },
-            {
-              content: '78.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            },
-            {
-              content: '78.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            },
-            {
-              content: '78.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            },
-            {
-              content: '78.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            },
-            {
-              content: '78.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            },
-            {
-              content: '78.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            },
-            {
-              content: '78.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: '2x RN RHENZA BELLE WOMAN PARFUM 24/100',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            },
-            {
-              content: '78.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [1, 0, 0, 0],
-              }
-            }
-          ]
-        ],
-        theme: 'plain',
-      });
-
-      const startY2 = docStruk.autoTable.previous.finalY; // Mengambil posisi Y terakhir tabel
-      const lineY2 = startY2 + 3; // Atur tinggi garis horizontal
-      docStruk.setDrawColor(0); // Warna garis
-      docStruk.setLineWidth(0.4); // Lebar garis
-      docStruk.line(10, lineY2, 200, lineY2);
-
-      autoTable(docStruk, {
-        body: [
-          [
-            {
-              content: 'Total:',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            },
-            {
-              content: 'Rp 1.500.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            }
-          ],
-        ],
-        theme: 'plain',
-      });
-
-      autoTable(docStruk, {
-        body: [
-          [
-            {
-              content: 'Billing Detail:',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            },
-            {
-              content: '',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: 'Member Reseller 20%',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            },
-            {
-              content: '- Rp 200.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: 'Hemat Diskon(%)',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            },
-            {
-              content: '- Rp 300.000',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: 'Total Bayar:',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            },
-            {
-              content: 'Rp 1.000.000,00',
-              styles: {
-                halign: 'right',
-                fontSize: 14,
-                cellPadding: [0, 0, 1, 0],
-              }
-            }
-          ]
-        ],
-        theme: 'plain',
-      });
-      
-      
-      autoTable(docStruk, {
-        body: [
-          [
-            {
-              content: 'Note:',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            },
-            {
-              content: '',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            }
-          ],
-          [
-            {
-              content: 'Barang yang sudah dibeli tidak dapat dikembalikan kembali! dengan alasan apapun dan kondisi apapun.',
-              styles: {
-                halign: 'left',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            },
-            {
-              content: '',
-              styles: {
-                halign: 'right',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            }
-          ],
-        ],
-        theme: 'plain',
-      });
-
-      const startY3 = docStruk.autoTable.previous.finalY; // Mengambil posisi Y terakhir tabel
-      const lineY3 = startY3 + 3; // Atur tinggi garis horizontal
-      docStruk.setDrawColor(0); // Warna garis
-      docStruk.setLineWidth(0.4); // Lebar garis
-      docStruk.line(10, lineY3, 200, lineY3);
-
-      
-      autoTable(docStruk, {
-        body: [
-          [
-            {
-              content: 'Terimakasih telah berbelanja di Martha Tilaar Shop.',
-              styles: {
-                halign: 'center',
-                fontSize: 11,
-                cellPadding: [0, 0, 1, 0],
-              }
-            },
-          ],
-        ],
-        theme: 'plain',
-      });
-
-      
-      autoTable(docStruk, {
-        body: [
-          [
-            {
-              content: 'Jl. Pulo Kambing II No.1, RW.11, Jatinegara, Kec. Cakung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13930',
-              styles: {
-                halign: 'center',
-                fontSize: 11,
-                cellPadding: [0, 20, 0, 20],
-              }
-            }
-          ],
-
-          [
-            {
-              content: '021 59407217',
-              styles: {
-                halign: 'center',
-                fontSize: 11,
-                cellPadding: [0, 0, 0, 0],
-              }
-            }
-          ],
-        ],
-        theme: 'plain',
-      });
-
-      // return docStruk.save('Struk Belanja');
-      const pdfDataUri = docStruk.output('datauristring');
-
-      // const iframe = this.$refs["pdf_struk_transaksi"];
-      // iframe.src = pdfDataUri;
-
-      const newWindow = window.open();
-      if (newWindow) {
-        const iframe = document.createElement('iframe');
-        iframe.src = pdfDataUri;
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
-        newWindow.document.body.style.margin = '0';
-        newWindow.document.body.appendChild(iframe);
-      } else {
-        alert('Pop-up windows are blocked. Please enable pop-ups for this site.');
-      }
-    },
-    
-    checkoutBtn: function(){
-      this.dataProductInList = [];
-      this.memberOverview = {};
-
-      this.dataMoreMetodeBayar = [];
-      this.nominalMoreMetodeBayar = [];
-      this.selectedMetodeBayar = {};
-      this.selectMethodPayment = '';
-      this.modelInputSelectedMetodeBayar = '';
-      this.modelInputMoreMetodeBayar = [];
-
-      this.selectedFilterBrand = '';
-      this.selectedBscWa = '';
-      this.inputSearchMember = '';
-      this.keteranganTransaksi = '';
-      this.calculateAmoutPrice();
-      $('#modalCheckoutConfirm').modal('hide');
-      $('#modalConfirmPay').modal('hide');
-
-      this.$root.showAlertFunction('success', 'Traksaksi Berhasil!', 'Selamat, transaksi baru telah berhasil disimpan.');
-
-      this.isBuatkanTiketBtn = true;
-      this.generatePdfCheckout();
-    },
-  },
-}
+  }
 </script>
 
 <style scoped>

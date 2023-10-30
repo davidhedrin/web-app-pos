@@ -50,7 +50,6 @@
       </div>
     </div>
   </div>
-
   
   <div class="card">
     <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-size: cover;"></div>

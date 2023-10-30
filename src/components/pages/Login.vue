@@ -76,120 +76,120 @@
 </template>
 
 <script>
-import axios from "axios";
+  import axios from "axios";
 
-export default {
-  name: 'Login',
-  data(){
-    return {
-      dataLogin: {
-        email: null,
-        password: null,
-      }
-    }
-  },
-
-  mounted(){
-    this.cekToken();
-  },
-
-  methods: {
-    executeLogin: async function(){
-      this.$root.showLoading();
-      try{
-        const store = await axios({
-          method: 'post',
-          url: this.$root.API_URL + '/auth/login',
-          data: this.dataLogin
-        });
-
-        if(store.status == 200){
-          const dataUser = store.data;
-          localStorage.setItem("is_dynamic", dataUser.user_uuid);
-          
-          if(dataUser.flag_active == true){
-            this.$root.goto('dashboard');
-          }else{
-            this.$root.goto('profilepage');
-          }
-          
-          window.location.reload();
-        }else{
-          this.$root.showAlertFunction('warning', 'Login Fatal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+  export default {
+    name: 'Login',
+    data(){
+      return {
+        dataLogin: {
+          email: null,
+          password: null,
         }
-
-        this.$root.hideLoading();
-      } catch (error) {
-        const responseData = error.response.data;
-        if(error.response.status == 404){
-          this.$root.showAlertFunction('warning', 'Login Gagal!', responseData.message);
-        } else if(error.response.status == 408){
-          this.$root.showAlertFunction('danger', 'Login Gagal!', 'Percobaan login telah mencapai batas, tunggu dalam waktu ' + responseData.minute + ' menit');
-        } else{
-          this.$root.showAlertFunction('warning', 'Login Fatal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-        }
-        this.$root.hideLoading();
-        console.log(error);
       }
     },
 
-    executeLoginSSO: function(){
-      window.location.href = this.$root.APP_SSO_URL;
+    mounted(){
+      this.cekToken();
     },
 
-    cekToken: async function (){
-      this.$root.showLoading();
+    methods: {
+      executeLogin: async function(){
+        this.$root.showLoading();
+        try{
+          const store = await axios({
+            method: 'post',
+            url: this.$root.API_URL + '/auth/login',
+            data: this.dataLogin
+          });
 
-      // const getTokenSSO = localStorage.getItem("token_sso");
-      // if(getTokenSSO){
-      //   const getStatusToken = await this.$root.checkAuthenticationToken();
-      //   if(getStatusToken){
-      //     const current_page = sessionStorage.getItem('current_page');
-      //     if(current_page){
-      //       this.$root.goto(current_page);
-      //       window.location.reload();
-      //     }else{
-      //       this.$root.goto('dashboard');
-      //       window.location.reload();
-      //     }
-      //   }
-      // }else{
-      //   const uri = new URL(window.location);
-      //   const token_sso = uri.searchParams.get('app_token');
-      //   if (token_sso != "undefined" && token_sso != null){
-      //     localStorage.setItem("token_sso", token_sso);
-      //     const getStatusToken = await this.$root.checkAuthenticationToken();
-          
-      //     if(getStatusToken){
-      //       this.$root.goto('dashboard');
-      //       window.location.reload();
-      //     }
-
-      //     const originalHost = window.location.origin;
-      //     window.location.href = originalHost;
-      //   }
-      // }
-      
-      const uri = new URL(window.location);
-      const token_sso = uri.searchParams.get('app_token');
-      if (token_sso != "undefined" && token_sso != null){
-        localStorage.setItem("token_sso", token_sso);
-        const getStatusToken = await this.$root.checkAuthenticationToken();
-        if(getStatusToken){
-          const getUserExist = await this.$root.checkUserRegistered(getStatusToken.uuid);
-          if(getUserExist){
-            this.$root.goto('dashboard');
+          if(store.status == 200){
+            const dataUser = store.data;
+            localStorage.setItem("is_dynamic", dataUser.user_uuid);
+            
+            if(dataUser.flag_active == true){
+              this.$root.goto('dashboard');
+            }else{
+              this.$root.goto('profilepage');
+            }
+            
+            window.location.reload();
           }else{
-            this.$root.goto('profilepage');
+            this.$root.showAlertFunction('warning', 'Login Fatal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           }
-          window.location.reload();
-        }
 
-        const originalHost = window.location.origin;
-        window.location.href = originalHost;
+          this.$root.hideLoading();
+        } catch (error) {
+          const responseData = error.response.data;
+          if(error.response.status == 404){
+            this.$root.showAlertFunction('warning', 'Login Gagal!', responseData.message);
+          } else if(error.response.status == 408){
+            this.$root.showAlertFunction('danger', 'Login Gagal!', 'Percobaan login telah mencapai batas, tunggu dalam waktu ' + responseData.minute + ' menit');
+          } else{
+            this.$root.showAlertFunction('warning', 'Login Fatal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+          this.$root.hideLoading();
+          console.log(error);
+        }
+      },
+
+      executeLoginSSO: function(){
+        window.location.href = this.$root.APP_SSO_URL;
+      },
+
+      cekToken: async function (){
+        this.$root.showLoading();
+
+        // const getTokenSSO = localStorage.getItem("token_sso");
+        // if(getTokenSSO){
+        //   const getStatusToken = await this.$root.checkAuthenticationToken();
+        //   if(getStatusToken){
+        //     const current_page = sessionStorage.getItem('current_page');
+        //     if(current_page){
+        //       this.$root.goto(current_page);
+        //       window.location.reload();
+        //     }else{
+        //       this.$root.goto('dashboard');
+        //       window.location.reload();
+        //     }
+        //   }
+        // }else{
+        //   const uri = new URL(window.location);
+        //   const token_sso = uri.searchParams.get('app_token');
+        //   if (token_sso != "undefined" && token_sso != null){
+        //     localStorage.setItem("token_sso", token_sso);
+        //     const getStatusToken = await this.$root.checkAuthenticationToken();
+            
+        //     if(getStatusToken){
+        //       this.$root.goto('dashboard');
+        //       window.location.reload();
+        //     }
+
+        //     const originalHost = window.location.origin;
+        //     window.location.href = originalHost;
+        //   }
+        // }
+        
+        const uri = new URL(window.location);
+        const token_sso = uri.searchParams.get('app_token');
+        if (token_sso != "undefined" && token_sso != null){
+          localStorage.setItem("token_sso", token_sso);
+          const getStatusToken = await this.$root.checkAuthenticationToken();
+          if(getStatusToken){
+            const getUserExist = await this.$root.checkUserRegistered(getStatusToken.uuid);
+            if(getUserExist){
+              this.$root.goto('dashboard');
+            }else{
+              this.$root.goto('profilepage');
+            }
+            window.location.reload();
+          }
+
+          const originalHost = window.location.origin;
+          window.location.href = originalHost;
+        }
+        this.$root.hideLoading();
       }
-      this.$root.hideLoading();
     }
   }
-}
 </script>

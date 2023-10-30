@@ -36,16 +36,24 @@ import Login from '@/components/pages/Login.vue';
 import Dashboard from '@/components/pages/Dashboard.vue';
 import ProfilePage from '@/components/pages/Profile.vue';
 import Sales from '@/components/pages/Sales.vue';
+
 import PromoList from '@/components/pages/MasterPromo/PromoList.vue';
 import PromoProduct from '@/components/pages/MasterPromo/PromoProduct.vue';
+
+import UserList from '@/components/pages/MasterUser/UserList.vue';
 
 const routeComponent = {
   'login': Login,
   'dashboard': Dashboard,
   'profilepage': ProfilePage,
   'sales': Sales,
+
+  // Master Promo
   'promo-list': PromoList,
   'promo-product': PromoProduct,
+
+  // Master User
+  'user-list': UserList
 }
 
 export default {
@@ -83,17 +91,18 @@ export default {
     }
   },
 
-  beforeMount() {
+  async beforeMount() {
     const current_page = sessionStorage.getItem('current_page');
     if(current_page){
       this.activeRoute = markRaw(routeComponent[current_page]);
       sessionStorage.setItem('current_page', current_page);
     }
-  },
 
-  async mounted(){
     await this.checkSessionAuthSSO();
   },
+
+  // async mounted(){
+  // },
   
   methods: {
     goto: async function(comp){
@@ -108,7 +117,7 @@ export default {
     
     checkSessionAuthSSO: async function(){
       // this.showLoading();
-      const check_uuid = localStorage.getItem("is_dynamic");
+      let check_uuid = localStorage.getItem("is_dynamic");
 
       if(!check_uuid){
         const getStatusToken = await this.checkAuthenticationToken();
@@ -121,15 +130,15 @@ export default {
       }
 
       const getDatUserRegis = await this.checkUserRegistered(check_uuid);
-      if(!getDatUserRegis){
-        this.clearSessionLocalStorege();
-        this.hideLoading();
-        return false;
-      }
-      this.dataAuthToken = getDatUserRegis;
-
-      if(getDatUserRegis.flag_active == false){
-        this.$root.goto('profilepage');
+      if(getDatUserRegis){
+        // this.clearSessionLocalStorege();
+        // this.hideLoading();
+        // return false;
+        this.dataAuthToken = getDatUserRegis;
+  
+        if(getDatUserRegis.flag_active == false){
+          this.$root.goto('profilepage');
+        }
       }
       
       // this.hideLoading();
@@ -305,6 +314,11 @@ export default {
     },
     hideLoading: function(){
       this.isLoading = false;
+    },
+
+    removeRedBorder(selectId) {
+      const selectElement = document.getElementById(selectId);
+      selectElement.classList.remove('border-red');
     },
   }
 }

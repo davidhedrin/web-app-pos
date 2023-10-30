@@ -305,271 +305,271 @@
 </template>
 
 <script>
-import axios from "axios";
-import { markRaw } from 'vue';
-import LoadingWhite from '@/components/layouts/LoadingWhite.vue';
+  import axios from "axios";
+  import { markRaw } from 'vue';
+  import LoadingWhite from '@/components/layouts/LoadingWhite.vue';
 
-export default {
-  name: 'PromoList',
-  data() {
-    return {
-      dataAllProduct: [],
-      dataAllMasterPromo: [],
-      dataAllMasterKodePromo: [],
-      dataAllMasterNamaPromo: [],
-      modalAddOrEditPromo: true,
+  export default {
+    name: 'PromoList',
+    data() {
+      return {
+        dataAllProduct: [],
+        dataAllMasterPromo: [],
+        dataAllMasterKodePromo: [],
+        dataAllMasterNamaPromo: [],
+        modalAddOrEditPromo: true,
 
-      idPromoForDelete: '',
+        idPromoForDelete: '',
 
-      dataMasterPromo: {
-        id: '',
-        master_promo_id: '',
-        kode_promo_id: '',
-        nama_promo: '',
-        start_date: null,
-        end_date: null,
-        tipe_promo: '',
-        buy_item: '',
-        get_item: '',
-        percent: '',
-        keterangan: '',
-        
-        product_promo_buy_get: [],
-        products_promo_percent: [],
-      }
-    }
-  },
-  beforeMount() {
-    this.loadAllData();
-  },
-  methods: {
-    loadAllData: async function () {
-      try{
-        const getAllData = await axios({
-          method: 'get',
-          url: this.$root.API_URL + '/master-promo',
-        });
-        const allData = getAllData.data;
-        this.dataAllProduct = allData.getAllProduct; // All Products
-        this.dataAllMasterKodePromo = allData.getAllKodePromo; // Master Kode Promo
-        this.dataAllMasterNamaPromo = allData.getAllNamaPromo; // Master Nama Promo
-
-        //Get all data master promo
-        const getAllDataPromo = await axios({
-          method: 'get',
-          url: this.$root.API_URL + '/master-promo/getAllMasterPromo',
-        });
-        const allDataPromo = getAllDataPromo.data;
-        this.dataAllMasterPromo = allDataPromo;
-        // console.log(this.dataAllMasterPromo);
-
-        this.$root.hideLoading();
-      } catch (error) {
-        console.log(error);
+        dataMasterPromo: {
+          id: '',
+          master_promo_id: '',
+          kode_promo_id: '',
+          nama_promo: '',
+          start_date: null,
+          end_date: null,
+          tipe_promo: '',
+          buy_item: '',
+          get_item: '',
+          percent: '',
+          keterangan: '',
+          
+          product_promo_buy_get: [],
+          products_promo_percent: [],
+        }
       }
     },
-
-    actionSubmitNewPromo: async function (){
-      if (this.modalAddOrEditPromo == true){
+    beforeMount() {
+      this.loadAllData();
+    },
+    methods: {
+      loadAllData: async function () {
         try{
-          $('#modalAddEditPromo').modal('hide');
-          this.$root.showLoading();
-          const store = await axios({
-            method: 'post',
-            url: this.$root.API_URL + '/master-promo/storeNewPromo',
-            data: this.dataMasterPromo,
+          const getAllData = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/master-promo',
           });
-  
-          if(store.status == 201 || store.status == 200){
-            var getResponsStore = store.data.data;
-            getResponsStore.all_promo_product = getResponsStore.promo_product_save;
-            this.dataAllMasterPromo.push(getResponsStore);
-  
-            for (let prop in this.dataMasterPromo) {
-              if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
-                this.dataMasterPromo[prop] = '';
-              }else{
-                this.dataMasterPromo[prop] = [];
+          const allData = getAllData.data;
+          this.dataAllProduct = allData.getAllProduct; // All Products
+          this.dataAllMasterKodePromo = allData.getAllKodePromo; // Master Kode Promo
+          this.dataAllMasterNamaPromo = allData.getAllNamaPromo; // Master Nama Promo
+
+          //Get all data master promo
+          const getAllDataPromo = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/master-promo/getAllMasterPromo',
+          });
+          const allDataPromo = getAllDataPromo.data;
+          this.dataAllMasterPromo = allDataPromo;
+          // console.log(this.dataAllMasterPromo);
+
+          this.$root.hideLoading();
+        } catch (error) {
+          console.log(error);
+        }
+      },
+
+      actionSubmitNewPromo: async function (){
+        if (this.modalAddOrEditPromo == true){
+          try{
+            $('#modalAddEditPromo').modal('hide');
+            this.$root.showLoading();
+            const store = await axios({
+              method: 'post',
+              url: this.$root.API_URL + '/master-promo/storeNewPromo',
+              data: this.dataMasterPromo,
+            });
+    
+            if(store.status == 201 || store.status == 200){
+              var getResponsStore = store.data.data;
+              getResponsStore.all_promo_product = getResponsStore.promo_product_save;
+              this.dataAllMasterPromo.push(getResponsStore);
+    
+              for (let prop in this.dataMasterPromo) {
+                if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
+                  this.dataMasterPromo[prop] = '';
+                }else{
+                  this.dataMasterPromo[prop] = [];
+                }
               }
+    
+              this.$root.showAlertFunction('success', 'Promo Berhasil!', 'Selamat, Promo baru telah berhasil ditambahkan.');
+            }else{
+              this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
             }
-  
-            this.$root.showAlertFunction('success', 'Promo Berhasil!', 'Selamat, Promo baru telah berhasil ditambahkan.');
-          }else{
-            this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+            
+            this.$root.hideLoading();
+          } catch (error) {
+            this.$root.showAlertFunction('warning', 'Menyimpan Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+            this.$root.hideLoading();
+            console.log(error);
           }
-          
-          this.$root.hideLoading();
-        } catch (error) {
-          this.$root.showAlertFunction('warning', 'Menyimpan Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-          this.$root.hideLoading();
-          console.log(error);
-        }
-      }
-
-      if (this.modalAddOrEditPromo == false) {
-        // Validasi tipe promo
-        if(this.dataMasterPromo.tipe_promo == '1'){ // Bundle
-          this.dataMasterPromo.percent = null;
-        }
-        if(this.dataMasterPromo.tipe_promo == '2'){ // Percent
-          this.dataMasterPromo.buy_item = null;
-          this.dataMasterPromo.get_item = null;
         }
 
+        if (this.modalAddOrEditPromo == false) {
+          // Validasi tipe promo
+          if(this.dataMasterPromo.tipe_promo == '1'){ // Bundle
+            this.dataMasterPromo.percent = null;
+          }
+          if(this.dataMasterPromo.tipe_promo == '2'){ // Percent
+            this.dataMasterPromo.buy_item = null;
+            this.dataMasterPromo.get_item = null;
+          }
+
+          try{
+            $('#modalAddEditPromo').modal('hide');
+            this.$root.showLoading();
+            const store = await axios({
+              method: 'put',
+              url: this.$root.API_URL + '/master-promo/updateDataPromo',
+              data: this.dataMasterPromo,
+            });
+
+            if(store.status == 201 || store.status == 200){
+              var getDataStore = store.data.data;
+              getDataStore.all_promo_product = getDataStore.promo_product_save;
+              var findIndexPromo = this.dataAllMasterPromo.findIndex((promo) => promo.id == getDataStore.id);
+              this.dataAllMasterPromo[findIndexPromo] = getDataStore;
+
+              this.$root.showAlertFunction('success', 'Update Berhasil!', 'Selamat, Data promo telah berhasil diperbaharui.');
+            }else{
+              this.$root.showAlertFunction('warning', 'Mengubah Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+            }
+            
+            this.$root.hideLoading();
+          } catch (error) {
+            this.$root.showAlertFunction('warning', 'Update Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+            this.$root.hideLoading();
+            console.log(error);
+          }
+        }
+      },
+
+      actionDeletePromo: async function (){
         try{
-          $('#modalAddEditPromo').modal('hide');
+          $('#modalConfirmDeletePromo').modal('hide');
           this.$root.showLoading();
           const store = await axios({
-            method: 'put',
-            url: this.$root.API_URL + '/master-promo/updateDataPromo',
-            data: this.dataMasterPromo,
+            method: 'delete',
+            url: this.$root.API_URL + '/master-promo/deleteDataPromo',
+            data: {
+              id: this.idPromoForDelete,
+            }
           });
-
+          
           if(store.status == 201 || store.status == 200){
-            var getDataStore = store.data.data;
-            getDataStore.all_promo_product = getDataStore.promo_product_save;
-            var findIndexPromo = this.dataAllMasterPromo.findIndex((promo) => promo.id == getDataStore.id);
-            this.dataAllMasterPromo[findIndexPromo] = getDataStore;
+            var findIndexPromo = this.dataAllMasterPromo.findIndex((promo) => promo.master_promo_id == this.idPromoForDelete);
+            this.dataAllMasterPromo.splice(findIndexPromo, 1);
 
-            this.$root.showAlertFunction('success', 'Update Berhasil!', 'Selamat, Data promo telah berhasil diperbaharui.');
+            this.idPromoForDelete = '';
+            this.$root.showAlertFunction('success', 'Delete Berhasil!', 'Selamat, Data promo telah berhasil dihapus.');
           }else{
-            this.$root.showAlertFunction('warning', 'Mengubah Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+            this.$root.showAlertFunction('warning', 'Menghapus Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           }
           
           this.$root.hideLoading();
         } catch (error) {
-          this.$root.showAlertFunction('warning', 'Update Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          this.$root.showAlertFunction('warning', 'Delete Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           this.$root.hideLoading();
           console.log(error);
         }
-      }
-    },
+      },
 
-    actionDeletePromo: async function (){
-      try{
-        $('#modalConfirmDeletePromo').modal('hide');
-        this.$root.showLoading();
-        const store = await axios({
-          method: 'delete',
-          url: this.$root.API_URL + '/master-promo/deleteDataPromo',
-          data: {
-            id: this.idPromoForDelete,
-          }
-        });
-        
-        if(store.status == 201 || store.status == 200){
-          var findIndexPromo = this.dataAllMasterPromo.findIndex((promo) => promo.master_promo_id == this.idPromoForDelete);
-          this.dataAllMasterPromo.splice(findIndexPromo, 1);
-
-          this.idPromoForDelete = '';
-          this.$root.showAlertFunction('success', 'Delete Berhasil!', 'Selamat, Data promo telah berhasil dihapus.');
-        }else{
-          this.$root.showAlertFunction('warning', 'Menghapus Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+      onChangeTipePromo: function (){
+        if (this.modalAddOrEditPromo == true) {
+          this.dataMasterPromo.product_promo_buy_get = [];
+          this.dataMasterPromo.products_promo_percent = [];
         }
-        
-        this.$root.hideLoading();
-      } catch (error) {
-        this.$root.showAlertFunction('warning', 'Delete Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-        this.$root.hideLoading();
-        console.log(error);
-      }
-    },
+        if(this.dataMasterPromo.tipe_promo == '1'){
+          const setObject = {
+            index: 0,
+            product_buy: {},
+            product_get: {}
+          }
 
-    onChangeTipePromo: function (){
-      if (this.modalAddOrEditPromo == true) {
-        this.dataMasterPromo.product_promo_buy_get = [];
-        this.dataMasterPromo.products_promo_percent = [];
-      }
-      if(this.dataMasterPromo.tipe_promo == '1'){
+          this.dataMasterPromo.product_promo_buy_get.push(setObject);
+        }
+      },
+
+      addMoreProductBundle: function (){
+        const getLengthProductBundle = this.dataMasterPromo.product_promo_buy_get.length;
         const setObject = {
-          index: 0,
+          index: getLengthProductBundle + 1,
           product_buy: {},
           product_get: {}
         }
-
         this.dataMasterPromo.product_promo_buy_get.push(setObject);
-      }
-    },
+      },
 
-    addMoreProductBundle: function (){
-      const getLengthProductBundle = this.dataMasterPromo.product_promo_buy_get.length;
-      const setObject = {
-        index: getLengthProductBundle + 1,
-        product_buy: {},
-        product_get: {}
-      }
-      this.dataMasterPromo.product_promo_buy_get.push(setObject);
-    },
-
-    removeMoreProductBundle: function (index){
-      const findIndexProduct = this.dataMasterPromo.product_promo_buy_get.findIndex((item) => item.index === index);
-      if (findIndexProduct !== -1) {
-        this.dataMasterPromo.product_promo_buy_get.splice(findIndexProduct, 1);
-      } else {
-        console.log('Product not found');
-      }
-    },
-
-    openModalAddPromo: function (){
-      for (let prop in this.dataMasterPromo) {
-        if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
-          this.dataMasterPromo[prop] = '';
-        }else{
-          this.dataMasterPromo[prop] = [];
+      removeMoreProductBundle: function (index){
+        const findIndexProduct = this.dataMasterPromo.product_promo_buy_get.findIndex((item) => item.index === index);
+        if (findIndexProduct !== -1) {
+          this.dataMasterPromo.product_promo_buy_get.splice(findIndexProduct, 1);
+        } else {
+          console.log('Product not found');
         }
-      }
+      },
+
+      openModalAddPromo: function (){
+        for (let prop in this.dataMasterPromo) {
+          if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
+            this.dataMasterPromo[prop] = '';
+          }else{
+            this.dataMasterPromo[prop] = [];
+          }
+        }
+        
+        this.modalAddOrEditPromo = true;
+      },
       
-      this.modalAddOrEditPromo = true;
-    },
-    
-    openModalEditPromo: function (promo){
-      for (let prop in this.dataMasterPromo) {
-        if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
-          this.dataMasterPromo[prop] = '';
-        }else{
-          this.dataMasterPromo[prop] = [];
+      openModalEditPromo: function (promo){
+        for (let prop in this.dataMasterPromo) {
+          if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
+            this.dataMasterPromo[prop] = '';
+          }else{
+            this.dataMasterPromo[prop] = [];
+          }
         }
-      }
 
-      for (let prop in this.dataMasterPromo) {
-        if(prop == 'product_promo_buy_get'){
-          for(let i = 0; i < promo.all_promo_product.length ; i++){
-            if(promo.tipe_promo == '1'){ // Bundle
-              const setObject = {
-                index: i,
-                product_buy: promo.all_promo_product[i].for_product,
-                product_get: promo.all_promo_product[i].get_product
+        for (let prop in this.dataMasterPromo) {
+          if(prop == 'product_promo_buy_get'){
+            for(let i = 0; i < promo.all_promo_product.length ; i++){
+              if(promo.tipe_promo == '1'){ // Bundle
+                const setObject = {
+                  index: i,
+                  product_buy: promo.all_promo_product[i].for_product,
+                  product_get: promo.all_promo_product[i].get_product
+                }
+                this.dataMasterPromo.product_promo_buy_get.push(setObject);
               }
-              this.dataMasterPromo.product_promo_buy_get.push(setObject);
             }
           }
-        }
-        else if(prop == 'products_promo_percent'){
-          for(let i = 0; i < promo.all_promo_product.length ; i++){
-            if(promo.tipe_promo == '2'){ // Percent
-              this.dataMasterPromo.products_promo_percent.push(promo.all_promo_product[i].for_product);
+          else if(prop == 'products_promo_percent'){
+            for(let i = 0; i < promo.all_promo_product.length ; i++){
+              if(promo.tipe_promo == '2'){ // Percent
+                this.dataMasterPromo.products_promo_percent.push(promo.all_promo_product[i].for_product);
+              }
             }
+          }else{
+            this.dataMasterPromo[prop] = promo[prop];
           }
-        }else{
-          this.dataMasterPromo[prop] = promo[prop];
         }
-      }
-      
-      this.modalAddOrEditPromo = false;
-    },
+        
+        this.modalAddOrEditPromo = false;
+      },
 
-    formatDateTime: function (dateTimeString) {
-      const isTFormat = dateTimeString.includes('T');
-      const separator = isTFormat ? 'T' : ' ';
-      const [datePart, timePart] = dateTimeString.split(separator);
-      const [year, month, day] = datePart.split('-');
-      const [hour, minute] = timePart.split(':');
+      formatDateTime: function (dateTimeString) {
+        const isTFormat = dateTimeString.includes('T');
+        const separator = isTFormat ? 'T' : ' ';
+        const [datePart, timePart] = dateTimeString.split(separator);
+        const [year, month, day] = datePart.split('-');
+        const [hour, minute] = timePart.split(':');
 
-      const formattedDate = `${day}/${month}/${year}`;
-      const formattedTime = `${hour}:${minute}`;
+        const formattedDate = `${day}/${month}/${year}`;
+        const formattedTime = `${hour}:${minute}`;
 
-      return `${formattedDate} ${formattedTime}`;
-    },
+        return `${formattedDate} ${formattedTime}`;
+      },
+    }
   }
-}
 </script>

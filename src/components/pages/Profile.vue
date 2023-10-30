@@ -36,7 +36,7 @@
             </div>
             <div class="col-md-9 text-md-start mt-2">
               <h4 class="mb-1">
-                {{ dataUser.nama_lengkap }}
+                {{ dataUser.nama_lengkap ? dataUser.nama_lengkap : 'nama lengkap' }}
                 <span v-if="dataUserRegister && dataUserRegister.flag_active == true" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Verified" data-bs-original-title="Verified">
                   <small class="fa fa-check-circle text-primary" data-fa-transform="shrink-4 down-2"></small>
                 </span> 
@@ -44,7 +44,7 @@
                   <small class="fa fa-check-circle text-secondary" data-fa-transform="shrink-4 down-2"></small>
                 </span>
               </h4>
-              <h5 class="fs-0 fw-normal">{{ dataUser.email }}</h5>
+              <h5 class="fs-0 fw-normal">{{ dataUser.email  }}</h5>
               <p class="text-500 fs--1 m-0">{{ dataUser.no_hp }},</p>
               <p class="text-500 fs--1 m-0">{{ dataUser.gender ? dataUser.gender == '1' ? 'Laki-laki' : 'Perempuan' : 'gander'}},</p>
               <p class="text-500 fs--1">{{ dataUser.tanggal_lahir ? $root.formatDateIdn(dataUser.tanggal_lahir) : 'day month year' }}</p>
@@ -215,138 +215,176 @@
       </div>
     </div>
   </div>
+  
+  <div class="modal fade" id="modalNullProfileSSO" tabindex="0" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px">
+      <div class="modal-content position-relative">
+        <div class="modal-body p-0 pb-2">
+          <div class="rounded-top-3 py-3 bg-body-tertiary text-center">
+            <h3 class="mb-1" id="modalExampleDemoLabel">Profile Data</h3>
+          </div>
+          <div class="py-2 text-center">
+            <div class="d-flex justify-content-center mb-2">
+              <img src="@/assets/img/icons/Gif/warning-icon-2.gif" height="60" alt="">
+            </div>
+            <h5 class="m-0 px-1">
+              Data Profile SSO Tidak Ditemukan!
+            </h5>
+            <p class="m-0 px-3">
+              Perbaharui dan Update data profile SSO pada menu profile untuk melanjutkan.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <button class="btn btn-primary btn-sm" type="button" v-on:click="confirmAndCheckProfileSSO()">Konfirmasi & Cek Ulang</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import axios from "axios";
+  import axios from "axios";
 
-export default {
-  name: 'ProfilePage',
-  data(){
-    return{
-      dateNow: null,
-      dataAuthUserSso: null,
-      dataUserProfileSso: null,
-      isRequestApproveBtn: true,
-      isEnableBtnApprove: false,
+  export default {
+    name: 'ProfilePage',
+    data(){
+      return{
+        dateNow: null,
+        dataAuthUserSso: null,
+        dataUserProfileSso: null,
+        isRequestApproveBtn: true,
+        isEnableBtnApprove: false,
 
-      dataUserRegister: null,
-      dataUser: {
-        uuid: null,
-        nama_lengkap: null,
-        no_hp: null,
-        gender: '',
-        tanggal_lahir: null,
-        password: null,
-        konfirmasi_password: null,
-      },
-    }
-  },
-
-  async beforeMount() {
-    await this.loadAllData();
-
-    this.dateNow = this.$root.formatDateIdn(new Date());
-    this.$root.hideLoading();
-  },
-
-  methods: {
-    loadAllData: async function (){
-      const check_uuid = localStorage.getItem("is_dynamic");
-
-      if(!check_uuid){
-        const getAuthSso = await this.$root.checkAuthenticationToken();
-        this.dataAuthUserSso = getAuthSso;
-        check_uuid = getAuthSso.uuid;
-        
-        // const getDataProfileSSO = await this.$root.getProfileUserSSO(getAuthSso.access_token);
-        // this.dataUserProfileSso = getDataProfileSSO;
-      }
-
-      const checkUserRegis = await this.$root.checkUserRegistered(check_uuid);
-      if(checkUserRegis){
-        this.dataUserRegister = checkUserRegis;
-  
-        this.dataUser.email = checkUserRegis.email;
-        this.dataUser.nama_lengkap = checkUserRegis.nama_lengkap;
-        this.dataUser.no_hp = checkUserRegis.no_hp;
-        
-        for (let prop in this.dataUser) {
-          if(prop != 'uuid'){
-            this.dataUser[prop] = checkUserRegis[prop];
-          }
-        }
-
-        this.isRequestApproveBtn = false;
-      }else{
-        this.isRequestApproveBtn = true;
+        dataUserRegister: null,
+        dataUser: {
+          uuid: null,
+          nama_lengkap: null,
+          no_hp: null,
+          gender: '',
+          tanggal_lahir: null,
+          password: null,
+          konfirmasi_password: null,
+        },
       }
     },
-    
-    openModalEditDataUser: function(){
-      this.dataUser.nama_lengkap = this.dataUserRegister ? this.dataUserRegister.nama_lengkap : '';
-      this.dataUser.no_hp = this.dataUserRegister ? this.dataUserRegister.no_hp : '';
-      this.dataUser.gender = this.dataUserRegister ? this.dataUserRegister.gender : '';
-      this.dataUser.tanggal_lahir = this.dataUserRegister ? this.dataUserRegister.tanggal_lahir : '';
 
-      $('#modalEditDataUser').modal('show');
+    async beforeMount() {
+      await this.loadAllData();
+
+      this.dateNow = this.$root.formatDateIdn(new Date());
+      this.$root.hideLoading();
     },
 
-    submitModalEditData: function(){
-      for (let prop in this.dataUser) {
-        if(prop != 'uuid'){
-          if(!this.dataUser[prop] || this.dataUser[prop] == ''){
-            this.isEnableBtnApprove = false;
-            this.$root.showAlertFunction('warning', 'Lengkapi Data!', 'Ops...! Lengkapi semua data untuk melanjutkan.');
+    methods: {
+      loadAllData: async function (){
+        let check_uuid = localStorage.getItem("is_dynamic");
+
+        if(!check_uuid){
+          const getAuthSso = await this.$root.checkAuthenticationToken();
+          this.dataAuthUserSso = getAuthSso;
+          check_uuid = getAuthSso.uuid;
+
+          const getDataProfileSSO = await this.$root.getProfileUserSSO(getAuthSso.access_token);
+          if(!getDataProfileSSO){
+            $('#modalNullProfileSSO').modal('show');
             return false;
           }
+
+          this.dataUserProfileSso = getDataProfileSSO;
+          this.dataUser.email = getAuthSso.email;
+          this.dataUser.nama_lengkap = getDataProfileSSO.profile_name;
+          this.dataUser.no_hp = getDataProfileSSO.profile_phone;
         }
-      }
 
-      $('#modalEditDataUser').modal('hide');
-      this.isEnableBtnApprove = true;
-      // this.$root.showAlertFunction('success', 'Data Disiapkan!', 'Data pribadi anda hampir siap, Silahkan untuk klik Request Approve!');
-    },
+        const checkUserRegis = await this.$root.checkUserRegistered(check_uuid);
+        if(checkUserRegis){
+          this.dataUserRegister = checkUserRegis;
     
-    sendRequestApprove: async function (){
-      try{
-        this.$root.showLoading();
-
-        if(this.dataAuthUserSso){
-          this.dataUser.uuid = this.dataAuthUserSso.uuid;
-          const store = await axios({
-            method: 'post',
-            url: this.$root.API_URL + '/auth/send-request-approve',
-            data: this.dataUser
-          });
+          this.dataUser.email = checkUserRegis.email;
+          this.dataUser.nama_lengkap = checkUserRegis.nama_lengkap;
+          this.dataUser.no_hp = checkUserRegis.no_hp;
           
-          if(store.status == 201 || store.status == 200){
-            const response = store.data;
-            const getCheckUser = await this.$root.checkUserRegistered(this.dataAuthUserSso.uuid);
-            if(getCheckUser){
-              $('#modalFinishSendApprove').modal('show');
-              this.isRequestApproveBtn = false;
-              
-              for (let prop in this.dataUser) {
-                this.dataUser[prop] = '';
-              }
-              
-              await this.loadAllData();
-            }else{
-              this.$root.showAlertFunction('warning', 'Request Approve!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          for (let prop in this.dataUser) {
+            if(prop != 'uuid'){
+              this.dataUser[prop] = checkUserRegis[prop];
             }
           }
+
+          this.isRequestApproveBtn = false;
         }else{
-          this.$root.clearSessionLocalStorege();
+          this.isRequestApproveBtn = true;
+        }
+      },
+      
+      openModalEditDataUser: function(){
+        this.dataUser.nama_lengkap = this.dataUserRegister ? this.dataUserRegister.nama_lengkap : '';
+        this.dataUser.no_hp = this.dataUserRegister ? this.dataUserRegister.no_hp : '';
+        this.dataUser.gender = this.dataUserRegister ? this.dataUserRegister.gender : '';
+        this.dataUser.tanggal_lahir = this.dataUserRegister ? this.dataUserRegister.tanggal_lahir : '';
+
+        $('#modalEditDataUser').modal('show');
+      },
+
+      submitModalEditData: function(){
+        for (let prop in this.dataUser) {
+          if(prop != 'uuid'){
+            if(!this.dataUser[prop] || this.dataUser[prop] == ''){
+              this.isEnableBtnApprove = false;
+              this.$root.showAlertFunction('warning', 'Lengkapi Data!', 'Ops...! Lengkapi semua data untuk melanjutkan.');
+              return false;
+            }
+          }
         }
 
-        this.$root.hideLoading();
-      } catch (error) {
-        this.$root.showAlertFunction('warning', 'Request Approve!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
-        this.$root.hideLoading();
-        console.log(error);
+        $('#modalEditDataUser').modal('hide');
+        this.isEnableBtnApprove = true;
+        // this.$root.showAlertFunction('success', 'Data Disiapkan!', 'Data pribadi anda hampir siap, Silahkan untuk klik Request Approve!');
+      },
+      
+      sendRequestApprove: async function (){
+        try{
+          this.$root.showLoading();
+
+          if(this.dataAuthUserSso){
+            this.dataUser.uuid = this.dataAuthUserSso.uuid;
+            const store = await axios({
+              method: 'post',
+              url: this.$root.API_URL + '/auth/send-request-approve',
+              data: this.dataUser
+            });
+            
+            if(store.status == 201 || store.status == 200){
+              const response = store.data;
+              const getCheckUser = await this.$root.checkUserRegistered(this.dataAuthUserSso.uuid);
+              if(getCheckUser){
+                $('#modalFinishSendApprove').modal('show');
+                this.isRequestApproveBtn = false;
+                
+                for (let prop in this.dataUser) {
+                  this.dataUser[prop] = '';
+                }
+                
+                await this.loadAllData();
+              }else{
+                this.$root.showAlertFunction('warning', 'Request Approve!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+              }
+            }
+          }else{
+            this.$root.clearSessionLocalStorege();
+          }
+
+          this.$root.hideLoading();
+        } catch (error) {
+          this.$root.showAlertFunction('warning', 'Request Approve!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          this.$root.hideLoading();
+          console.log(error);
+        }
+      },
+
+      confirmAndCheckProfileSSO: function(){
+        window.location.reload();
       }
     },
-  },
-}
+  }
 </script>

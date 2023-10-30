@@ -203,17 +203,17 @@
 </template>
 
 <script>
-export default {
-  name: 'Dashboard',
-  data(){
-    return{
-      dateNow: null,
-    }
-  },
+  export default {
+    name: 'Dashboard',
+    data(){
+      return{
+        dateNow: null,
+      }
+    },
 
-  mounted(){
-    this.dateNow = this.$root.formatDateIdn(new Date());
-    this.$root.hideLoading();
+    mounted(){
+      this.dateNow = this.$root.formatDateIdn(new Date());
+      this.$root.hideLoading();
+    }
   }
-}
 </script>
