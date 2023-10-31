@@ -19,7 +19,14 @@
         <span class="d-none d-xl-inline-block ms-1">Tambah</span>
       </button>
       <div>
-        <input class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
+        <form>
+          <div class="input-group">
+            <input class="form-control shadow-none search" type="search" placeholder="Search..." aria-label="search">
+            <button class="btn btn-outline-secondary border-300 hover-border-secondary">
+              <span class="fa fa-search fs--1"></span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

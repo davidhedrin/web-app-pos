@@ -14,22 +14,9 @@
 
   <div class="card mb-3">
     <div class="card-header row justify-content-between pb-0">
-      <div class="col-md-6 mb-3 d-flex">
-        <div class="row g-0 g-md-3 justify-content-end align-items-center">
+      <div class="col-auto mb-3 d-flex">
+        <div class="row align-items-center justify-content-between">
           <div class="col-auto">
-            <form class="row gx-2">
-              <div class="col-auto">
-                <select class="form-select">
-                  <option value="">Pilih Jenis Promo</option>
-                  <option value="">Promo 1</option>
-                  <option value="">Promo 2</option>
-                  <option value="">Promo 3</option>
-                  <option value="">Promo 4</option>
-                </select>
-              </div>
-            </form>
-          </div>
-          <div class="col-auto ms-3">
             <div class="d-flex align-items-center">
               <small class="fw-semi-bold pe-1">View:</small>
               <div class="d-flex">
@@ -42,11 +29,29 @@
               </div>
             </div>
           </div>
+          <div class="col-auto">
+            <form>
+              <select class="form-select">
+                <option value="">Pilih Jenis Promo</option>
+                <option value="">Promo 1</option>
+                <option value="">Promo 2</option>
+                <option value="">Promo 3</option>
+                <option value="">Promo 4</option>
+              </select>
+            </form>
+          </div>
         </div>
       </div>
       
-      <div class="col-md-4 mb-3">
-        <input class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
+      <div class="col-md-3 mb-3">
+        <form>
+          <div class="input-group">
+            <input class="form-control shadow-none search" type="search" placeholder="Search..." aria-label="search">
+            <button class="btn btn-outline-secondary border-300 hover-border-secondary">
+              <span class="fa fa-search fs--1"></span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -200,7 +205,6 @@
             }
           }
           
-          console.log(this.dataAllPromoProduct);
           this.$root.hideLoading();
         } catch (error) {
           console.log(error);

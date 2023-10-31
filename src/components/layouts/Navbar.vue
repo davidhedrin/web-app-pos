@@ -97,6 +97,15 @@
                 <span class="nav-link-text ps-1">User List</span>
               </div>
             </a>
+
+            <a v-on:click="validateGoto('product-list')" class="nav-link" href="javascript:void(0)" role="button">
+              <div class="d-flex align-items-center">
+                <span class="nav-link-icon">
+                  <span class="fas fa-dolly"></span>
+                </span>
+                <span class="nav-link-text ps-1">Product List</span>
+              </div>
+            </a>
           </li>
 
           <li class="nav-item">
@@ -191,6 +200,7 @@ export default {
         'promo-list',
         'promo-product',
         'user-list',
+        'product-list',
       ],
     }
   },

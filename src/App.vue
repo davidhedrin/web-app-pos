@@ -39,8 +39,8 @@ import Sales from '@/components/pages/Sales.vue';
 
 import PromoList from '@/components/pages/MasterPromo/PromoList.vue';
 import PromoProduct from '@/components/pages/MasterPromo/PromoProduct.vue';
-
 import UserList from '@/components/pages/MasterUser/UserList.vue';
+import ProductList from '@/components/pages/MasterProduct/ProductList.vue';
 
 const routeComponent = {
   'login': Login,
@@ -53,7 +53,10 @@ const routeComponent = {
   'promo-product': PromoProduct,
 
   // Master User
-  'user-list': UserList
+  'user-list': UserList,
+
+  // Master Product
+  'product-list': ProductList,
 }
 
 export default {

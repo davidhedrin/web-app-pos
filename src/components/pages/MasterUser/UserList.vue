@@ -8,21 +8,28 @@
         <span class="bg-200 dark__bg-1100 pe-3 fs-2">User List</span>
         <span class="border position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
       </h5>
-      <p class="mb-0 fs--1"><a href="javascript:void(0)" class="text-dark">Martha Tilaar Shop</a> / Master User / User List</p>
+      <p class="mb-0 fs--1"><a href="javascript:void(0)" class="text-dark">Martha Tilaar Shop</a> / Master User</p>
     </div>
   </div>
   
   <div class="card mb-3">
     <div class="card-header row justify-content-between pb-0">
-      <div class="col-md-4 mb-3">
+      <div class="col-md-3 mb-3">
         <select class="form-select">
           <option value="">Pilih Jenis Role</option>
           <option v-for="role in allMasterRole" :value="role.id">{{ role.nama_role }}</option>
         </select>
       </div>
       
-      <div class="col-md-4 mb-3">
-        <input class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
+      <div class="col-md-3 mb-3">
+        <form>
+          <div class="input-group">
+            <input class="form-control shadow-none search" type="search" placeholder="Search..." aria-label="search">
+            <button class="btn btn-outline-secondary border-300 hover-border-secondary">
+              <span class="fa fa-search fs--1"></span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -31,7 +38,7 @@
   <div class="card">
     <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-size: cover;"></div>
     <div class="card-body position-relative pb-0">
-      <div  class="table-scrollable-wrapper" style="max-height: 66vh; min-height: 66vh;">
+      <div  class="table-scrollable-wrapper" style="max-height: 67vh; min-height: 67vh;">
         <table class="table table-scrollable">
           <thead>
             <tr>

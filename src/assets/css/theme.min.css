@@ -6684,7 +6684,7 @@ fieldset:disabled .tox .tox-dialog__footer .tox-button--secondary,
 
 .nav-pills .nav-link.active,
 .nav-pills .show>.nav-link {
-    color: var(--falcon-nav-pills-link-active-color);
+    color: var(--falcon-nav-pills-link-active-color) !important;
     background-color: var(--falcon-nav-pills-link-active-bg)
 }
 
@@ -6718,7 +6718,7 @@ fieldset:disabled .tox .tox-dialog__footer .tox-button--secondary,
     -webkit-box-flex: 1;
     -ms-flex: 1 1 auto;
     flex: 1 1 auto;
-    text-align: center
+    text-align: center;
 }
 
 .nav-justified>.nav-link,

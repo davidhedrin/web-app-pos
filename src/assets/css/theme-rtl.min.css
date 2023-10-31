@@ -6684,7 +6684,7 @@ fieldset:disabled .tox .tox-dialog__footer .tox-button--secondary,
 
 .nav-pills .nav-link.active,
 .nav-pills .show>.nav-link {
-  color: var(--falcon-nav-pills-link-active-color);
+  color: var(--falcon-nav-pills-link-active-color) !important;
   background-color: var(--falcon-nav-pills-link-active-bg)
 }
 

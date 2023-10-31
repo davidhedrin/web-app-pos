@@ -947,8 +947,8 @@
       };
     },
 
-    beforeMount(){
-      this.loadAlldatas();
+    async beforeMount(){
+      await this.loadAlldatas();
     },
 
     mounted() {
@@ -1250,7 +1250,7 @@
         }
       },
       
-      deleteProductById: function(product) {
+      deleteProductById: function (product){
         let indexToDelete = 0;
         if(product.is_promo_product){ // Jika product promo
           try{
