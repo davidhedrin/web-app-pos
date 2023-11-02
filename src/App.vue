@@ -323,6 +323,10 @@ export default {
       const selectElement = document.getElementById(selectId);
       selectElement.classList.remove('border-red');
     },
+
+    convertToLowerCase(text) {
+      return text.toLowerCase();
+    },
   }
 }
 </script>

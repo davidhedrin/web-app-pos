@@ -602,7 +602,8 @@
                   </tbody>
                 </table>
     
-                <div class="d-flex align-items-center justify-content-between mb-1">
+                <!-- Logic add metode pembayaran -->
+                <!-- <div class="d-flex align-items-center justify-content-between mb-1">
                   <label class="form-label mb-0">Metode Pembayaran: </label>
                   <div class="btn-group" role="group">
                     <button v-if="validasiMetodePembayaran.length > 0" class="btn btn-sm p-0 ms-2 text-primary dropdown-toggle" id="btnGroupTambahMetode" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -615,7 +616,7 @@
                       <a v-for="metode in validasiMetodePembayaran" class="dropdown-item" v-on:click="addMoreMetodeBayar(metode)" href="javascript:void(0)">{{ metode.nama }}</a>
                     </div>
                   </div>
-                </div>
+                </div> -->
                 <div class="d-flex align-items-center justify-content-between rounded-3 bg-body-tertiary ps-2 py-1 py-0">
                   <div class="w-35">
                     <img class="img-icon-po2" :src="'src/assets/img/po-img/' + selectedMetodeBayar.image" />
@@ -630,7 +631,8 @@
                   </div>
                 </div>
                 
-                <div v-for="(metode, index) in dataMoreMetodeBayar" :key="index" class="d-flex align-items-center justify-content-between rounded-3 bg-body-tertiary ps-2 py-1 mt-1">
+                <!-- Logic add metode pembayaran -->
+                <!-- <div v-for="(metode, index) in dataMoreMetodeBayar" :key="index" class="d-flex align-items-center justify-content-between rounded-3 bg-body-tertiary ps-2 py-1 mt-1">
                   <div class="w-35 d-flex align-items-center">
                     <a href="javascript:void(0)" class="text-secondary me-1" v-on:click="removeMoreMetodeBayar(metode, index)">
                       <span class="fas fa-window-close fs--1"></span>
@@ -645,7 +647,7 @@
                   <div class="w-25">
                     <input v-model="nominalMoreMetodeBayar[index]" @input="nominalMoreMetodeBayar[index] = formatCalculatePriceMoreMetode($event, index)" :id="'inputNominalMoreMetodeBayar_' + index" class="form-control form-control-sm text-end" type="text" placeholder="Nominal"/>
                   </div>
-                </div>
+                </div> -->
     
                 <!-- <div class="d-flex align-items-center justify-content-between mb-2">
                   <label class="form-label mb-0">Metode Pembayaran: </label>
