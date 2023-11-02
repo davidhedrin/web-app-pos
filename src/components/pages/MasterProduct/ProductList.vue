@@ -16,17 +16,6 @@
     <div class="card-body">
       <div class="d-lg-flex justify-content-between">
         <div class="d-flex align-items-center justify-content-between justify-content-lg-end">
-          <div class="d-none" id="table-ticket-actions">
-            <div class="d-flex">
-              <select class="form-select" aria-label="Bulk actions">
-                <option selected="">Bulk actions</option>
-                <option value="Refund">Refund</option>
-                <option value="Delete">Delete</option>
-                <option value="Archive">Archive</option>
-              </select>
-              <button class="btn btn-falcon-default ms-2" type="button">Apply</button>
-            </div>
-          </div>
           <div class="d-flex align-items-center justify-content-between">
             <button class="btn btn-primary btn-sm me-2" type="button" data-bs-toggle="modal" data-bs-target="#modalAddNewProduct">
               <span class="fas fa-plus" data-fa-transform="shrink-3"></span>
@@ -35,12 +24,12 @@
             <div class="d-flex align-items-center">
               <small class="fw-semi-bold d-none d-lg-block lh-1">View:</small>
               <div class="d-flex">
-                <a class="btn btn-link btn-sm text-400 hover-700" href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Course Grid" data-bs-original-title="Course Grid">
-                  <span class="fas fa-th fs-1" data-fa-transform="down-1"></span>
-                </a>
-                <a class="btn btn-link btn-sm px-1 text-700" href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Course List" data-bs-original-title="Course List">
+                <button class="btn btn-link btn-sm text-900" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Course List" data-bs-original-title="Course List">
                   <span class="fas fa-list-ul fs-1" data-fa-transform="down-1"></span>
-                </a>
+                </button>
+                <button class="btn btn-link btn-sm px-1 text-400 hover-700" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Course Grid" data-bs-original-title="Course Grid">
+                  <span class="fas fa-th fs-1" data-fa-transform="down-1"></span>
+                </button>
               </div>
             </div>
             <div class="ms-2">
@@ -76,7 +65,7 @@
   </div>
 
   <div class="modal fade" id="modalAddNewProduct" tabindex="-1" role="dialog" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 950px">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 1100px">
       <div class="modal-content position-relative">
         <div class="position-absolute top-0 end-0 mt-2 me-2 z-1">
           <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -88,22 +77,26 @@
           <div class="mt-3">
             <ul class="nav nav-pills justify-content-center" id="pill_addProductTab" role="tablist">
               <li class="nav-item">
-                <a class="nav-link rounded-pill active py-1" style="color: #ababab;" id="pill-Product-tab" data-bs-toggle="tab" href="#pill-tab-Product" role="tab" aria-controls="pill-tab-Product" aria-selected="true">
+                <!-- data-bs-toggle="tab" href="#pill-tab-Product" role="tab" aria-controls="pill-tab-Product" aria-selected="true" -->
+                <a class="nav-link rounded-pill active py-1 text-inactive-pill" id="pill-Product-tab">
                   <span class="fas fa-box-open"></span> Product
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link rounded-pill py-1" style="color: #ababab;" id="pill-price-tab" data-bs-toggle="tab" href="#pill-tab-price" role="tab" aria-controls="pill-tab-price" aria-selected="false">
+                <!-- data-bs-toggle="tab" href="#pill-tab-price" role="tab" aria-controls="pill-tab-price" aria-selected="false" -->
+                <a class="nav-link rounded-pill py-1 text-inactive-pill" id="pill-price-tab">
                   <span class="fas fa-dollar-sign"></span> Price
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link rounded-pill py-1" style="color: #ababab;" id="pill-inventory-tab" data-bs-toggle="tab" href="#pill-tab-inventory" role="tab" aria-controls="pill-tab-inventory" aria-selected="false">
+                <!-- data-bs-toggle="tab" href="#pill-tab-inventory" role="tab" aria-controls="pill-tab-inventory" aria-selected="false" -->
+                <a class="nav-link rounded-pill py-1 text-inactive-pill" id="pill-inventory-tab">
                   <span class="fas fa-truck-loading"></span> Inventory
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link rounded-pill py-1" style="color: #ababab;" id="pill-review-tab" data-bs-toggle="tab" href="#pill-tab-review" role="tab" aria-controls="pill-tab-review" aria-selected="false">
+                <!-- data-bs-toggle="tab" href="#pill-tab-review" role="tab" aria-controls="pill-tab-review" aria-selected="false" -->
+                <a class="nav-link rounded-pill py-1 text-inactive-pill" id="pill-review-tab">
                   <span class="fas fa-thumbs-up"></span> Review
                 </a>
               </li>
@@ -112,46 +105,230 @@
               <div class="tab-pane fade show active" id="pill-tab-Product" role="tabpanel" aria-labelledby="home-tab">
                 <form>
                   <div class="row">
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">Product SKU<span class="text-danger">*</span></label>
-                      <input class="form-control" type="text" name="name" placeholder="Masukkan SKU product">
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Store Outlet<span class="text-danger">*</span></label>
+                      <v-select 
+                        v-model="dataAddProduct.store_outlet"
+                        :options="dataMasterStoreOutlet"
+                        label="nama_toko"
+                        value="id"
+                        placeholder="Pilih brand product"
+                      />
                     </div>
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">Product Barcode<span class="text-danger">*</span></label>
-                      <input class="form-control" type="text" name="name" placeholder="Masukkan barcode product">
-                    </div>
-                    <div class="col-md-12 mb-3">
-                      <label class="form-label">Nama Product<span class="text-danger">*</span></label>
-                      <input class="form-control" type="text" name="name" placeholder="John Smith">
-                    </div>
-                    <div class="col-md-12 mb-4">
+                    <div class="col-md-4 mb-3">
                       <label class="form-label">Brand Product<span class="text-danger">*</span></label>
-                      <select class="form-select">
-                        <option value="">Pilih Brand Product</option>
-                        <option v-for="brand in dataBrandProduct" :id="brand.slug" :value="brand.slug">{{ brand.nama_brand }}</option>
-                      </select>
+                      <v-select 
+                        v-model="dataAddProduct.brand_prodcut"
+                        :options="dataMasterOptionInfo"
+                        label="optDtlName"
+                        value="id"
+                        placeholder="Pilih brand product"
+                      />
                     </div>
-                    <div class="col-md-12">
-                      <div class="dropzone-area px-2 py-3">
-                        <div class="text-center">
-                          <img class="me-2" src="@/assets/img/icons/cloud-upload.svg" width="25" alt="">
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Manufaktur Product<span class="text-danger">*</span></label>
+                      <v-select 
+                        v-model="dataAddProduct.manufaktur_product"
+                        :options="dataMasterManufaktur"
+                        label="mnfctName"
+                        value="id"
+                        placeholder="Pilih manufaktur product"
+                      />
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Product Code (SKU)<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.product_sku" class="form-control" type="text" placeholder="Masukkan SKU product">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Product Barcode<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.product_barcode" class="form-control" type="text" placeholder="Masukkan barcode product">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Parent Code<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.parent_code" class="form-control" type="text" placeholder="Masukkan parent code">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">UOM 2<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.uom2" class="form-control" type="number" placeholder="Masukkan nilai UOM 2">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">UOM 3<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.uom3" class="form-control" type="number" placeholder="Masukkan nilai UOM 3">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Reting Product (Max 5)</label>
+                      <input v-model="dataAddProduct.rating" class="form-control" type="number" step="0.5" max="5" placeholder="Masukkan reting product">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Nama Lengkap Product<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.nama_lengkap" class="form-control" type="text" placeholder="Masukkan nama lengkap product">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Nama Singkat Product</label>
+                      <input v-model="dataAddProduct.nama_singkat" class="form-control" type="text" placeholder="Masukkan nama singkat product">
+                    </div>
+
+                    <div class="col-md-12 mt-2">
+                      <div class="dropzone-area px-2 py-3" onclick="document.getElementById('input_file_img_product').click()">
+                        <div v-if="selectedFileNameImage" class="text-center">
+                          <img src="@/assets/img/icons/cloud-upload.svg" width="25" alt="">
+                          Selected file: <strong>{{ selectedFileNameImage }}</strong>
+                          <p class="mb-0 fs--1 text-400">Upload a 300x300 jpg image with</p>
+                        </div>
+                        <div v-else>
+                          <img src="@/assets/img/icons/cloud-upload.svg" width="25" alt="">
                           Upload of product picture
-                          <p class="mb-0 fs--1 text-400">Upload a 300x300 jpg image with <br>a maximum size of 400KB</p>
+                          <p class="mb-0 fs--1 text-400">Upload a 300x300 jpg image with</p>
                         </div>
                       </div>
-                      <input class="form-control" type="file" hidden>
+                      <input id="input_file_img_product" class="form-control" type="file" accept="image/jpeg, image/png" @change="changeInputFileImageProduct" hidden>
                     </div>
                   </div>
                 </form>
               </div>
               <div class="tab-pane fade" id="pill-tab-price" role="tabpanel" aria-labelledby="profile-tab">
-                Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic.
+                <form>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Price Code<span class="text-danger">*</span></label>
+                      <v-select  
+                        v-model="dataAddProduct.price_code" 
+                        :options="dataMasterPriceCode" 
+                        label="priceName" 
+                        value="id" 
+                        placeholder="Pilih price code"
+                      >
+                        <template v-slot:option="option">
+                          {{ option.priceName }} ({{ option.priceCode }})
+                        </template>
+                      </v-select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Diskon Code<span class="text-danger">*</span></label>
+                      <v-select 
+                        v-model="dataAddProduct.diskon_code"
+                        :options="dataMasterDiskonCode"
+                        label="discName"
+                        value="id"
+                        placeholder="Pilih diskon code" 
+                      />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Product Price<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.product_price" class="form-control hide-input-btn" type="number" placeholder="Masukkan harga product">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Product Cost<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.product_cost" class="form-control hide-input-btn" type="number" placeholder="Masukkan cost product">
+                    </div>
+                  </div>
+                </form>
               </div>
               <div class="tab-pane fade" id="pill-tab-inventory" role="tabpanel" aria-labelledby="contact-tab">
-                Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica. DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork.
+                <form>
+                  <div class="row">
+                    <div class="col-md-12 mb-3">
+                      <label class="form-label">Warehouse<span class="text-danger">*</span></label>
+                      <v-select  
+                        v-model="dataAddProduct.warehouse" 
+                        :options="dataMasterWarehouse" 
+                        label="whsName" 
+                        value="id" 
+                        placeholder="Pilih warehouse"
+                      >
+                        <template v-slot:option="option">
+                          {{ option.whsName }} ({{ option.whsCode }})
+                        </template>
+                      </v-select>
+
+                      <!-- <select v-model="dataAddProduct.warehouse" class="form-select">
+                        <option value="">Pilih warehouse</option>
+                        <option v-for="code in dataMasterWarehouse" :id="code.id" :value="code.id">{{ code.whsName }} ({{ code.whsCode }})</option>
+                      </select> -->
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">On Hand<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.on_hand" class="form-control hide-input-btn" type="number" placeholder="Masukkan harga product">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">On Order<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.on_order" class="form-control hide-input-btn" type="number" placeholder="Masukkan cost product">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Min Buffer<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.min_buffer" class="form-control hide-input-btn" type="number" placeholder="Masukkan cost product">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Max Buffer<span class="text-danger">*</span></label>
+                      <input v-model="dataAddProduct.max_buffer" class="form-control hide-input-btn" type="number" placeholder="Masukkan cost product">
+                    </div>
+
+                    <hr class="my-3">
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Supplier Code<span class="text-danger">*</span></label>
+                      <v-select  
+                        v-model="dataAddProduct.supplier_code" 
+                        :options="dataMasterSupplierCode" 
+                        label="suppName" 
+                        value="id" 
+                        placeholder="Pilih supplier"
+                      >
+                        <template v-slot:option="option">
+                          {{ option.suppName }} ({{ option.suppCode }})
+                        </template>
+                      </v-select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Priority<span class="text-danger">*</span></label>
+                      <select v-model="dataAddProduct.priority" class="form-select">
+                        <option value="">Pilih priority</option>
+                        <option value="1">Highest</option>
+                        <option value="2">Middle</option>
+                        <option value="3">Lowest</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
               </div>
               <div class="tab-pane fade" id="pill-tab-review" role="tabpanel" aria-labelledby="contact-tab">
-                Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica. DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork.
+                <div class="text-center">
+                  <span>Product Detail</span>
+                </div>
+                <!-- Customer Detail -->
+                <hr class="mt-0">
+                <div class="row">
+                  <div class="col-md-4 text-center mb-2">
+                    <u>Store:</u>
+                    <p class="fw-bold">Kelapa Gading</p>
+                  </div>
+                  <div class="col-md-4 text-center mb-2">
+                    <u>Brand:</u>
+                    <p class="fw-bold">DEWI SRI PUSPA</p>
+                  </div>
+                  <div class="col-md-4 text-center mb-2">
+                    <u>Manufaktur:</u>
+                    <p class="fw-bold">Martina Berto</p>
+                  </div>
+                  
+                  <div class="col-md-4 text-center mb-2">
+                    <u>Product Code (SKU):</u>
+                    <p class="fw-bold">RN0610000000S</p>
+                  </div>
+                  <div class="col-md-4 text-center mb-2">
+                    <u>Product Barcode:</u>
+                    <p class="fw-bold">#OU0012020020S</p>
+                  </div>
+                  <div class="col-md-4 text-center mb-2">
+                    <u>Parent Code:</u>
+                    <p class="fw-bold">RN1011210016T</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -173,6 +350,50 @@
     data(){
       return {
         dataBrandProduct: [],
+        dataMasterStoreOutlet: [],
+        dataMasterManufaktur: [],
+        dataMasterPriceCode: [],
+        dataMasterDiskonCode: [],
+        dataMasterWarehouse: [],
+        dataMasterSupplierCode: [],
+
+        dataMasterOptionInfo: [],
+        dataMasterOptionInfoBrand: [],
+        dataMasterOptionInfoCateg: [],
+
+        inputImageProduct: null,
+        selectedFileNameImage: null,
+
+        dataAddProduct: {
+          // Product
+          store_outlet: null,
+          brand_prodcut: null,
+          manufaktur_product: null,
+          product_sku: null,
+          product_barcode: null,
+          parent_code: null,
+          nama_lengkap: null,
+          nama_singkat: null,
+          uom2: null,
+          uom3: null,
+          rating: null,
+          img_product: null,
+
+          // Price
+          price_code: null,
+          diskon_code: null,
+          product_price: null,
+          product_cost: null,
+
+          // Inventory
+          warehouse: null,
+          on_hand: null,
+          on_order: null,
+          min_buffer: null,
+          max_buffer: null,
+          supplier_code: null,
+          priority: '',
+        }
       }
     },
 
@@ -189,7 +410,22 @@
           });
           const allData = getAllData.data;
           this.dataBrandProduct = allData.getAllBrand; //All Brand
+          this.dataMasterStoreOutlet = allData.getAllStoreOutlet; //All Store Outlet
+          this.dataMasterManufaktur = allData.getAllManufaktur; //All Manufaktur
+          this.dataMasterPriceCode = allData.getAllMasterPriceCode; //All Price Code
+          this.dataMasterDiskonCode = allData.getAllMasterDiskon; //All Diskon Code
+          this.dataMasterWarehouse = allData.getAllMasterWarehouse; //All Warehouse
+          this.dataMasterSupplierCode = allData.getAllMasterSupplierCode; //All Supplier Code
 
+          this.dataMasterOptionInfo = allData.getAllMasterOptionInfo; //All Option Info
+          allData.getAllMasterOptionInfo.forEach((data) => {
+            if(data.optionalCode_id === 1){
+              this.dataMasterOptionInfoBrand.push(data);
+            }
+            if(data.optionalCode_id === 2){
+              this.dataMasterOptionInfoCateg.push(data);
+            }
+          });
         } catch (error) {
           console.log(error);
         }
@@ -215,6 +451,8 @@
           if ($(element).hasClass('active')) {
             if (i < pillTabNavLink.length - 1) {
               $(element).removeClass('active');
+              $(element).removeClass('text-inactive-pill');
+              $(element).addClass('text-active-pill');
               $(pillTabNavLink[i + 1]).addClass('active');
             }
             break;
@@ -264,6 +502,24 @@
           }
         }
       },
+
+      changeInputFileImageProduct: function(event) {
+        const fileInput = event.target;
+        if (fileInput.files.length > 0) {
+          const fileName = fileInput.files[0].name;
+          this.selectedFileNameImage = fileName;
+        }
+        this.dataAddProduct.img_product = fileInput.value;
+      }
     },
   }
 </script>
+
+<style scoped>
+.text-inactive-pill{
+  color: #ababab;
+}
+.text-active-pill{
+  color: #3f9a3f;
+}
+</style>
