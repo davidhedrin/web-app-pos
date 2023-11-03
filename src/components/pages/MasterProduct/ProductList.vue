@@ -16,13 +16,13 @@
     <div class="card-body">
       <div class="d-lg-flex justify-content-between">
         <div class="d-flex align-items-center justify-content-between justify-content-lg-end">
-          <div class="d-flex align-items-center justify-content-between">
-            <button class="btn btn-primary btn-sm me-2" type="button" data-bs-toggle="modal" data-bs-target="#modalAddNewProduct">
+          <div class="d-flex align-items-center">
+            <!-- <button class="btn btn-primary btn-sm me-2" type="button" data-bs-toggle="modal" data-bs-target="#modalAddNewProduct">
               <span class="fas fa-plus" data-fa-transform="shrink-3"></span>
               <span class="d-none d-md-inline-block ms-1">Baru</span>
-            </button>
+            </button> -->
             <div class="d-flex align-items-center">
-              <small class="fw-semi-bold d-none d-lg-block lh-1">View:</small>
+              <small class="fw-semi-bold lh-1">View:</small>
               <div class="d-flex">
                 <button class="btn btn-link btn-sm text-900" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Course List" data-bs-original-title="Course List">
                   <span class="fas fa-list-ul fs-1" data-fa-transform="down-1"></span>
@@ -60,6 +60,224 @@
     <div class="card-body position-relative">
       <div class="scrollable-customize mb-3" style="max-height: 63vh; min-height: 63vh;">
         
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalViewProduct" tabindex="-1" role="dialog" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 1100px">
+      <div class="modal-content position-relative">
+        <div class="position-absolute top-0 end-0 mt-2 me-2 z-1">
+          <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="rounded-top-3 py-3 ps-4 pe-6 bg-body-tertiary">
+            <h5 class="mb-1" id="modalExampleDemoLabel">Tambah Product Baru </h5>
+          </div>
+          <div class="mt-3">
+            <div class="scrollable-customize" style="max-height: 540px;">
+              <div class="row mx-0">
+                <div class="col-md-4 mb-3">
+                  <img class="rounded" src="@/assets/img/product/sariayu_martha.jpg" alt="" style="width: 100%; height: 190px; object-fit: cover;">
+                </div>
+                <!-- Review Product -->
+                <div class="col-md-8 mb-3">
+                  <h5 class="mb-0"><span class="fas fa-box-open"></span> Product:</h5>
+                  <hr class="my-1">
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="fs--1">
+                        Store: <span class="fw-bold">{{ dataAddProduct.store_outlet ? dataAddProduct.store_outlet.nama_toko : '' }}</span>
+                      </div>
+                      <div class="fs--1">
+                        Manufaktur: <span class="fw-bold">{{ dataAddProduct.manufaktur_product ? dataAddProduct.manufaktur_product.mnfctName : '' }}</span>
+                      </div>
+                      <div class="fs--1">
+                        Reting Product: 
+                        <span class="fw-bold">
+                          {{ dataAddProduct.rating ? dataAddProduct.rating : '' }}
+                          <span v-if="fullStarsCount > 0" v-for="index in fullStarsCount" :key="index" class="fas fa-star"></span>
+                          <span v-if="ishasHalfStar" class="fas fa-star-half-alt"></span>
+                        </span>
+                      </div>
+                      <div class="fs--1">
+                        Nama Product: <span class="fw-bold">{{ dataAddProduct.nama_lengkap }}</span>
+                      </div>
+                      <div class="fs--1">
+                        Nama Pendek: <span class="fw-bold">{{ dataAddProduct.nama_singkat }}</span>
+                      </div>
+                    </div>
+                    <div class="col-md-6 text-md-end text-start">
+                      <div class="fs--1">
+                        Product Code (SKU): <span class="fw-bold">{{ dataAddProduct.product_sku ? dataAddProduct.product_sku : '' }}</span>
+                      </div>
+                      <div class="fs--1">
+                        Product Barcode: <span class="fw-bold">{{ dataAddProduct.product_barcode ? dataAddProduct.product_barcode : '' }}</span>
+                      </div>
+                      <div class="fs--1">
+                        Parent Code: <span class="fw-bold">{{ dataAddProduct.parent_code ? dataAddProduct.parent_code : '' }}</span>
+                      </div>
+                      <div class="fs--1">
+                        Nilai UOM 2: <span class="fw-bold">{{ dataAddProduct.uom2 ? dataAddProduct.uom2 : '' }}</span>
+                      </div>
+                      <div class="fs--1">
+                        Nilai UOM 3: <span class="fw-bold">{{ dataAddProduct.uom3 ? dataAddProduct.uom3 : '' }}</span>
+                      </div>
+                    </div>
+                    <div class="fs--1">
+                      <div class="scrollable-customize" style="max-height: 56px;">
+                        Deskripsi Produk: 
+                        <span class="fw-bold">{{ dataAddProduct.deskripsi }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Review Price and Diskon -->
+              <div class="row mx-0">
+                <div class="col-md-6 mb-3">
+                  <h5 class="mb-0"><span class="fas fa-dollar-sign"></span> Price:</h5>
+                  <hr class="my-1">
+                  <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
+                    <table class="table table-scrollable table-sm">
+                      <thead>
+                        <tr class="fs--1">
+                          <th class="ps-0 py-2 bg-white">Price Code</th>
+                          <th class="py-2 bg-white">Product Price</th>
+                          <th class="pe-0 py-2 bg-white">Product Cost</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="price in dataAddProduct.master_price" class="fs--1">
+                          <td class="ps-0">{{ price.price_code.priceName + ` (${price.price_code.priceCode})` }}</td>
+                          <td>Rp {{ price.price ? $root.formatPrice(price.price) : '-' }}</td>
+                          <td class="pe-0">Rp {{ price.cost ? $root.formatPrice(price.cost) : '-' }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <h5 class="mb-0"><span class="fas fa-percentage"></span> Diskon:</h5>
+                  <hr class="my-1">
+                  <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
+                    <table class="table table-scrollable table-sm">
+                      <thead>
+                        <tr class="fs--1">
+                          <th class="ps-0 py-2 bg-white">Diskon Code</th>
+                          <th class="py-2 bg-white">Deskripsi</th>
+                          <th class="pe-0 py-2 bg-white">Diskon(%)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="diskon in dataAddProduct.master_diskon" class="fs--1">
+                          <td class="ps-0">#{{ diskon.diskon_code.discCode }}</td>
+                          <td>{{ diskon.name }}</td>
+                          <td class="pe-0">
+                            <span v-if="diskon.diskon_code.discCode != '0'">{{ diskon.nilai_diskon ? diskon.nilai_diskon : '0' }}</span>
+                            <span v-else>-</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Review Inventory and Supplier -->
+              <div class="row mx-0">
+                <div class="col-md-6 mb-3">
+                  <h5 class="mb-0"><span class="fas fa-dolly"></span> Inventory:</h5>
+                  <hr class="my-1">
+                  <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
+                    <table class="table table-scrollable table-sm">
+                      <thead>
+                        <tr class="fs--1">
+                          <th class="ps-0 py-2 bg-white">Code</th>
+                          <th class="py-2 bg-white">Name</th>
+                          <th class="py-2 bg-white">On Hand</th>
+                          <th class="py-2 bg-white">On Order</th>
+                          <th class="py-2 bg-white">Min Buffer</th>
+                          <th class="pe-0 py-2 bg-white">Max Buffer</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="whs in dataAddProduct.master_warehouse" class="fs--1">
+                          <td class="ps-0">{{ whs.whs_code.whsCode }}</td>
+                          <td>{{ whs.name }}</td>
+                          <td>{{ whs.on_hand ? whs.on_hand : '-' }}</td>
+                          <td>{{ whs.on_order ? whs.on_order : '-' }}</td>
+                          <td>{{ whs.min_buffer ? whs.min_buffer : '-' }}</td>
+                          <td class="pe-0">{{ whs.max_buffer ? whs.max_buffer : '-' }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <h5 class="mb-0"><span class="fas fa-truck-loading"></span> Supplier:</h5>
+                  <hr class="my-1">
+                  <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
+                    <table class="table table-scrollable table-sm">
+                      <thead>
+                        <tr class="fs--1">
+                          <th class="ps-0 py-2 bg-white">Code</th>
+                          <th class="py-2 bg-white">Name</th>
+                          <th class="py-2 bg-white">Priority</th>
+                          <th class="pe-0 py-2 bg-white">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="supplier in dataAddProduct.master_supplier" class="fs--1">
+                          <td class="ps-0">{{ supplier.code }}</td>
+                          <td>{{ supplier.name }}</td>
+                          <td>{{ getSelectedNamePriority(supplier.priority) }}</td>
+                          <td class="pe-0">
+                            <span class="badge rounded-pill" :class="supplier.status ? 'badge-subtle-success' : 'badge-subtle-danger'">
+                              {{ supplier.status ? 'Active' : 'No Active' }}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Review Optional Info -->
+              <div class="px-3">
+                <h5 class="mb-0"><span class="fas fa-adobe"></span> Optional Info:</h5>
+                <hr class="my-1">
+                <div class="table-scrollable-wrapper" style="min-height: 0; max-height: 146px;">
+                  <table class="table table-scrollable table-sm">
+                    <thead>
+                      <tr class="fs--1">
+                        <th class="ps-0 py-2 bg-white">Info Code</th>
+                        <th class="py-2 bg-white">Info Name</th>
+                        <th class="py-2 bg-white">Detail Code</th>
+                        <th class="pe-0 py-2 bg-white">Detail Name</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="code in dataAddProduct.master_opt_info" class="fs--1">
+                        <td class="ps-0">{{ code.code }}</td>
+                        <td>{{ code.name }}</td>
+                        <td>{{ code.select_opt_info ? code.select_opt_info.optDtlCode : '-' }}</td>
+                        <td class="pe-0">{{ code.select_opt_info ? code.select_opt_info.optDtlName : '-' }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="modal-footer justify-content-between">
+          <button class="btn btn-link ps-0" type="button" @click="prevPillTabAddProducrt()"><span class="fas fa-chevron-left me-2" data-fa-transform="shrink-3"></span> Prev</button>
+          <button class="btn btn-primary px-2 px-sm-3" type="submit" @click="nextPillTabAddProducrt()">Next <span class="fas fa-chevron-right ms-2" data-fa-transform="shrink-3"> </span></button>
+        </div> -->
       </div>
     </div>
   </div>
@@ -164,7 +382,7 @@
                   </div>
                   <div class="col-md-4 mb-2">
                     <label class="form-label mb-0">Reting Product (Max 5)</label>
-                    <input v-model="dataAddProduct.rating" class="form-control" type="number" step="0.5" max="5" placeholder="Masukkan reting product">
+                    <input v-model="dataAddProduct.rating" class="form-control" type="number" step="0.5" min="0" max="5" placeholder="Masukkan reting product">
                   </div>
                   
                   <div class="col-md-12 mb-2">
@@ -206,15 +424,15 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-for="price in dataMasterPriceCode">
+                        <tr v-for="(price, index) in dataMasterPriceCode">
                           <td class="ps-0">
-                            <input :value="price.priceName + ` (${price.priceCode})`" class="form-control" type="text" disabled>
+                            <input v-model="dataAddProduct.master_price[index].name" class="form-control" type="text" disabled>
                           </td>
                           <td>
-                            <input class="form-control hide-input-btn" type="number" placeholder="Masukkan harga product">
+                            <input v-model="dataAddProduct.master_price[index].price" class="form-control hide-input-btn" type="number" placeholder="Masukkan harga product">
                           </td>
                           <td class="pe-0">
-                            <input class="form-control hide-input-btn" type="number" placeholder="Masukkan cost product">
+                            <input v-model="dataAddProduct.master_price[index].cost" class="form-control hide-input-btn" type="number" placeholder="Masukkan cost product">
                           </td>
                         </tr>
                       </tbody>
@@ -229,21 +447,22 @@
                     <table class="table table-scrollable table-sm">
                       <thead>
                         <tr>
-                          <th class="ps-0 py-2 bg-white">Diskon Code</th>
+                          <th class="ps-0 py-2 bg-white">Code</th>
                           <th class="py-2 bg-white">Deskripsi</th>
                           <th class="pe-0 py-2 bg-white">Diskon(%)</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-for="diskon in dataMasterDiskonCode">
+                        <tr v-for="(diskon, index) in dataMasterDiskonCode">
                           <td class="ps-0" style="width: 100px;">
-                            <input :value="'#' + diskon.discCode" class="form-control" type="text" disabled>
+                            <input v-model="dataAddProduct.master_diskon[index].code" class="form-control" type="text" disabled>
                           </td>
                           <td>
-                            <input  :value="diskon.discName" class="form-control" type="text" disabled>
+                            <input v-model="dataAddProduct.master_diskon[index].name" class="form-control" type="text" disabled>
                           </td>
                           <td class="pe-0">
-                            <input class="form-control hide-input-btn" type="number" placeholder="Masukkan nilai diskon">
+                            <input v-if="diskon.discCode != '0'" v-model="dataAddProduct.master_diskon[index].nilai_diskon" class="form-control hide-input-btn" type="number" placeholder="Masukkan nilai diskon">
+                            <input v-else class="form-control" type="text" value="0" disabled>
                           </td>
                         </tr>
                       </tbody>
@@ -270,24 +489,24 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-for="whs in dataMasterWarehouse">
+                        <tr v-for="(whs, index) in dataMasterWarehouse">
                           <td class="ps-0" style="width: 80px;">
-                            <input :value="whs.whsCode" class="form-control" type="text" disabled>
+                            <input v-model="dataAddProduct.master_warehouse[index].code" class="form-control" type="text" disabled>
                           </td>
                           <td style="width: 240px;">
-                            <input :value="whs.whsName" class="form-control" type="text" disabled>
+                            <input v-model="dataAddProduct.master_warehouse[index].name" class="form-control" type="text" disabled>
                           </td>
                           <td style="width: 150px;">
-                            <input class="form-control hide-input-btn" type="number" placeholder="Masukkan nilai">
+                            <input v-model="dataAddProduct.master_warehouse[index].on_hand" class="form-control hide-input-btn" type="number" placeholder="Masukkan nilai">
                           </td>
                           <td style="width: 150px;">
-                            <input class="form-control hide-input-btn" type="number" placeholder="Masukkan nilai">
+                            <input v-model="dataAddProduct.master_warehouse[index].on_order" class="form-control hide-input-btn" type="number" placeholder="Masukkan nilai">
                           </td>
                           <td style="width: 150px;">
-                            <input class="form-control hide-input-btn" type="number" placeholder="Masukkan nilai">
+                            <input v-model="dataAddProduct.master_warehouse[index].min_buffer" class="form-control hide-input-btn" type="number" placeholder="Masukkan nilai">
                           </td>
                           <td class="pe-0" style="width: 150px;">
-                            <input class="form-control hide-input-btn" type="number" placeholder="Masukkan nilai">
+                            <input v-model="dataAddProduct.master_warehouse[index].max_buffer" class="form-control hide-input-btn" type="number" placeholder="Masukkan nilai">
                           </td>
                         </tr>
                       </tbody>
@@ -309,30 +528,32 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-for="supplier in dataMasterSupplierCode">
+                        <tr v-for="(supplier, index) in dataMasterSupplierCode">
                           <td class="ps-0" style="width: 150px;">
-                            <input :value="supplier.suppCode" class="form-control" type="text" disabled>
+                            <input v-model="dataAddProduct.master_supplier[index].code" class="form-control" type="text" disabled>
                           </td>
                           <td>
-                            <input  :value="supplier.suppName" class="form-control" type="text" disabled>
+                            <input v-model="dataAddProduct.master_supplier[index].name" class="form-control" type="text" disabled>
                           </td>
                           <td>
-                            <select class="form-select">
+                            <select v-model="dataAddProduct.master_supplier[index].priority" class="form-select">
                               <option value="">Pilih priority</option>
                               <option v-for="list in optionsDataPriority" :value="list.id">{{ list.name }}</option>
                             </select>
                           </td>
                           <td class="d-flex py-2 pe-0" style="width: 60px;">
                             <div>
-                              <span class="badge rounded-pill badge-subtle-success">Active</span>
+                              <span class="badge rounded-pill" :class="dataAddProduct.master_supplier[index].status ? 'badge-subtle-success' : 'badge-subtle-danger'">
+                                {{ dataAddProduct.master_supplier[index].status ? 'Active' : 'Not Active' }}
+                              </span>
                             </div>
                             <div class="dropdown font-sans-serif position-static">
                               <button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false">
                                 <span class="fas fa-ellipsis-h fs--1"></span>
                               </button>
                               <div class="dropdown-menu dropdown-menu-end border py-0">
-                                <a class="dropdown-item" href="javascript:void(0)">Active</a>
-                                <a class="dropdown-item" href="javascript:void(0)">Inactive</a>
+                                <a class="dropdown-item" href="javascript:void(0)" @click="dataAddProduct.master_supplier[index].status = true">Active</a>
+                                <a class="dropdown-item" href="javascript:void(0)" @click="dataAddProduct.master_supplier[index].status = false">Inactive</a>
                               </div>
                             </div>
                           </td>
@@ -354,15 +575,16 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="code in dataMasterOptionInfoCode">
+                    <tr v-for="(code, index) in dataMasterOptionInfoCode">
                       <td class="ps-0" style="width: 100px;">
-                        <input :value="code.optionalCode" class="form-control" type="text" disabled>
+                        <input v-model="dataAddProduct.master_opt_info[index].code" class="form-control" type="text" disabled>
                       </td>
                       <td style="width: 300px;">
-                        <input :value="code.optionalName" class="form-control" type="text" disabled>
+                        <input v-model="dataAddProduct.master_opt_info[index].name" class="form-control" type="text" disabled>
                       </td>
                       <td class="pe-0">
                         <v-select 
+                          v-model="dataAddProduct.master_opt_info[index].select_opt_info" 
                           :options="filteredOptionsInfoProduct(code.optionalCode)" 
                           label="optDtlName" 
                           value="id" 
@@ -385,7 +607,7 @@
                 <div class="scrollable-customize" style="max-height: 540px;">
                   <div class="row mx-0">
                     <div class="col-md-4 mb-3">
-                      <img class="rounded" src="@/assets/img/product/sariayu_martha.jpg" alt="" style="width: 100%; height: 200px; object-fit: cover;">
+                      <img class="rounded" src="@/assets/img/product/sariayu_martha.jpg" alt="" style="width: 100%; height: 190px; object-fit: cover;">
                     </div>
                     <!-- Review Product -->
                     <div class="col-md-8 mb-3">
@@ -395,48 +617,47 @@
                       <div class="row">
                         <div class="col-md-6">
                           <div class="fs--1">
-                            Store: <span class="fw-bold"></span>
+                            Store: <span class="fw-bold">{{ dataAddProduct.store_outlet ? dataAddProduct.store_outlet.nama_toko : '' }}</span>
                           </div>
                           <div class="fs--1">
-                            Manufaktur: <span class="fw-bold"></span>
+                            Manufaktur: <span class="fw-bold">{{ dataAddProduct.manufaktur_product ? dataAddProduct.manufaktur_product.mnfctName : '' }}</span>
                           </div>
                           <div class="fs--1">
-                            Reting Product: <span class="fw-bold"></span>
+                            Reting Product: 
+                            <span class="fw-bold">
+                              {{ dataAddProduct.rating ? dataAddProduct.rating : '' }}
+                              <span v-if="fullStarsCount > 0" v-for="index in fullStarsCount" :key="index" class="fas fa-star"></span>
+                              <span v-if="ishasHalfStar" class="fas fa-star-half-alt"></span>
+                            </span>
                           </div>
                           <div class="fs--1">
-                            Nama Product: <span class="fw-bold"></span>
+                            Nama Product: <span class="fw-bold">{{ dataAddProduct.nama_lengkap }}</span>
                           </div>
                           <div class="fs--1">
-                            Nama Pendek: <span class="fw-bold"></span>
-                          </div>
-                          <div class="fs--1">
-                            Info Brand: <span class="fw-bold"></span>
+                            Nama Pendek: <span class="fw-bold">{{ dataAddProduct.nama_singkat }}</span>
                           </div>
                         </div>
                         <div class="col-md-6 text-md-end text-start">
                           <div class="fs--1">
-                            Product Code (SKU): <span class="fw-bold"></span>
+                            Product Code (SKU): <span class="fw-bold">{{ dataAddProduct.product_sku ? dataAddProduct.product_sku : '' }}</span>
                           </div>
                           <div class="fs--1">
-                            Product Barcode: <span class="fw-bold"></span>
+                            Product Barcode: <span class="fw-bold">{{ dataAddProduct.product_barcode ? dataAddProduct.product_barcode : '' }}</span>
                           </div>
                           <div class="fs--1">
-                            Parent Code: <span class="fw-bold"></span>
+                            Parent Code: <span class="fw-bold">{{ dataAddProduct.parent_code ? dataAddProduct.parent_code : '' }}</span>
                           </div>
                           <div class="fs--1">
-                            Nilai UOM 2: <span class="fw-bold"></span>
+                            Nilai UOM 2: <span class="fw-bold">{{ dataAddProduct.uom2 ? dataAddProduct.uom2 : '' }}</span>
                           </div>
                           <div class="fs--1">
-                            Nilai UOM 3: <span class="fw-bold"></span>
-                          </div>
-                          <div class="fs--1">
-                            Info Category: <span class="fw-bold"></span>
+                            Nilai UOM 3: <span class="fw-bold">{{ dataAddProduct.uom3 ? dataAddProduct.uom3 : '' }}</span>
                           </div>
                         </div>
                         <div class="fs--1">
                           <div class="scrollable-customize" style="max-height: 56px;">
                             Deskripsi Produk: 
-                            <span class="fw-bold">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</span>
+                            <span class="fw-bold">{{ dataAddProduct.deskripsi }}</span>
                           </div>
                         </div>
                       </div>
@@ -448,7 +669,7 @@
                     <div class="col-md-6 mb-3">
                       <h5 class="mb-0"><span class="fas fa-dollar-sign"></span> Price:</h5>
                       <hr class="my-1">
-                      <div class="table-scrollable-wrapper" style="min-height: 0; max-height: 146px;">
+                      <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
                         <table class="table table-scrollable table-sm">
                           <thead>
                             <tr class="fs--1">
@@ -458,10 +679,10 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <tr v-for="price in dataMasterPriceCode" class="fs--1">
-                              <td class="ps-0">{{ price.priceName + ` (${price.priceCode})` }}</td>
-                              <td>Rp 35.000</td>
-                              <td class="pe-0">Rp 30.000</td>
+                            <tr v-for="price in dataAddProduct.master_price" class="fs--1">
+                              <td class="ps-0">{{ price.price_code.priceName + ` (${price.price_code.priceCode})` }}</td>
+                              <td>Rp {{ price.price ? $root.formatPrice(price.price) : '-' }}</td>
+                              <td class="pe-0">Rp {{ price.cost ? $root.formatPrice(price.cost) : '-' }}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -470,7 +691,7 @@
                     <div class="col-md-6 mb-3">
                       <h5 class="mb-0"><span class="fas fa-percentage"></span> Diskon:</h5>
                       <hr class="my-1">
-                      <div class="table-scrollable-wrapper" style="min-height: 0; max-height: 146px;">
+                      <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
                         <table class="table table-scrollable table-sm">
                           <thead>
                             <tr class="fs--1">
@@ -480,10 +701,13 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <tr v-for="diskon in dataMasterDiskonCode" class="fs--1">
-                              <td class="ps-0">#{{ diskon.discCode }}</td>
-                              <td>{{ diskon.discName }}</td>
-                              <td class="pe-0">15%</td>
+                            <tr v-for="diskon in dataAddProduct.master_diskon" class="fs--1">
+                              <td class="ps-0">#{{ diskon.diskon_code.discCode }}</td>
+                              <td>{{ diskon.name }}</td>
+                              <td class="pe-0">
+                                <span v-if="diskon.diskon_code.discCode != '0'">{{ diskon.nilai_diskon ? diskon.nilai_diskon : '0' }}</span>
+                                <span v-else>-</span>
+                              </td>
                             </tr>
                           </tbody>
                         </table>
@@ -496,7 +720,7 @@
                     <div class="col-md-6 mb-3">
                       <h5 class="mb-0"><span class="fas fa-dolly"></span> Inventory:</h5>
                       <hr class="my-1">
-                      <div class="table-scrollable-wrapper" style="min-height: 0; max-height: 146px;">
+                      <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
                         <table class="table table-scrollable table-sm">
                           <thead>
                             <tr class="fs--1">
@@ -509,22 +733,22 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <tr v-for="whs in dataMasterWarehouse" class="fs--1">
-                              <td class="ps-0">{{ whs.whsCode }}</td>
-                              <td>{{ whs.whsName }}</td>
-                              <td>120</td>
-                              <td>120</td>
-                              <td>12</td>
-                              <td class="pe-0">13</td>
+                            <tr v-for="whs in dataAddProduct.master_warehouse" class="fs--1">
+                              <td class="ps-0">{{ whs.whs_code.whsCode }}</td>
+                              <td>{{ whs.name }}</td>
+                              <td>{{ whs.on_hand ? whs.on_hand : '-' }}</td>
+                              <td>{{ whs.on_order ? whs.on_order : '-' }}</td>
+                              <td>{{ whs.min_buffer ? whs.min_buffer : '-' }}</td>
+                              <td class="pe-0">{{ whs.max_buffer ? whs.max_buffer : '-' }}</td>
                             </tr>
                           </tbody>
                         </table>
                       </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                       <h5 class="mb-0"><span class="fas fa-truck-loading"></span> Supplier:</h5>
                       <hr class="my-1">
-                      <div class="table-scrollable-wrapper" style="min-height: 0; max-height: 146px;">
+                      <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
                         <table class="table table-scrollable table-sm">
                           <thead>
                             <tr class="fs--1">
@@ -535,17 +759,45 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <tr v-for="supplier in dataMasterSupplierCode" class="fs--1">
-                              <td class="ps-0">{{ supplier.suppCode }}</td>
-                              <td>{{ supplier.suppName }}</td>
-                              <td>{{ getSelectedNamePriority('1') }}</td>
+                            <tr v-for="supplier in dataAddProduct.master_supplier" class="fs--1">
+                              <td class="ps-0">{{ supplier.code }}</td>
+                              <td>{{ supplier.name }}</td>
+                              <td>{{ getSelectedNamePriority(supplier.priority) }}</td>
                               <td class="pe-0">
-                                <span class="badge rounded-pill badge-subtle-success">Active</span>
+                                <span class="badge rounded-pill" :class="supplier.status ? 'badge-subtle-success' : 'badge-subtle-danger'">
+                                  {{ supplier.status ? 'Active' : 'No Active' }}
+                                </span>
                               </td>
                             </tr>
                           </tbody>
                         </table>
                       </div>
+                    </div>
+                  </div>
+
+                  <!-- Review Optional Info -->
+                  <div class="px-3">
+                    <h5 class="mb-0"><span class="fas fa-adobe"></span> Optional Info:</h5>
+                    <hr class="my-1">
+                    <div class="table-scrollable-wrapper" style="min-height: 0; max-height: 146px;">
+                      <table class="table table-scrollable table-sm">
+                        <thead>
+                          <tr class="fs--1">
+                            <th class="ps-0 py-2 bg-white">Info Code</th>
+                            <th class="py-2 bg-white">Info Name</th>
+                            <th class="py-2 bg-white">Detail Code</th>
+                            <th class="pe-0 py-2 bg-white">Detail Name</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="code in dataAddProduct.master_opt_info" class="fs--1">
+                            <td class="ps-0">{{ code.code }}</td>
+                            <td>{{ code.name }}</td>
+                            <td>{{ code.select_opt_info ? code.select_opt_info.optDtlCode : '-' }}</td>
+                            <td class="pe-0">{{ code.select_opt_info ? code.select_opt_info.optDtlName : '-' }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
@@ -600,37 +852,30 @@
           }
         ],
 
+        ishasHalfStar: false,
         dataAddProduct: {
           // Product
           store_outlet: null,
-          brand_prodcut: null,
           manufaktur_product: null,
+          nama_lengkap: null,
+          nama_singkat: null,
           product_sku: null,
           product_barcode: null,
           parent_code: null,
-          nama_lengkap: null,
-          nama_singkat: null,
           uom2: null,
           uom3: null,
           rating: null,
           deskripsi: null,
           img_product: null,
+          info_brand: null,
+          info_category: null,
 
-          // Price
-          price_code: null,
-          diskon_code: null,
-          product_price: null,
-          product_cost: null,
-
-          // Inventory
-          warehouse: null,
-          on_hand: null,
-          on_order: null,
-          min_buffer: null,
-          max_buffer: null,
-          supplier_code: null,
-          priority: '',
-        }
+          master_price: [],
+          master_diskon: [],
+          master_warehouse: [],
+          master_supplier: [],
+          master_opt_info: [],
+        },
       }
     },
 
@@ -643,7 +888,15 @@
         return (optionalCode) => {
           return this.dataMasterOptionInfo.filter(option => option.optionalCode === optionalCode);
         }
-      }
+      },
+      fullStarsCount: function() {
+        if (this.dataAddProduct.rating !== null) {
+          // this.ishasHalfStar = this.dataAddProduct.rating % 1 !== 0;
+          const integerPart = parseInt(this.dataAddProduct.rating);
+          return integerPart;
+        }
+        return 0;
+      },
     },
 
     methods: {
@@ -672,6 +925,61 @@
               this.dataMasterOptionInfoCateg.push(data);
             }
           });
+          
+          // Set Object master price
+          this.dataAddProduct.master_price = allData.getAllMasterPriceCode.map(price => {
+            return {
+              price_code: price,
+              name: price.priceName + ` (${price.priceCode})`,
+              price: null,
+              cost: null,
+            }
+          });
+
+          // Set Object master diskon
+          this.dataAddProduct.master_diskon = allData.getAllMasterDiskon.map(diskon => {
+            return {
+              diskon_code: diskon,
+              code: '#' + diskon.discCode,
+              name: diskon.discName,
+              nilai_diskon: null
+            }
+          });
+
+          // Set Object master inventory
+          this.dataAddProduct.master_warehouse = allData.getAllMasterWarehouse.map(whs => {
+            return {
+              whs_code: whs,
+              code: whs.whsCode,
+              name: whs.whsName,
+              on_hand: null,
+              on_order: null,
+              min_buffer: null,
+              max_buffer: null,
+            }
+          });
+
+          // Set Object master supplier
+          this.dataAddProduct.master_supplier = allData.getAllMasterSupplierCode.map(supplier => {
+            return {
+              supplier_code: supplier,
+              code: supplier.suppCode,
+              name: supplier.suppName,
+              priority: '',
+              status: true, // Default
+            }
+          });
+
+          // Set Object master optional info
+          this.dataAddProduct.master_opt_info = allData.getAllMasterOptionInfoCode.map(info => {
+            return {
+              opt_info: info,
+              code: info.optionalCode,
+              name: info.optionalName,
+              select_opt_info: null,
+            }
+          });
+
         } catch (error) {
           console.log(error);
         }
@@ -761,7 +1069,7 @@
       getSelectedNamePriority(id) {
         const selectedItem = this.optionsDataPriority.find(item => item.id === id);
         return selectedItem ? selectedItem.name : '';
-      }
+      },
     },
   }
 </script>

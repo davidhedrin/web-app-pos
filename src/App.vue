@@ -72,7 +72,7 @@ export default {
       APP_SSO_URL: APP_SSO_URL,
       APP_SSO_TOKEN_STATUS: APP_SSO_TOKEN_STATUS,
       dataAuthToken: null,
-
+      
       current_page: sessionStorage.getItem('current_page'),
       activeRoute: markRaw(routeComponent['dashboard']),
       navbar: markRaw(NavbarLayout),
@@ -91,6 +91,13 @@ export default {
         title: '',
         msg: '',
       },
+      
+      superAdminMenu: [
+        'promo-list',
+        'promo-product',
+        'user-list',
+        'product-list',
+      ],
     }
   },
 

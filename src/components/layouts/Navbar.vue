@@ -56,7 +56,7 @@
             </a>
           </li>
           
-          <li v-if="this.$root.dataAuthToken && this.$root.dataAuthToken.role_id == '1'" class="nav-item">
+          <li v-if="this.$root.dataAuthToken && this.$root.dataAuthToken.role.id == '1'" class="nav-item">
             <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
               <div class="col-auto navbar-vertical-label">Master</div>
               <div class="col ps-0">
@@ -98,61 +98,27 @@
               </div>
             </a>
 
-            <a v-on:click="validateGoto('product-list')" class="nav-link" href="javascript:void(0)" role="button">
+            
+            <a class="nav-link dropdown-indicator collapsed" href="#master_product" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="master_product">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
                   <span class="fas fa-dolly"></span>
                 </span>
-                <span class="nav-link-text ps-1">Product List</span>
+                <span class="nav-link-text ps-1">Product</span>
               </div>
             </a>
-          </li>
-
-          <li class="nav-item">
-            <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-              <div class="col-auto navbar-vertical-label">Pages</div>
-              <div class="col ps-0">
-                <hr class="mb-0 navbar-vertical-divider" />
-              </div>
-            </div>
-            
-            <a class="nav-link" href="javascript:void(0)" role="button">
-              <div class="d-flex align-items-center">
-                <span class="nav-link-icon">
-                  <span class="fas fa-comments"></span>
-                </span>
-                <span class="nav-link-text ps-1">Chat</span>
-              </div>
-            </a>
-            
-            
-            <a class="nav-link dropdown-indicator collapsed" href="#email" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="email">
-              <div class="d-flex align-items-center">
-                <span class="nav-link-icon">
-                  <span class="fas fa-envelope-open"></span>
-                </span>
-                <span class="nav-link-text ps-1">Email</span>
-              </div>
-            </a>
-            <ul class="nav collapse" id="email">
+            <ul class="nav collapse" id="master_product">
               <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)">
+                <a v-on:click="validateGoto('product-list')" class="nav-link" href="javascript:void(0)">
                   <div class="d-flex align-items-center">
-                    <span class="nav-link-text ps-1">Inbox</span>
+                    <span class="nav-link-text ps-1">Product List</span>
                   </div>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="javascript:void(0)">
                   <div class="d-flex align-items-center">
-                    <span class="nav-link-text ps-1">Email detail</span>
-                  </div>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)">
-                  <div class="d-flex align-items-center">
-                    <span class="nav-link-text ps-1">Compose</span>
+                    <span class="nav-link-text ps-1">Product Master</span>
                   </div>
                 </a>
               </li>
@@ -194,24 +160,15 @@
 <script>
 export default {
   name: 'Navbar',
-  data(){
-    return{
-      superAdminMenu: [
-        'promo-list',
-        'promo-product',
-        'user-list',
-        'product-list',
-      ],
-    }
-  },
 
   methods: {
     validateGoto: function(goto){
+      $('#navbarVerticalCollapse').collapse('hide');
       const dataAuth = this.$root.dataAuthToken;
       if(dataAuth){
         if(dataAuth.flag_active == true){
-          if(this.superAdminMenu.includes(goto)){
-            if(dataAuth.role_id == 1){
+          if(this.$root.superAdminMenu.includes(goto)){
+            if(dataAuth.role.id == 1){
               this.$root.goto(goto);
             }
           }else{

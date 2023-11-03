@@ -1134,6 +1134,7 @@
         try{
           $('#modalFindMember').modal('hide');
           this.$root.showLoading();
+          this.dataInputMember.user_login = this.$root.dataAuthToken;
           const store = await axios({
             method: 'post',
             url: this.$root.API_URL + '/sales/storeNewMember',
