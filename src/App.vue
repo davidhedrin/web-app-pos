@@ -334,6 +334,10 @@ export default {
     convertToLowerCase(text) {
       return text.toLowerCase();
     },
+
+    convertToInteger(doubleValue) {
+      return parseInt(doubleValue, 10);
+    },
   }
 }
 </script>
@@ -363,4 +367,8 @@ export default {
   flex-direction: column;
   align-items: center;
 }
+
+.tr-middle {
+    vertical-align: middle;
+  }
 </style>
