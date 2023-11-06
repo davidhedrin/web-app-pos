@@ -74,7 +74,7 @@
             <div class="d-flex align-items-end">
               <h6 class="m-0">Role: 
                 <span v-if="dataUserRegister">
-                  <span v-if="dataUserRegister.flag_active" class="badge rounded-pill badge-subtle-primary ms-1 fs--1">
+                  <span v-if="dataUserRegister.flag_active != null" class="badge rounded-pill badge-subtle-primary ms-1 fs--1">
                     {{ dataUserRegister.role ? dataUserRegister.role.nama_role : '?' }}
                   </span>
                   <i v-else>Waiting For <span class="badge rounded-pill badge-subtle-warning ms-1">Approved</span></i>
@@ -87,8 +87,8 @@
             <div class="d-flex align-items-center">
               <h6 class="m-0">Status: 
                 <span v-if="dataUserRegister">
-                  <span v-if="dataUserRegister.flag_active" :class="dataUserRegister.flag_active == 1 ? 'text-success' : 'text-danger'">
-                    {{ dataUserRegister.flag_active == 1 ? 'Approved' : 'Not Approve' }}
+                  <span v-if="dataUserRegister.flag_active != null" :class="dataUserRegister.flag_active == 1 ? 'text-success' : 'text-danger'">
+                    {{ dataUserRegister.flag_active == 1 ? 'Active' : 'Inactive' }}
                   </span>
                   <i v-else>Waiting For <span class="badge rounded-pill badge-subtle-warning ms-1">Approved</span></i>
                 </span>
@@ -100,7 +100,7 @@
             <div class="d-flex">
               <h6 class="m-0">Access Store: 
                 <span v-if="dataUserRegister">
-                  <span v-if="dataUserRegister.flag_active">
+                  <span v-if="dataUserRegister.flag_active != null">
                     <span v-if="dataUserRegister.access_store_outlet.length > 0">
                       <span v-for="store in dataUserRegister.access_store_outlet">{{ store.nama_toko }}, </span>
                     </span>

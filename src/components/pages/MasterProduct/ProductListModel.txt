@@ -528,3 +528,59 @@
       </div>
     </div>
   </div>
+
+  Script loadAllData
+  
+  // // Set Object master price
+  // this.dataAddProduct.master_price = allData.getAllMasterPriceCode.map(price => {
+  //   return {
+  //     price_code: price,
+  //     name: price.priceName + ` (${price.priceCode})`,
+  //     price: null,
+  //     cost: null,
+  //   }
+  // });
+
+  // // Set Object master diskon
+  // this.dataAddProduct.master_diskon = allData.getAllMasterDiskon.map(diskon => {
+  //   return {
+  //     diskon_code: diskon,
+  //     code: '#' + diskon.discCode,
+  //     name: diskon.discName,
+  //     nilai_diskon: null
+  //   }
+  // });
+
+  // // Set Object master inventory
+  // this.dataAddProduct.master_warehouse = allData.getAllMasterWarehouse.map(whs => {
+  //   return {
+  //     whs_code: whs,
+  //     code: whs.whsCode,
+  //     name: whs.whsName,
+  //     on_hand: null,
+  //     on_order: null,
+  //     min_buffer: null,
+  //     max_buffer: null,
+  //   }
+  // });
+
+  // // Set Object master supplier
+  // this.dataAddProduct.master_supplier = allData.getAllMasterSupplierCode.map(supplier => {
+  //   return {
+  //     supplier_code: supplier,
+  //     code: supplier.suppCode,
+  //     name: supplier.suppName,
+  //     priority: '',
+  //     status: true, // Default
+  //   }
+  // });
+
+  // // Set Object master optional info
+  // this.dataAddProduct.master_opt_info = allData.getAllMasterOptionInfoCode.map(info => {
+  //   return {
+  //     opt_info: info,
+  //     code: info.optionalCode,
+  //     name: info.optionalName,
+  //     select_opt_info: null,
+  //   }
+  // });

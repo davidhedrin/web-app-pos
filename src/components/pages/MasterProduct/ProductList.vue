@@ -68,7 +68,8 @@
               <td class="bg-white">Nama</td>
               <td class="bg-white">Store</td>
               <td class="bg-white">Manufaktur</td>
-              <td class="bg-white">Barcode</td>
+              <td class="bg-white">Harga</td>
+              <td class="bg-white">Stok</td>
               <td class="bg-white">Aksi</td>
             </tr>
           </thead>
@@ -80,7 +81,10 @@
               <td class="tr-middle">{{ product.itemName }}</td>
               <td class="tr-middle">{{ product.store.nama_toko }} ({{ product.store.store_code }})</td>
               <td class="tr-middle">{{ product.mnfctName }} ({{ product.mnfctCode }})</td>
-              <td class="tr-middle">{{ product.barCode }}</td>
+              <td class="tr-middle">Rp {{ $root.formatPrice(product.product_price.price) }}</td>
+              <td class="tr-middle">
+                {{ product.inventory_stok.onHand }} 
+              </td>
               <td class="tr-middle">
                 <!-- data-bs-toggle="modal" data-bs-target="#modalViewProduct" -->
                 <button class="btn btn-link p-0" type="button" @click="showModalDetailProduct(product)">
@@ -104,17 +108,16 @@
         <div class="modal-body p-0">
           <div class="rounded-top-3 py-3 ps-4 pe-6 bg-body-tertiary">
             <h5 class="mb-0">Detail Product </h5>
-            <span v-if="productShowDetail" class="badge rounded-pill bg-secondary fs--2">{{ productShowDetail.itemCode }}</span>
           </div>
           <div class="mt-3">
-            <div class="scrollable-customize mb-3" style="min-height: 200px; max-height: 600px;">
+            <div class="scrollable-customize mb-3" style="min-height: 200px; max-height: 650px;">
               <div v-if="productShowDetail">
-                <div class="row mx-0">
-                  <div class="col-md-4 mb-3">
-                    <img class="rounded" src="@/assets/img/product/sariayu_martha.jpg" alt="" style="width: 100%; height: 200px; object-fit: cover;">
+                <div class="row mx-0 mb-3">
+                  <div class="col-md-3 mb-3">
+                    <img class="rounded" src="@/assets/img/product/sariayu_martha.jpg" alt="" style="width: 100%; height: 170px; object-fit: cover;">
                   </div>
                   <!-- Review Product -->
-                  <div class="col-md-8 mb-3">
+                  <div class="col-md-9 mb-2">
                     <h5 class="mb-0"><span class="fas fa-box-open"></span> Product:</h5>
                     <hr class="my-1">
   
@@ -135,10 +138,31 @@
                           </span>
                         </div>
                         <div class="fs--1">
-                          Nilai UOM 2: <span class="fw-bold">{{ productShowDetail.uom2 }}</span>
+                          Harga Satuan: 
+                          <span class="fw-bold">
+                            Rp {{ $root.formatPrice(productShowDetail.product_price.price) }} 
+                            ({{ productShowDetail.product_price.price_code }})
+                          </span>
+                        </div>
+                        <div class="fs--1">
+                          Diskon: 
+                          <span class="fw-bold">
+                            {{ productShowDetail.product_diskon.disc_code != '0' ? productShowDetail.product_diskon.discount : '0' }}%
+                            ({{ productShowDetail.product_diskon.discName }})
+                          </span>
+                        </div>
+                        <div class="fs--1">
+                          Stok Warehouse: 
+                          <span class="fw-bold">
+                            {{ productShowDetail.inventory_stok.onHand }} - 
+                            ({{ productShowDetail.inventory_stok.whsCode }} {{ productShowDetail.inventory_stok.whsName }})
+                          </span>
                         </div>
                       </div>
                       <div class="col-md-6 text-md-end text-start">
+                        <div class="fs--1">
+                          Nilai UOM 2: <span class="fw-bold">{{ productShowDetail.uom2 }}</span>
+                        </div>
                         <div class="fs--1">
                           Nilai UOM 3: <span class="fw-bold">{{ productShowDetail.uom3 }}</span>
                         </div>
@@ -149,24 +173,29 @@
                           Product Barcode: <span class="fw-bold">{{ productShowDetail.barCode }}</span>
                         </div>
                         <div class="fs--1">
-                          Product Code (SKU): <span class="fw-bold">{{ productShowDetail.itemCode }}</span>
+                          Product Code (SKU): <span class="badge rounded-pill bg-secondary fs--2">{{ productShowDetail.itemCode }}</span>
                         </div>
                       </div>
                       <div class="fs--1">
                         Nama Pendek: <span class="fw-bold">{{ productShowDetail.itemNameShort }}</span>
                       </div>
-                      <div class="fs--1">
-                        Nama Product: <span class="fw-bold">{{ productShowDetail.itemName }}</span>
-                      </div>
-                      <div class="fs--1">
-                        <div class="scrollable-customize" style="max-height: 56px;">
-                          Deskripsi Produk: 
-                          <span class="fw-bold">{{ productShowDetail.deskripsi }}</span>
-                        </div>
-                      </div>
+                    </div>
+                  </div>
+
+                  <hr class="d-md-none d-sm-inline-block my-1">
+                  
+                  <div class="fs-1">
+                    <span class="fw-bold">{{ productShowDetail.itemName }}</span>
+                  </div>
+                  <div class="fs--1">
+                    Deskripsi Produk: 
+                    <div class="scrollable-customize" style="max-height: 60px;">
+                      <span class="fw-bold">{{ productShowDetail.deskripsi }}</span>
                     </div>
                   </div>
                 </div>
+
+                <hr>
   
                 <!-- Review Price and Diskon -->
                 <div class="row mx-0">
@@ -440,60 +469,6 @@
               this.dataMasterOptionInfoCateg.push(data);
             }
           });
-          
-          // // Set Object master price
-          // this.dataAddProduct.master_price = allData.getAllMasterPriceCode.map(price => {
-          //   return {
-          //     price_code: price,
-          //     name: price.priceName + ` (${price.priceCode})`,
-          //     price: null,
-          //     cost: null,
-          //   }
-          // });
-
-          // // Set Object master diskon
-          // this.dataAddProduct.master_diskon = allData.getAllMasterDiskon.map(diskon => {
-          //   return {
-          //     diskon_code: diskon,
-          //     code: '#' + diskon.discCode,
-          //     name: diskon.discName,
-          //     nilai_diskon: null
-          //   }
-          // });
-
-          // // Set Object master inventory
-          // this.dataAddProduct.master_warehouse = allData.getAllMasterWarehouse.map(whs => {
-          //   return {
-          //     whs_code: whs,
-          //     code: whs.whsCode,
-          //     name: whs.whsName,
-          //     on_hand: null,
-          //     on_order: null,
-          //     min_buffer: null,
-          //     max_buffer: null,
-          //   }
-          // });
-
-          // // Set Object master supplier
-          // this.dataAddProduct.master_supplier = allData.getAllMasterSupplierCode.map(supplier => {
-          //   return {
-          //     supplier_code: supplier,
-          //     code: supplier.suppCode,
-          //     name: supplier.suppName,
-          //     priority: '',
-          //     status: true, // Default
-          //   }
-          // });
-
-          // // Set Object master optional info
-          // this.dataAddProduct.master_opt_info = allData.getAllMasterOptionInfoCode.map(info => {
-          //   return {
-          //     opt_info: info,
-          //     code: info.optionalCode,
-          //     name: info.optionalName,
-          //     select_opt_info: null,
-          //   }
-          // });
 
           const getAllDataProduct = await axios({
             method: 'get',
@@ -511,10 +486,11 @@
 
       showModalDetailProduct: function(product){
         this.productShowDetail = product;
+        console.log(product);
         
         // Set Object master price
         this.data_master_price = this.dataMasterPriceCode.map(price => {
-          const have_master = product.product_price;
+          const have_master = product.all_product_price;
           const masterExists = have_master.find(item => item.priceCode === price.priceCode);
 
           return {
@@ -527,7 +503,7 @@
         
         // Set Object master diskon
         this.data_master_diskon = this.dataMasterDiskonCode.map(diskon => {
-          const have_master = product.product_diskon;
+          const have_master = product.all_product_diskon;
           const masterExists = have_master.find(item => item.discCode === diskon.discCode);
 
           return {
@@ -540,7 +516,7 @@
         
         // Set Object master inventory
         this.data_master_warehouse = this.dataMasterWarehouse.map(whs => {
-          const have_master = product.inventory_stok;
+          const have_master = product.all_inventory_stok;
           const masterExists = have_master.find(item => item.whsCode === whs.whsCode);
 
           return {
@@ -554,7 +530,6 @@
           }
         });
 
-        
         // Set Object master supplier
         this.data_master_supplier = this.dataMasterSupplierCode.map(supplier => {
           const have_master = product.all_product_supplier;
@@ -571,7 +546,7 @@
         
         // Set Object master optional info
         this.data_master_opt_info = this.dataMasterOptionInfoCode.map(info => {
-          const have_master = product.product_detail;
+          const have_master = product.all_product_detail;
           const masterExists = have_master.find(item => item.optionalCode === info.optionalCode);
 
           return {

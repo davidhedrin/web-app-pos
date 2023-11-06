@@ -164,9 +164,9 @@
                   <div class="row" id="formAddNewPromo">
                     <div class="col-md-6 mb-2">
                       <label class="form-label mb-0" for="select_kode_promo">Kode Promo <span class="text-danger">*</span></label>
-                      <select v-model="dataMasterPromo.kode_promo_id" class="form-select bg-transparent" id="select_kode_promo" aria-label="Default select example">
+                      <select v-model="dataMasterPromo.kode_promo" class="form-select bg-transparent" id="select_kode_promo" aria-label="Default select example">
                         <option value="">Pilih kode promo</option>
-                        <option v-for="kode in dataAllMasterKodePromo" :key="kode.id" :value="kode.id">{{ kode.nama_promo }}</option>
+                        <option v-for="kode in dataAllMasterKodePromo" :key="kode.id" :value="kode.slug">{{ kode.nama_promo }}</option>
                       </select>
                     </div>
                     <div class="col-md-6 mb-2">
@@ -221,8 +221,8 @@
                                 :id="'promo_bundle_buy_' + index"
                                 v-model="product.product_buy"
                                 :options="dataAllProduct"
-                                label="nama_product"
-                                value="id"
+                                label="itemName"
+                                value="itemCode"
                                 :placeholder="'Pilih product'"
                               />
                             </div>
@@ -232,8 +232,8 @@
                                 :id="'promo_bundle_get_' + index"
                                 v-model="product.product_get"
                                 :options="dataAllProduct"
-                                label="nama_product"
-                                value="id"
+                                label="itemName"
+                                value="itemCode"
                                 :placeholder="'Pilih product'"
                               />
                             </div>
@@ -258,8 +258,8 @@
                           v-model="dataMasterPromo.products_promo_percent"
                           multiple 
                           :options="dataAllProduct"
-                          label="nama_product"
-                          value="id"
+                          label="itemName"
+                          value="itemCode"
                           :placeholder="'Pilih product'"
                         />
                       </div>
@@ -331,7 +331,7 @@
         dataMasterPromo: {
           id: '',
           master_promo_id: '',
-          kode_promo_id: '',
+          kode_promo: '',
           nama_promo: '',
           start_date: null,
           end_date: null,
@@ -377,6 +377,7 @@
       },
 
       actionSubmitNewPromo: async function (){
+        // Store new
         if (this.modalAddOrEditPromo == true){
           try{
             $('#modalAddEditPromo').modal('hide');
@@ -413,6 +414,7 @@
           }
         }
 
+        // Update
         if (this.modalAddOrEditPromo == false) {
           // Validasi tipe promo
           if(this.dataMasterPromo.tipe_promo == '1'){ // Bundle
@@ -490,8 +492,8 @@
         if(this.dataMasterPromo.tipe_promo == '1'){
           const setObject = {
             index: 0,
-            product_buy: {},
-            product_get: {}
+            product_buy: null,
+            product_get: null
           }
 
           this.dataMasterPromo.product_promo_buy_get.push(setObject);
@@ -502,8 +504,8 @@
         const getLengthProductBundle = this.dataMasterPromo.product_promo_buy_get.length;
         const setObject = {
           index: getLengthProductBundle + 1,
-          product_buy: {},
-          product_get: {}
+          product_buy: null,
+          product_get: null
         }
         this.dataMasterPromo.product_promo_buy_get.push(setObject);
       },

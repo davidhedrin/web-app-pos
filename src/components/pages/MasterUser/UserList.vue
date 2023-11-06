@@ -64,22 +64,26 @@
               <td>{{ user.no_hp  }}</td>
               <td>{{ $root.formatDateIdn(user.tanggal_lahir) }}</td>
               <td class="d-flex">
-                <div v-if="user.flag_active">
-                  <span class="badge rounded-pill" :class="user.flag_active ? 'bg-success' : 'bg-danger'">
-                    {{ user.flag_active ? 'Active' : 'Inactive' }}
-                    <span class="ms-1" :class="user.flag_active ? 'fas fa-check' : 'fas fa-ban'" data-fa-transform="shrink-2"></span>
+                <div v-if="user.flag_active != null">
+                  <span v-if="user.flag_active == true" class="badge rounded-pill bg-success">
+                    Active
+                    <span class="fas fa-check ms-1" data-fa-transform="shrink-2"></span>
+                  </span>
+                  <span v-else class="badge rounded-pill bg-danger">
+                    Inactive
+                    <span class="fas fa-ban ms-1" data-fa-transform="shrink-2"></span>
                   </span>
                 </div>
                 <div v-else>
                   <span class="badge rounded-pill badge-subtle-warning"><i>Waiting for Approved</i></span>
                 </div>
-                <div class="dropdown font-sans-serif position-static">
+                <div v-if="!user.this_user" class="dropdown font-sans-serif position-static">
                   <button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false">
                     <span class="fas fa-ellipsis-h fs--1"></span>
                   </button>
                   <div class="dropdown-menu dropdown-menu-end border py-0">
-                    <div v-if="user.flag_active" class="py-2">
-                      <a class="dropdown-item" href="#!">{{ user.flag_active ? 'Inactived' : 'Actived' }}</a>
+                    <div v-if="user.flag_active != null" class="py-2">
+                      <a class="dropdown-item" href="#!" data-bs-toggle="modal" data-bs-target="#modalActiveInactiveUser" @click="setStatusUserUpdate = user.flag_active; idUserForApprove = user.id">{{ user.flag_active ? 'Inactived' : 'Actived' }}</a>
                     </div>
                     <div v-else class="py-2">
                       <a class="dropdown-item" href="javascript:void(0)" @click="idUserForApprove = user.id" data-bs-toggle="modal" data-bs-target="#modalConfirmApproveUser">Approve</a>
@@ -91,7 +95,7 @@
                 <button class="btn btn-link p-0" type="button" @click="showModalDataUser(user)">
                   <span class="fas fa-edit text-warning"></span>
                 </button>
-                <button class="btn btn-link p-0 ms-2" type="button">
+                <button class="btn btn-link p-0 ms-2" type="button" :disabled="user.this_user">
                   <span class="fas fa-trash-alt text-danger"></span>
                 </button>
               </td>
@@ -103,7 +107,7 @@
   </div>
 
   <div class="modal fade" id="modalEditDataUser" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content position-relative border-0">
         <div class="position-absolute top-0 end-0 mt-2 me-2 z-1">
           <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close" @click="showDataUserModal = {}"></button>
@@ -180,7 +184,7 @@
               <div class="m-0 px-3">
                 <select v-model="idRoleForApprove" class="form-select bg-transparent" id="select_role_user" @change="$root.removeRedBorder('select_role_user')">
                   <option value="">Pilih role user</option>
-                  <option v-for="role in allMasterRole" :value="role.id">{{ role.nama_role }}</option>
+                  <option v-for="role in allMasterRole" :value="role.role_code">{{ role.nama_role }}</option>
                 </select>
               </div>
             </div>
@@ -193,6 +197,33 @@
       </div>
     </div>
   </div>
+  
+  <div class="modal fade" id="modalActiveInactiveUser" tabindex="0" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px">
+      <div class="modal-content position-relative">
+        <div class="modal-body p-0 pb-2">
+          <div class="rounded-top-3 py-3 bg-body-tertiary text-center">
+            <h3 class="mb-1" id="modalExampleDemoLabel">Konfirmasi {{ setStatusUserUpdate ? 'Inactived' : 'Actived' }}</h3>
+          </div>
+          <div class="py-2 text-center">
+            <div class="d-flex justify-content-center mb-2">
+              <img src="@/assets/img/icons/Gif/info-icon.gif" height="60" alt="">
+            </div>
+            <h5 class="m-0 px-1 mb-0">
+              Yakin ingin mengubah status user?
+            </h5>
+            <p class="m-0 px-3 mb-1">
+              Konfirmasi untuk melanjutkan update status
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">Batal</button>
+          <button class="btn btn-sm" :class="setStatusUserUpdate ? 'btn-danger' : 'btn-success'" type="submit" @click="activeInactiveStatusUser()">{{ setStatusUserUpdate ? 'Inactived' : 'Actived' }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -202,12 +233,15 @@
     name: 'UserList',
     data(){
       return {
+        dataUserLogin: null,
         allDataUser: [],
         allMasterRole: [],
 
         showDataUserModal: {},
         idUserForApprove: null,
         idRoleForApprove: '',
+
+        setStatusUserUpdate: false,
       }
     },
 
@@ -218,6 +252,8 @@
     methods: {
       loadAllData: async function(){
         this.$root.showLoading();
+        let check_uuid = localStorage.getItem("is_dynamic");
+        this.dataUserLogin = await this.$root.checkUserRegistered(check_uuid);
 
         try{
           const store = await axios({
@@ -228,7 +264,10 @@
           if(store.status == 200){
             const storeData = store.data;
 
-            this.allDataUser = storeData.getAllUser;
+            this.allDataUser = storeData.getAllUser.map(user => {
+              user.this_user = user.user_uuid === this.dataUserLogin.user_uuid;
+              return user;
+            });
             this.allMasterRole = storeData.getAllMasterRole;
           }else{
 
@@ -266,7 +305,7 @@
             url: this.$root.API_URL + '/master-user/approve-user',
             data: {
               id_user: this.idUserForApprove,
-              role_id: this.idRoleForApprove
+              role_code: this.idRoleForApprove
             }
           });
 
@@ -281,6 +320,37 @@
           }
         } catch (error) {
           this.$root.showAlertFunction('warning', 'Approve Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          console.log(error);
+        }
+
+        this.$root.hideLoading();
+      },
+
+      activeInactiveStatusUser: async function(){
+        this.$root.showLoading();
+        $('#modalActiveInactiveUser').modal('hide');
+
+        try{
+          const store = await axios({
+            method: 'put',
+            url: this.$root.API_URL + '/master-user/udpate-status',
+            data: {
+              id_user: this.idUserForApprove,
+              flag_active: !this.setStatusUserUpdate
+            }
+          });
+
+          if(store.status == 200 || store.status == 201){
+            const resDataUser = store.data.data;
+            const findIndex = this.allDataUser.findIndex((x) => x.id == resDataUser.id);
+            this.allDataUser[findIndex] = resDataUser;
+
+            this.$root.showAlertFunction('success', 'Update Selesai!', 'Status user telah berhasil diperbaharui.');
+          }else{
+            this.$root.showAlertFunction('warning', 'Update Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+        } catch (error) {
+          this.$root.showAlertFunction('warning', 'Update Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           console.log(error);
         }
 
