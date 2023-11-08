@@ -13059,6 +13059,10 @@ fieldset:disabled .tox .tox-dialog__footer .tox-button--secondary,
   font-family: var(--falcon-font-base) !important
 }
 
+.fs--3 {
+  font-size: .5655555555rem !important
+}
+
 .fs--2 {
   font-size: .6944444444rem !important
 }

@@ -23,6 +23,7 @@
 <script>
 import axios from "axios";
 import { markRaw } from 'vue';
+import { master_code, master_coll } from '@/components/scripts/collections.js';
 
 // Layouts
 import NavbarLayout from '@/components/layouts/Navbar.vue';
@@ -72,6 +73,9 @@ export default {
       APP_SSO_URL: APP_SSO_URL,
       APP_SSO_TOKEN_STATUS: APP_SSO_TOKEN_STATUS,
       dataAuthToken: null,
+
+      master_code: master_code,
+      master_coll: master_coll,
       
       current_page: sessionStorage.getItem('current_page'),
       activeRoute: markRaw(routeComponent['dashboard']),
@@ -292,6 +296,24 @@ export default {
         const formattedPrice = number.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         return formattedPrice;
       }
+    },
+
+    inputTextFormatPrice: function(event){
+      const price = event.target.value;
+      const numericPrice = price.replace(/[^0-9]/g, '');
+      
+      if (numericPrice === null || numericPrice.trim() === "") {
+        return;
+      }
+      
+      const number = parseFloat(numericPrice);
+
+      const formattedPrice = new Intl.NumberFormat('id-ID', {
+        style: 'decimal',
+        minimumFractionDigits: 0,
+      }).format(number);
+
+      return formattedPrice;
     },
 
     formatCurrencyRemoveSeparator: function(price){
