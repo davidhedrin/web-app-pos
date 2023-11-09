@@ -47,7 +47,7 @@
                     <img class="py-5" src="@/assets/img/mtsiconland.png" width="200" alt="" />
                   </td>
                 </tr>
-                <tr v-else class="align-middle" v-for="(data, index) in dataProductInList" :key="index" :id="data.product.itemCode">
+                <tr v-else class="align-middle" v-for="(data, index) in dataProductInList" :key="index">
                   <td class="text-nowrap">
                     {{ index+1 }}.
                   </td>
@@ -115,7 +115,7 @@
       <div class="card mb-3">
         <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-4.png);"></div>
         <div class="row card-header position-relative align-items-center pb-2 pt-1">
-          <div class="col-md-7 py-1">
+          <div class="col-md-6 py-1">
             <div class="form-check form-check-inline m-0 me-2">
               <input v-model="checkboxProducts.bestSellerAll" class="form-check-input" id="checkBoxBestSellerAll" type="checkbox" value="" />
               <label class="form-check-label mb-0" for="checkBoxBestSellerAll">Best Seller All</label>
@@ -142,17 +142,26 @@
               <label class="form-check-label mb-0" for="checkBoxPromoKaryawan">Promo Karyawan</label>
             </div>
           </div>
-          <div class="col-md-2 py-2">
-            <select v-model="selectedFilterBrand" class="form-select">
+          <div class="col-md-3 py-2">
+            <v-select 
+              v-model="selectedFilterBrand" 
+              :options="filteredOptionsInfoProduct(this.master_code.productOptInfo.brand_code)"
+              label="optDtlName"
+              value="optDtlCode"
+              placeholder="Pilih brand"
+            />
+            <!-- <select v-model="selectedFilterBrand" class="form-select">
               <option value="">Pilih Brand</option>
-              <option v-for="brand in dataBrandProduct" :id="brand.slug" :value="brand.slug">{{ brand.nama_brand }}</option>
-            </select>
+              <option v-for="brand in dataMasterOptionInfo" :id="brand.optDtlCode" :value="brand.optDtlCode">{{ brand.optDtlName }}</option>
+            </select> -->
           </div>
           <div class="col-md-3">
-            <div class="input-group">
-              <input class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
-              <button class="btn btn-primary card-link" style="z-index: 1"><span class="fas fa-search"></span></button>
-            </div>
+            <form @submit.prevent="btnSearchSubmitProduct()">
+              <div class="input-group">
+                <input v-model="inputSearchProduct" class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
+                <button class="btn btn-primary card-link" type="submit" style="z-index: 1"><span class="fas fa-search"></span></button>
+              </div>
+            </form>
           </div>
         </div>
         <div class="card-body position-relative p-0">
@@ -579,7 +588,7 @@
                 <hr class="p-0 m-0 mb-2">
                 <div class="d-flex justify-content-between fs--1 mb-0">
                   <p class="fs--1 m-0">
-                    BSC: David Simbolon
+                    BSC: {{ this.$root.dataAuthToken ? this.$root.dataAuthToken.nama_lengkap : '' }}
                   </p>
                   <span class="fs--1">{{ formattedDateNow }}</span>
                 </div>
@@ -697,7 +706,7 @@
                     <input v-model="nominalMoreMetodeBayar[index]" @input="nominalMoreMetodeBayar[index] = formatCalculatePriceMoreMetode($event, index)" :id="'inputNominalMoreMetodeBayar_' + index" class="form-control form-control-sm text-end" type="text" placeholder="Nominal"/>
                   </div>
                 </div> -->
-    
+
                 <!-- <div class="d-flex align-items-center justify-content-between mb-2">
                   <label class="form-label mb-0">Metode Pembayaran: </label>
                   <div>
@@ -804,6 +813,28 @@
     </div>
   </div>
   
+  <!-- Modal transaksi berhasil dan selesai -->
+  <div class="modal fade" id="modalTransactionFinishSuccess" tabindex="0" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px">
+      <div class="modal-content position-relative">
+        <div class="modal-body p-0 pb-2">
+          <div class="py-2 text-center">
+            <div class="justify-content-center mb-0">
+              <img src="@/assets/img/icons/Gif/success-gif.gif" height="120" alt="">
+            </div>
+            <h3 class="mb-1">Transaksi selesai!</h3>
+            <p class="m-0 px-4">
+              Selamat! Transaksi telah berhasil disimpan.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <button class="btn btn-success btn-sm" type="button" data-bs-dismiss="modal">Selesai</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <!-- Modal konfirmasi untuk lanjut membuatkan tiket booking -->
   <div class="modal fade" id="modalConfirmCreateTicket" tabindex="0" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px">
@@ -852,6 +883,90 @@
         </div>
         <div class="modal-footer d-flex justify-content-center">
           <button class="btn btn-success btn-sm" type="button" data-bs-dismiss="modal">Selesai</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal menampilkan product yang dicari lebih dari 1 -->
+  <div class="modal fade" id="modalSearchFoundProductMore" tabindex="-1" aria-hidden="true" data-bs-keyboard="false" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content position-relative border-0">
+        <div class="modal-body p-0">
+          <div class="card">
+            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: cover;"></div>
+            <div class="card-body position-relative p-0">
+              <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
+                <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="card-header rounded-top-3 py-3 ps-3 pe-6">
+                <h5 class="mb-0">Product lebih ditemukan</h5>
+              </div>
+              <div class="p-0">
+                <div class="table-scrollable-wrapper" style="max-height: 34vh;">
+                  <table class="table table-hover table-scrollable">
+                    <thead>
+                      <tr>
+                        <td>#</td>
+                        <td>Nama</td>
+                        <td>Info</td>
+                        <td>Harga</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(product, index) in allProductFindSearchBtn" :key="index" style="cursor: pointer" @click="addProductToList(product)">
+                        <td>{{ index + 1 }}</td>
+                        <td>
+                          {{ product.master_promo_id ? product.for_product.itemName : product.itemName }}
+                          <span v-if="product.master_promo_id" class="badge rounded-pill p-1 px-2 fs--3 ms-1" :class="'bg-' + product.master_promo.master_kode_promo.badge">
+                            {{ product.master_promo.master_kode_promo.nama_promo }}
+                          </span>
+                        </td>
+                        <td>
+                          <div v-if="product.master_promo_id">
+                            <span v-if="product.master_promo.tipe_promo == master_coll.tipePromo.bundle" class="badge bg-warning rounded-pill p-1 fs--3">
+                              {{ product.master_promo.buy_item }} Get {{ product.master_promo.get_item }}
+                            </span>
+                            <span v-if="product.master_promo.tipe_promo == master_coll.tipePromo.percent" class="badge bg-danger rounded-pill p-1 fs--3">
+                              -{{ product.master_promo.percent }}%
+                            </span>
+                          </div>
+                          <div v-else>
+                            <span v-if="product.product_diskon.disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--3">
+                              -{{ product.product_diskon.discount }}%
+                            </span>
+                            <span v-else>-</span>
+                          </div>
+                        </td>
+                        <td>
+                          Rp
+                          <span v-if="product.master_promo_id">
+                            <span v-if="product.master_promo.tipe_promo == master_coll.tipePromo.bundle">
+                              {{ $root.formatPrice(product.for_product.product_price.price) }}
+                            </span>
+                            <span v-if="product.master_promo.tipe_promo == master_coll.tipePromo.percent">
+                              {{ $root.formatPrice(product.for_product.product_price.price - (product.for_product.product_price.price * (product.master_promo.percent/100))) }}
+                            </span>
+                          </span>
+                          <span v-else>
+                            <span v-if="product.product_diskon.disc_code == master_code.diskon.tanpa_diskon_code">
+                              {{ $root.formatPrice(product.product_price.price) }}
+                            </span>
+                            <span v-else>
+                              {{ $root.formatPrice(product.product_price.price - (product.product_price.price * (product.product_diskon.discount/100))) }}
+                            </span>
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer position-relative text-end">
+              <button class="btn btn-primary btn-sm" data-bs-dismiss="modal" @click="allProductFindSearchBtn = []">Selesai</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1050,12 +1165,13 @@
           tanggal_lahir: '',
         },
 
+        inputSearchProduct: '',
         select_kode_reseller: '',
         
         selectMethodPayment: '',
         keteranganTransaksi: '',
 
-        selectedFilterBrand: '',
+        selectedFilterBrand: null,
         inputSearchMember: '',
         selectSalesBy: this.$root.master_code.salesBy.wi,
         selectedBscWa: '',
@@ -1085,6 +1201,10 @@
         numberTicketOrder: '',
         isBuatkanTiketBtn: true,
         showLoadingTicket: true,
+        
+        dataMasterOptionInfoCode: [],
+        dataMasterOptionInfo: [],
+        allProductFindSearchBtn: [],
       };
     },
 
@@ -1093,65 +1213,60 @@
     },
 
     mounted() {
-      setInterval(() => {
-        this.currentTime = new Date();
-      }, 1000);
+      this.currentTime = new Date();
+      // setInterval(() => {
+      //   this.currentTime = new Date();
+      // }, 1000);
     },
 
     computed: {
       filteredProducts() {
         // console.log(this.dataAllProducts);
-        const valueSeletedBrand = this.selectedFilterBrand.toLowerCase();
+        const queryInput = this.inputSearchProduct.toLowerCase().trim();
+        const valueSeletedBrand = this.selectedFilterBrand ? this.selectedFilterBrand.optDtlCode.toLowerCase().trim() : null;
         const hasTruecheckboxProducts = Object.values(this.checkboxProducts).some(value => value);
-
-        // console.log(this.dataAllProducts);
 
         return this.dataAllProducts.filter(product => {
           const checkProduct = product.master_promo_id ? product.for_product : product;
           const brandProduct = checkProduct.all_product_detail.find((detail) => detail.optionalCode == this.master_code.productOptInfo.brand_code);
 
+          let filterExpression = checkProduct.itemName.toLowerCase().includes(queryInput) || 
+          checkProduct.itemCode.toLowerCase().includes(queryInput) ||
+          checkProduct.barCode.toLowerCase().includes(queryInput);
+          if(valueSeletedBrand){
+            filterExpression = filterExpression && brandProduct.optDtlCode.toLowerCase().includes(valueSeletedBrand);
+          }
+
           if(hasTruecheckboxProducts){ // Filter jika ada checkbox promo yang true
             if(product.master_promo_id){
               if(this.checkboxProducts.bestSellerAll){ // Filter Checkbox Best Seller All
                 if(product.master_promo.master_kode_promo.slug == this.master_code.kodePromo.best_seller_toko){
-                  return (
-                    brandProduct.optDtlName.toLowerCase().includes(valueSeletedBrand)
-                  );
+                  return filterExpression;
                 }
               }
               if(this.checkboxProducts.bestSellerToko){ // Filter Checkbox Best Seller Toko
                 if(product.master_promo.master_kode_promo.slug == this.master_code.kodePromo.best_seller_all){
-                  return (
-                    brandProduct.optDtlName.toLowerCase().includes(valueSeletedBrand)
-                  );
+                  return filterExpression;
                 }
               }
               if(this.checkboxProducts.topThisMonth){ // Filter Checkbox Top This Month
                 if(product.master_promo.master_kode_promo.slug == this.master_code.kodePromo.top_this_month){
-                  return (
-                    brandProduct.optDtlName.toLowerCase().includes(valueSeletedBrand)
-                  );
+                  return filterExpression;
                 }
               }
               if(this.checkboxProducts.promo){
                 if(product.master_promo.master_kode_promo.slug == this.master_code.kodePromo.promo){ // Filter Checkbox Promo
-                  return (
-                    brandProduct.optDtlName.toLowerCase().includes(valueSeletedBrand)
-                  );
+                  return filterExpression;
                 }
               }
               if(this.checkboxProducts.flushOut){
                 if(product.master_promo.master_kode_promo.slug == this.master_code.kodePromo.flush_out){ // Filter Checkbox Flushout
-                  return (
-                    brandProduct.optDtlName.toLowerCase().includes(valueSeletedBrand)
-                  );
+                  return filterExpression;
                 }
               }
               if(this.checkboxProducts.promoKaryawan){
                 if(product.master_promo.master_kode_promo.slug == this.master_code.kodePromo.promo_karyawan){ // Filter Checkbox Promo Karyawan
-                  return (
-                    brandProduct.optDtlName.toLowerCase().includes(valueSeletedBrand)
-                  );
+                  return filterExpression;
                 }
               }
             }
@@ -1161,17 +1276,21 @@
                 (this.memberOverview != null && this.memberOverview.tipe_konsumen.slug == this.master_code.tipeKonsumen.karyawan) ||
                 product.master_promo.master_kode_promo.slug != this.master_code.kodePromo.promo_karyawan
               ) {
-                return brandProduct.optDtlName.toLowerCase().includes(valueSeletedBrand);
+                return filterExpression;
               }
             }else{
-              return (
-                brandProduct.optDtlName.toLowerCase().includes(valueSeletedBrand)
-              );
+              return filterExpression;
             }
           }
         });
 
         // return this.dataAllProducts;
+      },
+      
+      filteredOptionsInfoProduct() {
+        return (optionalCode) => {
+          return this.dataMasterOptionInfo.filter(option => option.optionalCode === optionalCode);
+        }
       },
       
       filteredMembers() {
@@ -1227,6 +1346,9 @@
               this.dataMetodeBayarCC.push(metode);
             }
           });
+          
+          this.dataMasterOptionInfoCode = allData.getAllMasterOptionInfoCode; //All Option Info Code
+          this.dataMasterOptionInfo = allData.getAllMasterOptionInfo; //All Option Info
 
           // console.log(this.dataAllGelars);
 
@@ -1720,8 +1842,29 @@
           return false;
         }
       },
+
+      btnSearchSubmitProduct: function(){
+        this.allProductFindSearchBtn = [];
+        const query = this.inputSearchProduct.trim();
+        if(query != ''){
+          const checkAllProduct = this.dataAllProducts.filter(product => {
+            const checkProduct = product.master_promo_id ? product.for_product : product;
+            const filterValidate = checkProduct.barCode.includes(query);
+            return filterValidate;
+          });
+
+          this.allProductFindSearchBtn = checkAllProduct;
+          if(checkAllProduct.length > 1){
+            console.log(this.allProductFindSearchBtn);
+            $('#modalSearchFoundProductMore').modal('show');
+          }else{
+            this.addProductToList(checkAllProduct[0]);
+          }
+          this.inputSearchProduct = '';
+        }
+      },
       
-      // Control all modal
+      // Control all modal confirm transaksi
       openModalCancelConfirm: function(){
         $('#modalBatalConfirm').modal('show');
       },
@@ -1730,6 +1873,7 @@
         if(this.validationBeforeContinueBtnBilling() == false){
           return false;
         }
+        this.currentTime = new Date();
         
         const findMetodeBayar = this.dataAllMetodeBayar.find((metode) => metode.id === this.selectMethodPayment);
 
@@ -1799,6 +1943,7 @@
       },
 
       checkoutBtn: function(){
+        this.generatePdfCheckout();
         this.dataProductInList = [];
         this.memberOverview = null;
 
@@ -1809,20 +1954,19 @@
         this.modelInputSelectedMetodeBayar = '';
         this.modelInputMoreMetodeBayar = [];
 
-        this.selectedFilterBrand = '';
+        this.selectedFilterBrand = null;
         this.selectedBscWa = '';
         this.inputSearchMember = '';
         this.keteranganTransaksi = '';
         this.checkboxMemberPotonganPoint = false;
         
+        this.isBuatkanTiketBtn = true;
         this.calculateAmoutPrice();
         $('#modalCheckoutConfirm').modal('hide');
         $('#modalConfirmPay').modal('hide');
+        $('#modalTransactionFinishSuccess').modal('show');
 
-        this.$root.showAlertFunction('success', 'Traksaksi Berhasil!', 'Selamat, transaksi baru telah berhasil disimpan.');
-
-        this.isBuatkanTiketBtn = true;
-        this.generatePdfCheckout();
+        // this.$root.showAlertFunction('success', 'Traksaksi Berhasil!', 'Selamat, transaksi baru telah berhasil disimpan.');
       },
 
       generatePdfCheckout: function(){
@@ -1834,7 +1978,7 @@
         const sizeFont = 6;
         const callPadding = [0, 0, 0, 0];
         const callPaddingProduct = [0.5, 0, 0.5, 0];
-        const marginPaper = [0, 1, 0, 0];
+        const marginPaper = [0, 1, 0, 1];
         const startLine = 1;
         const endLine = 71;
         const plusHeightLine = 3;
@@ -1875,6 +2019,50 @@
           ],
           margin: marginPaper,
           startY: imageHeight + 3,
+          theme: 'plain',
+        });
+
+        // Nama bsc dan tanggal transaksi
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: 'Kasir:',
+                styles: {
+                  halign: 'left',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+              {
+                content: 'Tanggal:',
+                styles: {
+                  halign: 'right',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+            [
+              {
+                content: this.$root.dataAuthToken.nama_lengkap,
+                styles: {
+                  halign: 'left',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+              {
+                content: this.getDateTimeForStruk(),
+                styles: {
+                  halign: 'right',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+          ],
+          margin: marginPaper,
           theme: 'plain',
         });
 
@@ -1956,7 +2144,7 @@
           head: [
             [
               {
-                content: 'Total Bayar Product:',
+                content: 'Total Bayar Produk:',
                 styles: {
                   halign: 'left',
                   fontSize: sizeFont,
@@ -2125,6 +2313,16 @@
                 }
               }
             ],
+            [
+              {
+                content: '-',
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
           ],
           margin: marginPaper,
           theme: 'plain',
@@ -2149,6 +2347,19 @@
           alert('Pop-up windows are blocked. Please enable pop-ups for this site.');
         }
       },
+
+      getDateTimeForStruk: function(){
+        // Mengambil komponen tanggal, bulan, tahun, jam, dan menit
+        const day = this.currentTime.getDate().toString().padStart(2, '0');
+        const month = (this.currentTime.getMonth() + 1).toString().padStart(2, '0'); // Perlu ditambah 1 karena Januari dimulai dari 0
+        const year = this.currentTime.getFullYear();
+        const hours = this.currentTime.getHours().toString().padStart(2, '0');
+        const minutes = this.currentTime.getMinutes().toString().padStart(2, '0');
+
+        // Membuat string dengan format yang diinginkan
+        const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
+        return formattedDate;
+      }
     },
   }
 </script>

@@ -89,16 +89,6 @@
               </li>
             </ul>
             
-            <a v-on:click="validateGoto('user-list')" class="nav-link" href="javascript:void(0)" role="button">
-              <div class="d-flex align-items-center">
-                <span class="nav-link-icon">
-                  <span class="fas fa-users"></span>
-                </span>
-                <span class="nav-link-text ps-1">User List</span>
-              </div>
-            </a>
-
-            
             <a class="nav-link dropdown-indicator collapsed" href="#master_product" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="master_product">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
@@ -118,11 +108,20 @@
               <li class="nav-item">
                 <a class="nav-link" href="javascript:void(0)">
                   <div class="d-flex align-items-center">
-                    <span class="nav-link-text ps-1">Product Master</span>
+                    <span class="nav-link-text ps-1">Product Bundle</span>
                   </div>
                 </a>
               </li>
             </ul>
+            
+            <a v-on:click="validateGoto('user-list')" class="nav-link" href="javascript:void(0)" role="button">
+              <div class="d-flex align-items-center">
+                <span class="nav-link-icon">
+                  <span class="fas fa-users"></span>
+                </span>
+                <span class="nav-link-text ps-1">User List</span>
+              </div>
+            </a>
           </li>
           
           <li class="nav-item">

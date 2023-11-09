@@ -357,6 +357,9 @@
     name: 'ProductList',
     data(){
       return {
+        master_code: this.$root.master_code,
+        master_coll: this.$root.master_coll,
+
         allDataProduct: [],
         productShowDetail: null,
         data_master_price: [],
@@ -462,10 +465,10 @@
           this.dataMasterOptionInfoCode = allData.getAllMasterOptionInfoCode; //All Option Info Code
           this.dataMasterOptionInfo = allData.getAllMasterOptionInfo; //All Option Info
           allData.getAllMasterOptionInfo.forEach((data) => {
-            if(data.optionalCode_id === 1){
+            if(data.optionalCode === this.master_code.productOptInfo.brand_code){
               this.dataMasterOptionInfoBrand.push(data);
             }
-            if(data.optionalCode_id === 2){
+            if(data.optionalCode === this.master_code.productOptInfo.category_code){
               this.dataMasterOptionInfoCateg.push(data);
             }
           });
