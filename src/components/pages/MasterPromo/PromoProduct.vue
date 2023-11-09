@@ -58,7 +58,7 @@
   
   <div class="card">
     <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-size: cover;"></div>
-    <div class="card-body position-relative pb-0">
+    <div class="card-body position-relative pb-0 px-0">
       <div v-if="isListOrGrid" class="table-scrollable-wrapper" style="max-height: 66vh; min-height: 66vh;">
         <table class="table table-scrollable table-hover">
           <thead>
@@ -81,12 +81,12 @@
                   {{ master.master_promo.master_kode_promo.nama_promo }}
                 </span>
               </td>
-              <td>{{ master.for_product.sku }}</td>
-              <td class="fw-bold">{{ master.for_product.nama_product }}</td>
+              <td>{{ master.for_product.itemCode }}</td>
+              <td class="fw-bold">{{ master.for_product.itemName }}</td>
               <td>{{ master.master_promo.nama_promo }}</td>
               <td class="text-center">
-                <del v-if="master.master_promo.tipe_promo == '2'" class="fs--2 me-1">Rp {{$root.formatPrice(master.for_product.harga) }}</del>
-                <span class="fw-bold">Rp {{ master.master_promo.tipe_promo == '2' ? $root.formatPrice(master.for_product.harga - (master.for_product.harga * (master.master_promo.percent/100))) : $root.formatPrice(master.for_product.harga) }}</span>
+                <del v-if="master.master_promo.tipe_promo == '2'" class="fs--2 me-1">Rp {{$root.formatPrice(master.for_product.product_price.price) }}</del>
+                <span class="fw-bold">Rp {{ master.master_promo.tipe_promo == '2' ? $root.formatPrice(master.for_product.product_price.price - (master.for_product.product_price.price * (master.master_promo.percent/100))) : $root.formatPrice(master.for_product.product_price.price) }}</span>
               </td>
               <td>
                 <span class="badge rounded-pill" :class="master.master_promo.tipe_promo == '1' ? 'badge-subtle-warning' : 'badge-subtle-primary'">
@@ -105,8 +105,8 @@
       </div>
     
       <div v-if="!isListOrGrid" class="scrollable-customize mb-3" style="max-height: 66vh; min-height: 66vh;">
-        <div class="row">
-          <div v-for="master in dataAllPromoProduct" :key="master.id" class="mb-4 col-sm-6 col-md-3 col-lg-2">
+        <div class="row mx-0">
+          <div v-for="master in dataAllPromoProduct" :key="master.id" class="mb-2 mt-2 col-sm-6 col-md-4 col-lg-2">
             <div class="border rounded-1 h-100 d-flex flex-column justify-content-between pb-3">
               <div class="overflow-hidden">
                 <div class="position-relative rounded-top overflow-hidden">
@@ -116,13 +116,13 @@
                   <span class="badge rounded-pill position-absolute mt-2 me-2 z-2 top-0 end-0" :class="'bg-' + master.master_promo.master_kode_promo.badge">
                     {{ master.master_promo.master_kode_promo.nama_promo }}
                   </span>
-                  <span class="badge badge-subtle-secondary position-absolute mb-1 ms-2 z-2 bottom-0 start-0 fs--2 fw-bold" style="font-weight: normal;">{{ master.for_product.sku }}</span>
+                  <span class="badge badge-subtle-secondary position-absolute mb-1 ms-2 z-2 bottom-0 start-0 fs--2 fw-bold" style="font-weight: normal;">{{ master.for_product.itemCode }}</span>
                 </div>
                 <div class="p-3 pt-2 pb-0">
                   <h5 class="fs-0 mb-0">
                     <a class="text-1100" href="javascripts:void(0)">
                       <span class="d-inline-block text-truncate max-width-text-truncate">
-                        {{ master.for_product.nama_product }}
+                        {{ master.for_product.itemName }}
                       </span>
                     </a>
                   </h5>
@@ -132,13 +132,13 @@
                     </div>
                     <div v-if="master.master_promo.tipe_promo == '2'">
                       <del class="fs--1 text-500">
-                        Rp. {{ $root.formatPrice(master.for_product.harga) }} 
+                        Rp. {{ $root.formatPrice(master.for_product.product_price.price) }} 
                       </del>
                       (-{{ master.master_promo.percent }}%)
                     </div>
                   </span>
                   <h5 class="fs-md-1 text-warning mb-0 d-flex align-items-center mb-1">
-                    Rp {{ master.master_promo.tipe_promo == '2' ? $root.formatPrice(master.for_product.harga - (master.for_product.harga * (master.master_promo.percent/100))) : $root.formatPrice(master.for_product.harga) }}
+                    Rp {{ master.master_promo.tipe_promo == '2' ? $root.formatPrice(master.for_product.product_price.price - (master.for_product.product_price.price * (master.master_promo.percent/100))) : $root.formatPrice(master.for_product.product_price.price) }}
                   </h5>
                   <p class="fs--1 mb-0">
                     <strong class="text-info">
@@ -167,6 +167,9 @@
     name: 'PromoProduct',
     data(){
       return {
+        master_code: this.$root.master_code,
+        master_coll: this.$root.master_coll,
+
         dataAllProduct: [],
         dataAllMasterKodePromo: [],
         dataAllMasterNamaPromo: [],
