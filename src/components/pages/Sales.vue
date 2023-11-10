@@ -68,18 +68,18 @@
                     Rp
                     <span v-if="data.is_promo_product">
                       <span v-if="data.is_promo_product.master_promo.tipe_promo == master_coll.tipePromo.bundle">
-                        {{ $root.formatPrice(data.is_promo_product.for_product.product_price.price) }}
+                        {{ $root.formatPrice($root.filterPriceProduct(data.is_promo_product.for_product).price) }}
                       </span>
                       <span v-if="data.is_promo_product.master_promo.tipe_promo == master_coll.tipePromo.percent">
-                        {{ $root.formatPrice(data.is_promo_product.for_product.product_price.price - (data.is_promo_product.for_product.product_price.price * (data.is_promo_product.master_promo.percent/100))) }}
+                        {{ $root.formatPrice($root.filterPriceProduct(data.is_promo_product.for_product).price - ($root.filterPriceProduct(data.is_promo_product.for_product).price * (data.is_promo_product.master_promo.percent/100))) }}
                       </span>
                     </span>
                     <span v-else>
-                      <span v-if="data.product.product_diskon.disc_code == master_code.diskon.tanpa_diskon_code">
-                        {{ $root.formatPrice(data.product.product_price.price) }}
+                      <span v-if="$root.filterDiskonProduct(data.product).disc_code == master_code.diskon.tanpa_diskon_code">
+                        {{ $root.formatPrice($root.filterPriceProduct(data.product).price) }}
                       </span>
                       <span v-else>
-                        {{ $root.formatPrice(data.product.product_price.price - (data.product.product_price.price * (data.product.product_diskon.discount/100))) }}
+                        {{ $root.formatPrice($root.filterPriceProduct(data.product).price - ($root.filterPriceProduct(data.product).price * ($root.filterDiskonProduct(data.product).discount/100))) }}
                       </span>
                     </span>
                   </td>
@@ -90,8 +90,8 @@
                       </span>
                     </span>
                     <span v-else>
-                      <span v-if="data.product.product_diskon.disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--2">
-                        -{{ data.product.product_diskon.discount }}%
+                      <span v-if="$root.filterDiskonProduct(data.product).disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--2">
+                        -{{ $root.filterDiskonProduct(data.product).discount }}%
                       </span>
                     </span>
                   </td>
@@ -196,13 +196,13 @@
                               </span>
                             </div>
                             <div v-else>
-                              <span v-if="product.product_diskon.disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--3">
-                                -{{ product.product_diskon.discount }}%
+                              <span v-if="$root.filterDiskonProduct(product).disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--3">
+                                -{{ $root.filterDiskonProduct(product).discount }}%
                               </span>
                             </div>
                           </div>
                           <span class="badge badge-subtle-secondary position-absolute mb-1 ms-2 z-2 px-1 bottom-0 start-0 fs--2 fw-bold" style="font-weight: normal;">{{ product.master_promo_id ? product.for_product.itemCode : product.itemCode }}</span>
-                          <span class="badge badge-subtle-success position-absolute mb-1 me-2 z-2 px-1 bottom-0 end-0 fs--2" style="font-weight: normal;">{{ product.master_promo_id ? product.for_product.inventory_stok.onHand : product.inventory_stok.onHand }}</span>
+                          <span class="badge badge-subtle-success position-absolute mb-1 me-2 z-2 px-1 bottom-0 end-0 fs--2" style="font-weight: normal;">{{ product.master_promo_id ? $root.filterStokProduct(product.for_product).onHand : $root.filterStokProduct(product).onHand }}</span>
                         </div>
                       </div>
                       <div class="p-2 text-center">
@@ -217,22 +217,22 @@
                         </button>
                         <div v-if="product.master_promo_id">
                           <strong class="fs-md-0 text-warning mb-0 text-center">
-                            Rp {{ $root.formatPrice(product.for_product.product_price.price - (product.for_product.product_price.price * (product.master_promo.percent/100))) }}
+                            Rp {{ $root.formatPrice($root.filterPriceProduct(product.for_product).price - ($root.filterPriceProduct(product.for_product).price * (product.master_promo.percent/100))) }}
                             <del v-if="product.master_promo.tipe_promo == master_coll.tipePromo.percent" class="text-secondary fs--1">
-                              {{ $root.formatPrice(product.for_product.product_price.price) }}
+                              {{ $root.formatPrice($root.filterPriceProduct(product.for_product).price) }}
                             </del>
                           </strong>
                         </div>
                         <div v-else>
-                          <div v-if="product.product_diskon.disc_code == master_code.diskon.tanpa_diskon_code">
+                          <div v-if="$root.filterDiskonProduct(product).disc_code == master_code.diskon.tanpa_diskon_code">
                             <strong class="fs-md-0 text-warning mb-0 text-center">
-                              Rp {{ $root.formatPrice(product.product_price.price) }}
+                              Rp {{ $root.formatPrice($root.filterPriceProduct(product).price) }}
                             </strong>
                           </div>
                           <div v-else>
                             <strong class="fs-md-0 text-warning mb-0 text-center">
-                              Rp {{ $root.formatPrice(product.product_price.price - (product.product_price.price * (product.product_diskon.discount/100))) }}
-                              <del class="text-secondary fs--1">{{ $root.formatPrice(product.product_price.price) }}</del>
+                              Rp {{ $root.formatPrice($root.filterPriceProduct(product).price - ($root.filterPriceProduct(product).price * ($root.filterDiskonProduct(product).discount/100))) }}
+                              <del class="text-secondary fs--1">{{ $root.formatPrice($root.filterPriceProduct(product).price) }}</del>
                             </strong>
                           </div>
                         </div>
@@ -606,7 +606,7 @@
                   <div class="scrollable-customize" style="max-height: 150px;">
                     <div v-for="data in dataProductInList" :id="data.product.itemCode" class="d-flex justify-content-between fs--1 mb-1">
                       <p class="mb-0 text-dark me-4"><strong>{{ data.qty }} x </strong>{{ data.product.itemName }}</p>
-                      <span class="text-dark"><strong>{{ $root.formatPrice(data.qty * data.product.product_price.price) }}</strong></span>
+                      <span class="text-dark"><strong>{{ $root.formatPrice(data.qty * $root.filterPriceProduct(data.product).price) }}</strong></span>
                     </div>
                   </div>
                   <hr class="mb-1 mt-0">
@@ -932,8 +932,8 @@
                             </span>
                           </div>
                           <div v-else>
-                            <span v-if="product.product_diskon.disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--3">
-                              -{{ product.product_diskon.discount }}%
+                            <span v-if="$root.filterDiskonProduct(product).disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--3">
+                              -{{ $root.filterDiskonProduct(product).discount }}%
                             </span>
                             <span v-else>-</span>
                           </div>
@@ -942,18 +942,18 @@
                           Rp
                           <span v-if="product.master_promo_id">
                             <span v-if="product.master_promo.tipe_promo == master_coll.tipePromo.bundle">
-                              {{ $root.formatPrice(product.for_product.product_price.price) }}
+                              {{ $root.formatPrice($root.filterPriceProduct(product.for_product).price) }}
                             </span>
                             <span v-if="product.master_promo.tipe_promo == master_coll.tipePromo.percent">
-                              {{ $root.formatPrice(product.for_product.product_price.price - (product.for_product.product_price.price * (product.master_promo.percent/100))) }}
+                              {{ $root.formatPrice($root.filterPriceProduct(product.for_product).price - ($root.filterPriceProduct(product.for_product).price * (product.master_promo.percent/100))) }}
                             </span>
                           </span>
                           <span v-else>
-                            <span v-if="product.product_diskon.disc_code == master_code.diskon.tanpa_diskon_code">
-                              {{ $root.formatPrice(product.product_price.price) }}
+                            <span v-if="$root.filterDiskonProduct(product).disc_code == master_code.diskon.tanpa_diskon_code">
+                              {{ $root.formatPrice($root.filterPriceProduct(product).price) }}
                             </span>
                             <span v-else>
-                              {{ $root.formatPrice(product.product_price.price - (product.product_price.price * (product.product_diskon.discount/100))) }}
+                              {{ $root.formatPrice($root.filterPriceProduct(product).price - ($root.filterPriceProduct(product).price * ($root.filterDiskonProduct(product).discount/100))) }}
                             </span>
                           </span>
                         </td>
@@ -1117,7 +1117,6 @@
         dataAllProducts: [],
         dataAllProductsPromo: [],
         dataProductInList: [],
-        dataBrandProduct: [],
         dataAllMembers: [],
         dataAllGelars: [],
         dataAllKodeResellers: [],
@@ -1327,7 +1326,6 @@
             // withCredentials: false,
           });
           const allData = getAllDataSales.data;
-          this.dataBrandProduct = allData.getAllBrand; //All Brand
           this.dataAllMembers = allData.getAllMember; //All Member
           this.dataAllGelars = allData.getAllGelar; //All Gelar
           this.dataAllKodeResellers = allData.getAllKodeReseller; //All Kode Reseller
@@ -1442,22 +1440,22 @@
           if(product.is_promo_product){
             const isPromoProduct = product.is_promo_product;
             if(isPromoProduct.master_promo.tipe_promo == this.master_coll.tipePromo.bundle){
-              formatHarga = parseInt(isPromoProduct.for_product.product_price.price);
+              formatHarga = parseInt(this.$root.filterPriceProduct(isPromoProduct.for_product).price);
             }
             if(isPromoProduct.master_promo.tipe_promo == this.master_coll.tipePromo.percent) {
-              formatHarga = parseInt(isPromoProduct.for_product.product_price.price - (isPromoProduct.for_product.product_price.price * (isPromoProduct.master_promo.percent/100)));
+              formatHarga = parseInt(this.$root.filterPriceProduct(isPromoProduct.for_product).price - (this.$root.filterPriceProduct(isPromoProduct.for_product).price * (isPromoProduct.master_promo.percent/100)));
             }
           }else{
-            if(getProduct.product_diskon.disc_code == this.master_code.diskon.tanpa_diskon_code){
-              formatHarga = parseInt(getProduct.product_price.price);
+            if(this.$root.filterDiskonProduct(getProduct).disc_code == this.master_code.diskon.tanpa_diskon_code){
+              formatHarga = parseInt(this.$root.filterPriceProduct(getProduct).price);
             }else{
-              formatHarga = parseInt(getProduct.product_price.price  - (getProduct.product_price.price * (getProduct.product_diskon.discount/100)));
+              formatHarga = parseInt(this.$root.filterPriceProduct(getProduct).price  - (this.$root.filterPriceProduct(getProduct).price * (this.$root.filterDiskonProduct(getProduct).discount/100)));
             }
           }
           var calculatePrice = formatHarga * product.qty;
           this.subTotalPrice += calculatePrice;
 
-          this.totalPriceRingkasanProduct += parseInt(getProduct.product_price.price * product.qty)
+          this.totalPriceRingkasanProduct += parseInt(this.$root.filterPriceProduct(getProduct).price * product.qty)
         });
         
         var tatalUntukBayar = this.subTotalPrice;
@@ -1855,7 +1853,6 @@
 
           this.allProductFindSearchBtn = checkAllProduct;
           if(checkAllProduct.length > 1){
-            console.log(this.allProductFindSearchBtn);
             $('#modalSearchFoundProductMore').modal('show');
           }else{
             this.addProductToList(checkAllProduct[0]);
@@ -2114,7 +2111,7 @@
               }
             },
             {
-              content: this.$root.formatPrice(product.product_price.price),
+              content: this.$root.formatPrice(this.$root.filterPriceProduct(product).price),
               styles: {
                 halign: 'right',
                 fontSize: sizeFont,

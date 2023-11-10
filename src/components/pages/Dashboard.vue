@@ -177,7 +177,6 @@
           const getUserLogo = await this.$root.checkUserRegistered(check_uuid);
           this.dataUserLogin = getUserLogo;
           this.accessStoreUser = getUserLogo.access_store_outlet;
-          console.log(getUserLogo);
   
           const store = await axios({
             method: 'get',
@@ -186,7 +185,7 @@
           const getDataProduct = store.data;
 
           this.dataAllProduct = getDataProduct.getAllProduct;
-          console.log(this.dataAllProduct);
+          // console.log(this.dataAllProduct);
         } catch (error) {
           console.log(error);
         }

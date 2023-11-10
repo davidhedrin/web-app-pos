@@ -85,16 +85,16 @@
               <td class="fw-bold">{{ master.for_product.itemName }}</td>
               <td>{{ master.master_promo.nama_promo }}</td>
               <td class="text-center">
-                <del v-if="master.master_promo.tipe_promo == '2'" class="fs--2 me-1">Rp {{$root.formatPrice(master.for_product.product_price.price) }}</del>
-                <span class="fw-bold">Rp {{ master.master_promo.tipe_promo == '2' ? $root.formatPrice(master.for_product.product_price.price - (master.for_product.product_price.price * (master.master_promo.percent/100))) : $root.formatPrice(master.for_product.product_price.price) }}</span>
+                <del v-if="master.master_promo.tipe_promo == master_coll.tipePromo.percent" class="fs--2 me-1">Rp {{$root.formatPrice($root.filterPriceProduct(master.for_product).price) }}</del>
+                <span class="fw-bold">Rp {{ master.master_promo.tipe_promo == master_coll.tipePromo.percent ? $root.formatPrice($root.filterPriceProduct(master.for_product).price - ($root.filterPriceProduct(master.for_product).price * (master.master_promo.percent/100))) : $root.formatPrice($root.filterPriceProduct(master.for_product).price) }}</span>
               </td>
               <td>
-                <span class="badge rounded-pill" :class="master.master_promo.tipe_promo == '1' ? 'badge-subtle-warning' : 'badge-subtle-primary'">
-                  {{ master.master_promo.tipe_promo == '1' ? 'Bundle' : 'Percent' }}
+                <span class="badge rounded-pill" :class="master.master_promo.tipe_promo == master_coll.tipePromo.bundle ? 'badge-subtle-warning' : 'badge-subtle-primary'">
+                  {{ master.master_promo.tipe_promo == master_coll.tipePromo.bundle ? 'Bundle' : 'Percent' }}
                 </span>
               </td>
               <td>
-                {{ master.master_promo.tipe_promo == '1' 
+                {{ master.master_promo.tipe_promo == master_coll.tipePromo.bundle 
                   ? 'Buy ' + master.master_promo.buy_item + ' Get ' + master.master_promo.get_item
                   : 'Diskon ' + master.master_promo.percent + '%'
                 }}
@@ -132,13 +132,13 @@
                     </div>
                     <div v-if="master.master_promo.tipe_promo == '2'">
                       <del class="fs--1 text-500">
-                        Rp. {{ $root.formatPrice(master.for_product.product_price.price) }} 
+                        Rp. {{ $root.formatPrice($root.filterPriceProduct(master.for_product).price) }} 
                       </del>
                       (-{{ master.master_promo.percent }}%)
                     </div>
                   </span>
                   <h5 class="fs-md-1 text-warning mb-0 d-flex align-items-center mb-1">
-                    Rp {{ master.master_promo.tipe_promo == '2' ? $root.formatPrice(master.for_product.product_price.price - (master.for_product.product_price.price * (master.master_promo.percent/100))) : $root.formatPrice(master.for_product.product_price.price) }}
+                    Rp {{ master.master_promo.tipe_promo == '2' ? $root.formatPrice($root.filterPriceProduct(master.for_product).price - ($root.filterPriceProduct(master.for_product).price * (master.master_promo.percent/100))) : $root.formatPrice($root.filterPriceProduct(master.for_product).price) }}
                   </h5>
                   <p class="fs--1 mb-0">
                     <strong class="text-info">

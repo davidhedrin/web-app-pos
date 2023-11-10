@@ -117,6 +117,24 @@ export default {
 
   // async mounted(){
   // },
+
+  computed: {
+    filterPriceProduct(){
+      return (product) => {
+        return product.all_product_price.find(price => price.priceCode === product.store.priceCode);
+      }
+    },
+    filterStokProduct(){
+      return (product) => {
+        return product.all_inventory_stok.find(stok => stok.whs_code === product.store.whsCode);
+      }
+    },
+    filterDiskonProduct(){
+      return (product) => {
+        return product.all_product_diskon.find(diskon => diskon.discCode === product.store.discCode);
+      }
+    }
+  },
   
   methods: {
     goto: async function(comp){

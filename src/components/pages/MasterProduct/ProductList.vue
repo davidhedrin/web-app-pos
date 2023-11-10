@@ -35,7 +35,6 @@
             <div class="ms-2">
               <select class="form-select">
                 <option value="">Pilih Brand Product</option>
-                <option v-for="brand in dataBrandProduct" :id="brand.slug" :value="brand.slug">{{ brand.nama_brand }}</option>
               </select>
             </div>
           </div>
@@ -66,10 +65,9 @@
               <td class="bg-white">Image</td>
               <td class="bg-white">Item Code</td>
               <td class="bg-white">Nama</td>
-              <td class="bg-white">Store</td>
               <td class="bg-white">Manufaktur</td>
-              <td class="bg-white">Harga</td>
-              <td class="bg-white">Stok</td>
+              <td class="bg-white">Barcode</td>
+              <td class="bg-white">Perent Code</td>
               <td class="bg-white">Aksi</td>
             </tr>
           </thead>
@@ -79,14 +77,10 @@
               <td class="tr-middle"><img class="img-product rounded-2" :src="'src/assets/img/product/' + product.image" alt=""></td>
               <td class="tr-middle">{{ product.itemCode }}</td>
               <td class="tr-middle">{{ product.itemName }}</td>
-              <td class="tr-middle">{{ product.store.nama_toko }} ({{ product.store.store_code }})</td>
               <td class="tr-middle">{{ product.mnfctName }} ({{ product.mnfctCode }})</td>
-              <td class="tr-middle">Rp {{ $root.formatPrice(product.product_price.price) }}</td>
+              <td class="tr-middle">{{ product.barCode }}</td>
+              <td class="tr-middle">{{ product.parentCode }}</td>
               <td class="tr-middle">
-                {{ product.inventory_stok.onHand }} 
-              </td>
-              <td class="tr-middle">
-                <!-- data-bs-toggle="modal" data-bs-target="#modalViewProduct" -->
                 <button class="btn btn-link p-0" type="button" @click="showModalDetailProduct(product)">
                   <span class="fas fa-edit text-warning"></span>
                 </button>
@@ -114,7 +108,7 @@
               <div v-if="productShowDetail">
                 <div class="row mx-0 mb-3">
                   <div class="col-md-3 mb-3">
-                    <img class="rounded" src="@/assets/img/product/sariayu_martha.jpg" alt="" style="width: 100%; height: 170px; object-fit: cover;">
+                    <img class="rounded" src="@/assets/img/product/sariayu_martha.jpg" alt="" style="width: 100%; height: 155px; object-fit: cover;">
                   </div>
                   <!-- Review Product -->
                   <div class="col-md-9 mb-2">
@@ -123,9 +117,6 @@
   
                     <div class="row">
                       <div class="col-md-6">
-                        <div class="fs--1">
-                          Store: <span class="fw-bold">{{ productShowDetail.store.nama_toko }}</span>
-                        </div>
                         <div class="fs--1">
                           Manufaktur: <span class="fw-bold">{{ productShowDetail.mnfctName }} ({{ productShowDetail.mnfctCode }})</span>
                         </div>
@@ -138,34 +129,13 @@
                           </span>
                         </div>
                         <div class="fs--1">
-                          Harga Satuan: 
-                          <span class="fw-bold">
-                            Rp {{ $root.formatPrice(productShowDetail.product_price.price) }} 
-                            ({{ productShowDetail.product_price.price_code }})
-                          </span>
-                        </div>
-                        <div class="fs--1">
-                          Diskon: 
-                          <span class="fw-bold">
-                            {{ productShowDetail.product_diskon.disc_code != '0' ? productShowDetail.product_diskon.discount : '0' }}%
-                            ({{ productShowDetail.product_diskon.discName }})
-                          </span>
-                        </div>
-                        <div class="fs--1">
-                          Stok Warehouse: 
-                          <span class="fw-bold">
-                            {{ productShowDetail.inventory_stok.onHand }} - 
-                            ({{ productShowDetail.inventory_stok.whsCode }} {{ productShowDetail.inventory_stok.whsName }})
-                          </span>
-                        </div>
-                      </div>
-                      <div class="col-md-6 text-md-end text-start">
-                        <div class="fs--1">
                           Nilai UOM 2: <span class="fw-bold">{{ productShowDetail.uom2 }}</span>
                         </div>
                         <div class="fs--1">
                           Nilai UOM 3: <span class="fw-bold">{{ productShowDetail.uom3 }}</span>
                         </div>
+                      </div>
+                      <div class="col-md-6 text-md-end text-start">
                         <div class="fs--1">
                           Parent Code: <span class="fw-bold">{{ productShowDetail.parentCode }}</span>
                         </div>
@@ -176,17 +146,17 @@
                           Product Code (SKU): <span class="badge rounded-pill bg-secondary fs--2">{{ productShowDetail.itemCode }}</span>
                         </div>
                       </div>
-                      <div class="fs--1">
-                        Nama Pendek: <span class="fw-bold">{{ productShowDetail.itemNameShort }}</span>
+                      <div class="col-md-12">
+                        <div class="fs--1">
+                          Nama Pendek: <span class="fw-bold">{{ productShowDetail.itemNameShort }}</span>
+                        </div>
+                        <div class="fs-1">
+                          <span class="fw-bold">{{ productShowDetail.itemName }}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <hr class="d-md-none d-sm-inline-block my-1">
-                  
-                  <div class="fs-1">
-                    <span class="fw-bold">{{ productShowDetail.itemName }}</span>
-                  </div>
                   <div class="fs--1">
                     Deskripsi Produk: 
                     <div class="scrollable-customize" style="max-height: 60px;">
@@ -368,7 +338,6 @@
         data_master_supplier: [],
         data_master_opt_info: [],
 
-        dataBrandProduct: [],
         dataMasterStoreOutlet: [],
         dataMasterManufaktur: [],
         dataMasterPriceCode: [],
@@ -454,7 +423,6 @@
             url: this.$root.API_URL + '/master-product',
           });
           const allData = getAllDataMaster.data;
-          this.dataBrandProduct = allData.getAllBrand; //All Brand
           this.dataMasterStoreOutlet = allData.getAllStoreOutlet; //All Store Outlet
           this.dataMasterManufaktur = allData.getAllManufaktur; //All Manufaktur
           this.dataMasterPriceCode = allData.getAllMasterPriceCode; //All Price Code
@@ -480,7 +448,6 @@
 
           const allDataProduct = getAllDataProduct.data;
           this.allDataProduct = allDataProduct;
-          // console.log(allDataProduct);
         } catch (error) {
           console.log(error);
         }
@@ -489,7 +456,6 @@
 
       showModalDetailProduct: function(product){
         this.productShowDetail = product;
-        console.log(product);
         
         // Set Object master price
         this.data_master_price = this.dataMasterPriceCode.map(price => {
