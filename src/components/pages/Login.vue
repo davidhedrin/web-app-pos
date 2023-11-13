@@ -82,6 +82,8 @@
     name: 'Login',
     data(){
       return {
+        local_storage: this.$root.local_storage,
+
         dataLogin: {
           email: null,
           password: null,
@@ -105,7 +107,7 @@
 
           if(store.status == 200){
             const dataUser = store.data;
-            localStorage.setItem("is_dynamic", dataUser.user_uuid);
+            localStorage.setItem(this.local_storage.is_dynamic, dataUser.user_uuid);
             
             if(dataUser.flag_active == true){
               this.$root.goto('dashboard');
@@ -171,9 +173,9 @@
         // }
         
         const uri = new URL(window.location);
-        const token_sso = uri.searchParams.get('app_token');
+        const token_sso = uri.searchParams.get(this.local_storage.local_storage);
         if (token_sso != "undefined" && token_sso != null){
-          localStorage.setItem("token_sso", token_sso);
+          localStorage.setItem(this.local_storage.token_sso, token_sso);
           const getStatusToken = await this.$root.checkAuthenticationToken();
           if(getStatusToken){
             const getUserExist = await this.$root.checkUserRegistered(getStatusToken.uuid);

@@ -107,3 +107,12 @@ export const master_coll = {
     percent: '2',
   }
 }
+
+export const local_storage = {
+  app_token: 'app_token',
+  token_sso: 'token_sso',
+
+  current_page: 'current_page',
+  is_dynamic: 'is_dynamic',
+  access_store: 'selected_access_store'
+}

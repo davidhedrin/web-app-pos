@@ -166,7 +166,7 @@
         </div>
         <div class="card-body position-relative p-0">
           <div class="scrollable-customize mb-3" style="max-height: 45vh; min-height: 45vh">
-            <div v-if="filteredProducts.length < 1" class="text-center py-5">
+            <div v-if="$root.selectedStoreAccess === null || filteredProducts.length < 1" class="text-center py-5">
               <div class="mt-5">
                 <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
               </div>
@@ -176,7 +176,7 @@
             </div>
             <div class="px-3">
               <div class="row px-3">
-                <div class="mb-1 col-sm-6 col-md-2 p-1" v-for="product in filteredProducts" :key="product.sku">
+                <div v-if="$root.selectedStoreAccess" class="mb-1 col-sm-6 col-md-2 p-1" v-for="product in filteredProducts" :key="product.sku">
                   <div class="border rounded-1 h-100 d-flex flex-column justify-content-between">
                     <div class="overflow-hidden">
                       <div class="position-relative rounded-top overflow-hidden" v-on:click="addProductToList(product)" style="cursor: pointer;">
@@ -1109,6 +1109,7 @@
       return {
         master_code: this.$root.master_code,
         master_coll: this.$root.master_coll,
+        local_storage: this.$root.local_storage,
 
         loadingBlack: markRaw(LoadingBlack),
         currentTime: new Date(),

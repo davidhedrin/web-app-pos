@@ -282,8 +282,6 @@
       showModalDataUser: function(user){
         this.showDataUserModal = user;
         $('#modalEditDataUser').modal('show');
-
-        console.log(user);
       },
 
       confirmApproveUser: async function(){

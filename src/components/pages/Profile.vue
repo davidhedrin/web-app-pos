@@ -250,6 +250,8 @@
     name: 'ProfilePage',
     data(){
       return{
+        local_storage: this.$root.local_storage,
+
         dateNow: null,
         dataAuthUserSso: null,
         dataUserProfileSso: null,
@@ -278,7 +280,7 @@
 
     methods: {
       loadAllData: async function (){
-        let check_uuid = localStorage.getItem("is_dynamic");
+        let check_uuid = localStorage.getItem(this.local_storage.is_dynamic);
 
         if(!check_uuid){
           const getAuthSso = await this.$root.checkAuthenticationToken();

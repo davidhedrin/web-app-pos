@@ -23,7 +23,7 @@
 <script>
 import axios from "axios";
 import { markRaw } from 'vue';
-import { master_code, master_coll } from '@/components/scripts/collections.js';
+import { master_code, master_coll, local_storage } from '@/components/scripts/collections.js';
 
 // Layouts
 import NavbarLayout from '@/components/layouts/Navbar.vue';
@@ -73,11 +73,13 @@ export default {
       APP_SSO_URL: APP_SSO_URL,
       APP_SSO_TOKEN_STATUS: APP_SSO_TOKEN_STATUS,
       dataAuthToken: null,
+      selectedStoreAccess: JSON.parse(localStorage.getItem(local_storage.access_store)),
 
       master_code: master_code,
       master_coll: master_coll,
+      local_storage: local_storage,
       
-      current_page: sessionStorage.getItem('current_page'),
+      current_page: sessionStorage.getItem(local_storage.current_page),
       activeRoute: markRaw(routeComponent['dashboard']),
       navbar: markRaw(NavbarLayout),
       header: markRaw(HeaderLayout),
@@ -106,10 +108,10 @@ export default {
   },
 
   async beforeMount() {
-    const current_page = sessionStorage.getItem('current_page');
+    const current_page = sessionStorage.getItem(this.local_storage.current_page);
     if(current_page){
       this.activeRoute = markRaw(routeComponent[current_page]);
-      sessionStorage.setItem('current_page', current_page);
+      sessionStorage.setItem(this.local_storage.current_page, current_page);
     }
 
     await this.checkSessionAuthSSO();
@@ -121,35 +123,41 @@ export default {
   computed: {
     filterPriceProduct(){
       return (product) => {
-        return product.all_product_price.find(price => price.priceCode === product.store.priceCode);
+        if (this.selectedStoreAccess) {
+          return product.all_product_price.find(price => price.priceCode === this.selectedStoreAccess.store_outlet.priceCode);
+        }
       }
     },
     filterStokProduct(){
       return (product) => {
-        return product.all_inventory_stok.find(stok => stok.whs_code === product.store.whsCode);
+        if (this.selectedStoreAccess) {
+          return product.all_inventory_stok.find(stok => stok.whs_code === this.selectedStoreAccess.store_outlet.whsCode);
+        }
       }
     },
     filterDiskonProduct(){
       return (product) => {
-        return product.all_product_diskon.find(diskon => diskon.discCode === product.store.discCode);
+        if (this.selectedStoreAccess) {
+          return product.all_product_diskon.find(diskon => diskon.discCode === this.selectedStoreAccess.store_outlet.discCode);
+        }
       }
     }
   },
   
   methods: {
     goto: async function(comp){
-      const current_page = sessionStorage.getItem('current_page');
+      const current_page = sessionStorage.getItem(this.local_storage.current_page);
       if(comp != current_page){
         this.showLoading();
       }
 
       this.activeRoute = markRaw(routeComponent[comp]);
-      sessionStorage.setItem('current_page', comp);
+      sessionStorage.setItem(this.local_storage.current_page, comp);
     },
     
     checkSessionAuthSSO: async function(){
       // this.showLoading();
-      let check_uuid = localStorage.getItem("is_dynamic");
+      let check_uuid = localStorage.getItem(this.local_storage.is_dynamic);
 
       if(!check_uuid){
         const getStatusToken = await this.checkAuthenticationToken();
@@ -167,6 +175,14 @@ export default {
         // this.hideLoading();
         // return false;
         this.dataAuthToken = getDatUserRegis;
+
+        if(getDatUserRegis.access_store_outlet.length === 1){
+          const firstUserStoreAccess = getDatUserRegis.access_store_outlet[0];
+          firstUserStoreAccess.nama_toko = firstUserStoreAccess.store_outlet.nama_toko;
+
+          this.selectedStoreAccess = firstUserStoreAccess;
+          localStorage.setItem(this.local_storage.access_store, JSON.stringify(firstUserStoreAccess));
+        }
   
         if(getDatUserRegis.flag_active == false){
           this.$root.goto('profilepage');
@@ -198,7 +214,7 @@ export default {
 
     checkAuthenticationToken: async function(){
       try{
-        const token_sso = localStorage.getItem("token_sso");
+        const token_sso = localStorage.getItem(this.local_storage.token_sso);
 
         if(token_sso){
           const AuthStr = "App " + token_sso;
@@ -262,6 +278,7 @@ export default {
 
     clearSessionLocalStorege: function(){
       this.dataAuthToken = null;
+      this.selectedStoreAccess = null;
       localStorage.clear();
       sessionStorage.clear();
       this.activeRoute = markRaw(routeComponent['login']);
