@@ -19,7 +19,7 @@
                 </div>
                 <div class="col-md-auto position-relative">
                   <div class="input-group">
-                    <input :value="selectedStoreOutlet ? `${selectedStoreOutlet.store_outlet.nama_toko} (${selectedStoreOutlet.store_code})` : ''" class="form-control datetimepicker flatpickr-input" type="text" readonly="readonly">
+                    <input :value="selectedStoreOutlet ? `${selectedStoreOutlet.store_outlet.storeName} (${selectedStoreOutlet.store_code})` : ''" class="form-control datetimepicker flatpickr-input" type="text" readonly="readonly">
                     <button class="btn btn-primary btn-sm card-link" type="button" data-bs-toggle="modal" data-bs-target="#modalSelectAccessStore">
                       <span class="me-1">Pindah</span> <span class="fas fa-store-alt"></span>
                     </button>
@@ -156,7 +156,7 @@
     <div class="accordion-item mb-3">
       <h2 class="accordion-header" :id="`heading${index + 1}`">
         <button class="accordion-button fs-1 collapsed" type="button" data-bs-toggle="collapse" :data-bs-target="`#multiCollapseExample${index + 1}`" aria-expanded="false" :aria-controls="`multiCollapseExample${index + 1}`">
-          Daftar Product, <span class="typed-text fw-bold ms-1">{{ store.store_outlet.nama_toko }}</span>
+          Daftar Product, <span class="typed-text fw-bold ms-1">{{ store.store_outlet.storeName }}</span>
         </button>
       </h2>
       <div class="collapse multi-collapse" :id="`multiCollapseExample${index + 1}`">
@@ -165,8 +165,8 @@
             <div class="row align-items-center">
               <div class="col-md-8 mb-2">
                 <span class="fs--1">
-                  Store: <strong class="text-dark">{{ store.store_outlet.nama_toko }}</strong> <br>
-                  Alamat: {{ store.store_outlet.alamat }}
+                  Store: <strong class="text-dark">{{ store.store_outlet.storeName }}</strong> <br>
+                  Alamat: {{ store.store_outlet.address }}
                 </span>
               </div>
               <div class="col-md-4">
@@ -230,7 +230,7 @@
                   v-model="selectedStoreOutlet"
                   :options="handleFormatStoreOutlet" 
                   value="store_code" 
-                  label="nama_toko"
+                  label="storeName"
                   placeholder="Pilih store outlet"
                 />
               </div>
@@ -269,7 +269,7 @@
     computed: {
       handleFormatStoreOutlet(){
         return this.accessStoreUser.map(store => {
-          store.nama_toko = store.store_outlet.nama_toko;
+          store.storeName = store.store_outlet.storeName;
           return store;
         });
       }
@@ -312,7 +312,7 @@
                 $('#modalSelectAccessStore').modal('show');
               }else{
                 const firstUserStoreAccess = getUserLogo.access_store_outlet[0];
-                firstUserStoreAccess.nama_toko = firstUserStoreAccess.store_outlet.nama_toko;
+                firstUserStoreAccess.storeName = firstUserStoreAccess.store_outlet.storeName;
 
                 this.selectedStoreOutlet = firstUserStoreAccess;
                 this.dataAllProduct = getAllProduct;

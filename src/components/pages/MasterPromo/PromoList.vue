@@ -54,10 +54,10 @@
             <span v-else-if="promo.tipe_promo == '2'">Diskon {{ promo.percent }}%</span>
           </span>
           <div>
-            <button class="btn btn-link p-0" type="button" data-bs-toggle="modal" data-bs-target="#modalAddEditPromo" v-on:click="openModalEditPromo(promo)">
+            <button class="btn btn-link p-0" type="button" v-on:click="openModalEditPromo(promo)">
               <span class="fas fa-edit text-warning"></span>
             </button>
-            <button class="btn btn-link p-0 ms-2" type="button" v-on:click="idPromoForDelete = promo.id" data-bs-toggle="modal" data-bs-target="#modalConfirmDeletePromo">
+            <button class="btn btn-link p-0 ms-2" type="button" v-on:click="openModalDeletePromo(promo.id)">
               <span class="fas fa-trash-alt text-danger"></span>
             </button>
           </div>
@@ -326,7 +326,7 @@
         dataAllMasterNamaPromo: [],
         modalAddOrEditPromo: true,
 
-        idPromoForDelete: '',
+        idPromoForDelete: 0,
 
         dataMasterPromo: {
           id: '',
@@ -454,6 +454,11 @@
         }
       },
 
+      openModalDeletePromo: function(promo_id){
+        this.idPromoForDelete = promo_id;
+        $('#modalConfirmDeletePromo').modal('show');
+      },
+
       actionDeletePromo: async function (){
         try{
           $('#modalConfirmDeletePromo').modal('hide');
@@ -462,7 +467,7 @@
             method: 'delete',
             url: this.$root.API_URL + '/master-promo/deleteDataPromo',
             data: {
-              id: this.idPromoForDelete,
+              id: parseInt(this.idPromoForDelete),
             }
           });
           
@@ -470,7 +475,7 @@
             var findIndexPromo = this.dataAllMasterPromo.findIndex((promo) => promo.master_promo_id == this.idPromoForDelete);
             this.dataAllMasterPromo.splice(findIndexPromo, 1);
 
-            this.idPromoForDelete = '';
+            // this.idPromoForDelete = '';
             this.$root.showAlertFunction('success', 'Delete Berhasil!', 'Selamat, Data promo telah berhasil dihapus.');
           }else{
             this.$root.showAlertFunction('warning', 'Menghapus Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
@@ -532,6 +537,8 @@
       },
       
       openModalEditPromo: function (promo){
+        this.$root.showLoading();
+
         for (let prop in this.dataMasterPromo) {
           if(prop != 'product_promo_buy_get' && prop != 'products_promo_percent'){
             this.dataMasterPromo[prop] = '';
@@ -565,6 +572,8 @@
         }
         
         this.modalAddOrEditPromo = false;
+        this.$root.hideLoading();
+        $('#modalAddEditPromo').modal('show');
       },
 
       formatDateTime: function (dateTimeString) {

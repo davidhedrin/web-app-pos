@@ -102,7 +102,7 @@
                 <span v-if="dataUserRegister">
                   <span v-if="dataUserRegister.flag_active != null">
                     <span v-if="dataUserRegister.access_store_outlet.length > 0">
-                      <span v-for="store in dataUserRegister.access_store_outlet">{{ store.nama_toko }}, </span>
+                      <span v-for="store in dataUserRegister.access_store_outlet">{{ store.storeName }}, </span>
                     </span>
                     <span v-else>-</span>
                   </span>

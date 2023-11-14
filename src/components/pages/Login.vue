@@ -31,24 +31,24 @@
                 </div>
                 <form @submit.prevent="executeLogin">
                   <div class="mb-3">
-                    <div class="d-flex justify-content-between">
-                      <label class="form-label" for="card-email">Email address</label>
-                    </div>
+                    <label class="form-label" for="card-email">Email address</label>
                     <input v-model="dataLogin.email" class="form-control" id="card-email" type="email" placeholder="Enter email address">
                   </div>
                   <div class="mb-3">
-                    <div class="d-flex justify-content-between">
-                      <label class="form-label" for="card-password">Password</label>
+                    <label class="form-label" for="card-password">Password</label>
+                    <div class="input-group mb-3">
+                      <input v-model="dataLogin.password" class="form-control" :type="togglePassword ? 'password' : 'text'" placeholder="***********" id="card-password"/>
+                      <span class="input-group-text px-2 cursor-pointer" @click="togglePasswordAction()">
+                        <div v-if="togglePassword">
+                          <span class="far fa-eye"></span>
+                        </div>
+                        <div v-else>
+                          <span class="far fa-eye-slash"></span>
+                        </div>
+                      </span>
                     </div>
-                    <input v-model="dataLogin.password" class="form-control" id="card-password" type="password" placeholder="***********">
                   </div>
                   <div class="row flex-between-center">
-                    <!-- <div class="col-auto">
-                      <div class="form-check mb-0">
-                        <input class="form-check-input" type="checkbox" id="card-checkbox">
-                        <label class="form-check-label mb-0" for="card-checkbox"> Remember me</label>
-                      </div>
-                    </div> -->
                     <div class="col-auto"><a class="fs--1" href="javascript:void(0)">Forgot Password?</a></div>
                   </div>
                   <div class="mb-4">
@@ -80,14 +80,16 @@
 
   export default {
     name: 'Login',
-    data(){
+    data() {
       return {
         local_storage: this.$root.local_storage,
 
         dataLogin: {
           email: null,
           password: null,
-        }
+        },
+
+        togglePassword: true,
       }
     },
 
@@ -173,13 +175,14 @@
         // }
         
         const uri = new URL(window.location);
-        const token_sso = uri.searchParams.get(this.local_storage.local_storage);
+        const token_sso = uri.searchParams.get(this.local_storage.app_token);
         if (token_sso != "undefined" && token_sso != null){
           localStorage.setItem(this.local_storage.token_sso, token_sso);
           const getStatusToken = await this.$root.checkAuthenticationToken();
           if(getStatusToken){
             const getUserExist = await this.$root.checkUserRegistered(getStatusToken.uuid);
-            if(getUserExist){
+            if(getUserExist && getUserExist.flag_active){
+              localStorage.setItem(this.local_storage.is_dynamic, getStatusToken.uuid);
               this.$root.goto('dashboard');
             }else{
               this.$root.goto('profilepage');
@@ -191,6 +194,14 @@
           window.location.href = originalHost;
         }
         this.$root.hideLoading();
+      },
+
+      togglePasswordAction: function(){
+        if(this.togglePassword == true){
+          this.togglePassword = false;
+        }else{
+          this.togglePassword = true;
+        }
       }
     }
   }

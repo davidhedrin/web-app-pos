@@ -56,7 +56,7 @@
             </a>
           </li>
           
-          <li v-if="this.$root.dataAuthToken && this.$root.dataAuthToken.role.id == '1'" class="nav-item">
+          <li v-if="$root.dataAuthToken && $root.dataAuthToken.role.id == '1'" class="nav-item">
             <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
               <div class="col-auto navbar-vertical-label">Master</div>
               <div class="col ps-0">

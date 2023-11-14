@@ -3,21 +3,27 @@
     <div class="col-lg-9">
       <div class="card mb-3">
         <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5j.png); background-size: cover;"></div>
-        <div class="card-header position-relative pb-0 d-flex align-items-center justify-content-between">
-          <h5 class="mb-0 d-flex align-items-center">
-            <span class="d-none d-sm-block">Order List</span>
-            <span class="badge rounded-pill badge-subtle-primary fs-0 ms-1">{{ dataProductInList.length > 0 ? dataProductInList.length : '0' }} item{{ dataProductInList.length > 1 ? 's' : '' }} <span v-if="dataProductInList.length > 0" class="fs--1">({{ totalPcsItemOrder }} pcs)</span></span>
-            <!-- <span class="badge rounded-pill bg-info fs--1 ms-1"></span> -->
-          </h5>
-          <div class="d-flex">
-            <div>
-              <form class="input-group">
-                <input class="form-control form-control-sm ps-2 pe-0" type="search" placeholder="#No Tiket" style="width: 90px;">
-                <button class="btn btn-primary btn-sm card-link" type="submit"><span class="fas fa-ticket-alt"></span></button>
-              </form>
+        <div class="card-header position-relative pb-0">
+          <div class="row">
+            <div class="col-md-6">
+              <h5 class="mb-0 d-flex align-items-center">
+                <span class="d-none d-sm-block">Order List</span>
+                <span class="badge rounded-pill badge-subtle-primary fs-0 ms-1">{{ dataProductInList.length > 0 ? dataProductInList.length : '0' }} item{{ dataProductInList.length > 1 ? 's' : '' }} <span v-if="dataProductInList.length > 0" class="fs--1">({{ totalPcsItemOrder }} pcs)</span></span>
+                <!-- <span class="badge rounded-pill bg-info fs--1 ms-1"></span> -->
+              </h5>
             </div>
-            <div class="ms-2">
-              <button class="btn btn-primary btn-sm card-link" type="submit" @click="showListModalTiket()">Tiket <span class="far fa-list-alt"></span></button>
+            <div class="col-md-6">
+              <div class="d-flex justify-content-end">
+                <div>
+                  <form class="input-group">
+                    <input class="form-control form-control-sm ps-2 pe-0" type="search" placeholder="#No Tiket" style="width: 90px;">
+                    <button class="btn btn-primary btn-sm card-link" type="submit"><span class="fas fa-ticket-alt"></span></button>
+                  </form>
+                </div>
+                <div class="ms-2">
+                  <button class="btn btn-primary btn-sm card-link" type="submit" @click="showListModalTiket()">Tiket <span class="far fa-list-alt"></span></button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -165,7 +171,7 @@
           </div>
         </div>
         <div class="card-body position-relative p-0">
-          <div class="scrollable-customize mb-3" style="max-height: 45vh; min-height: 45vh">
+          <div class="scrollable-customize mb-3" style="max-height: 46vh; min-height: 46vh">
             <div v-if="$root.selectedStoreAccess === null || filteredProducts.length < 1" class="text-center py-5">
               <div class="mt-5">
                 <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
@@ -306,7 +312,7 @@
                 </th>
               </tr>
               <tr class="border-bottom">
-                <th class="ps-0 py-1" style="font-weight: normal;">Total Bayar </th>
+                <th class="ps-0 py-1" style="font-weight: normal;">Total </th>
                 <th class="pe-0 fs-0 py-1 text-end text-warning">Rp {{ $root.formatPrice(totalBayarPrice) }}</th>
               </tr>
             </tbody>
@@ -632,9 +638,13 @@
                       <th class="ps-0 py-1" style="font-weight: normal;">Hemat Diskon </th>
                       <th class="pe-0 py-1 text-end text-dark">-Rp {{ $root.formatPrice(totalHematDiskon) }}</th>
                     </tr>
+                    <tr class="border-bottom">
+                      <th class="ps-0 py-1" style="font-weight: normal;">Total Setelah Diskon </th>
+                      <th class="pe-0 py-1 text-end text-dark">Rp {{ $root.formatPrice(totalBayarPrice) }}</th>
+                    </tr>
                     <tr v-if="getCheckGelarPembelian" class="border-bottom">
                       <th class="ps-0 py-1" style="font-weight: normal;">
-                        Member RESELLER 
+                        Reseller (Extra Diskon) 
                         <span v-if="getCheckGelarPembelian.slug == master_code.gelarBeli.silver" class="badge badge-subtle-danger px-1 fs--2">
                           {{ getCheckGelarPembelian.amount }}%
                         </span>
@@ -1005,7 +1015,7 @@
         </span>
       </div>
       <div v-else>
-        <span v-if="productShowDetail.product_diskon.disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill px-2 fs--2">
+        <span v-if="$root.filterDiskonProduct(productShowDetail).disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill px-2 fs--2">
           -{{ productShowDetail.product_diskon.discount }}%
         </span>
       </div>
@@ -1036,7 +1046,7 @@
       <div class="text-end">
         <span class="fs--1 mb-0">Stok Tersedia: </span>
         <p class="mb-1">
-          <span class="badge badge-subtle-success fs-0">{{ productShowDetail.master_promo_id ? productShowDetail.for_product.inventory_stok.onHand : productShowDetail.inventory_stok.onHand }}</span>
+          <span class="badge badge-subtle-success fs-0">{{ productShowDetail.master_promo_id ? $root.filterStokProduct(productShowDetail.for_product).onHand : $root.filterStokProduct(productShowDetail).onHand }}</span>
         </p>
       </div>
     </div>
@@ -1057,17 +1067,17 @@
     <div v-if="productShowDetail" class="d-flex justify-content-between align-items-center p-3">
       <div v-if="productShowDetail.master_promo_id">
         <h5 v-if="productShowDetail.master_promo.tipe_promo == master_coll.tipePromo.bundle" class="text-warning mb-0">
-          Rp {{ $root.formatPrice(productShowDetail.for_product.product_price.price) }}
+          Rp {{ $root.formatPrice($root.filterPriceProduct(productShowDetail.for_product).price) }}
         </h5>
         <span v-if="productShowDetail.master_promo.tipe_promo == master_coll.tipePromo.percent" class="fs--1">
-          <del>Rp {{ $root.formatPrice(productShowDetail.for_product.product_price.price) }}</del>
+          <del>Rp {{ $root.formatPrice($root.filterPriceProduct(productShowDetail.for_product).price) }}</del>
         </span>
         <h5 v-if="productShowDetail.master_promo.tipe_promo == master_coll.tipePromo.percent" class="text-warning mb-0">
-          Rp {{ $root.formatPrice(productShowDetail.for_product.product_price.price - (productShowDetail.for_product.product_price.price * (productShowDetail.master_promo.percent/100))) }}
+          Rp {{ $root.formatPrice($root.filterPriceProduct(productShowDetail.for_product).price - ($root.filterPriceProduct(productShowDetail.for_product).price * (productShowDetail.master_promo.percent/100))) }}
         </h5>
       </div>
       <div v-else>
-        <div v-if="productShowDetail.product_diskon.disc_code != master_code.diskon.tanpa_diskon_code">
+        <div v-if="$root.filterDiskonProduct(productShowDetail).disc_code != master_code.diskon.tanpa_diskon_code">
           <span class="fs--1">
             <del>Rp {{ $root.formatPrice(productShowDetail.product_price.price) }}</del>
           </span>
@@ -1077,7 +1087,7 @@
         </div>
         <div v-else>
           <h5 class="text-warning mb-0">
-            Rp {{ $root.formatPrice(productShowDetail.product_price.price) }}
+            Rp {{ $root.formatPrice($root.filterPriceProduct(productShowDetail).price) }}
           </h5>
         </div>
       </div>
@@ -1940,31 +1950,83 @@
         $('#modalCheckoutConfirm').modal('show');
       },
 
-      checkoutBtn: function(){
-        this.generatePdfCheckout();
-        this.dataProductInList = [];
-        this.memberOverview = null;
+      checkoutBtn: async function(){
+        try{
+          this.$root.showLoading();
+          
+          const user_login = this.$root.dataAuthToken;
+          const activeStore = this.$root.selectedStoreAccess;
 
-        this.dataMoreMetodeBayar = [];
-        this.nominalMoreMetodeBayar = [];
-        this.selectedMetodeBayar = {};
-        this.selectMethodPayment = '';
-        this.modelInputSelectedMetodeBayar = '';
-        this.modelInputMoreMetodeBayar = [];
+          const dataTr = {
+              user_login: user_login,
+              
+              storeCode: this.$root.selectedStoreAccess.store_code,
+              memberId: this.memberOverview.member_id,
+              salesBy: this.selectSalesBy,
 
-        this.selectedFilterBrand = null;
-        this.selectedBscWa = '';
-        this.inputSearchMember = '';
-        this.keteranganTransaksi = '';
-        this.checkboxMemberPotonganPoint = false;
-        
-        this.isBuatkanTiketBtn = true;
-        this.calculateAmoutPrice();
-        $('#modalCheckoutConfirm').modal('hide');
-        $('#modalConfirmPay').modal('hide');
-        $('#modalTransactionFinishSuccess').modal('show');
+              totalQty: this.totalPcsItemOrder > 0 ? parseInt(this.totalPcsItemOrder) : null,
 
-        // this.$root.showAlertFunction('success', 'Traksaksi Berhasil!', 'Selamat, transaksi baru telah berhasil disimpan.');
+              subTotalAmount: this.totalPriceRingkasanProduct > 0 ? parseInt(this.totalPriceRingkasanProduct) : null,
+              totalDicountAmount: this.totalHematDiskon > 0 ? parseInt(this.totalHematDiskon) : null,
+              afterTotalDicountAmount: this.totalBayarPrice > 0 ? parseInt(this.totalBayarPrice) : null,
+              
+              gelarPembalian: this.getCheckGelarPembelian,
+              // resellerType: this.getCheckGelarPembelian ? this.getCheckGelarPembelian.slug : null,
+              // resellerDiskonAmount: this.getCheckGelarPembelian ? this.getCheckGelarPembelian.amount : null,
+
+              extraDiscountAmount: this.totalDiskonPercentReseller > 0 ? parseInt(this.totalDiskonPercentReseller) : null,
+
+              paymentAmount: this.calculateTotalBayarPrice > 0 ? parseInt(this.calculateTotalBayarPrice) : null,
+
+              description: this.keteranganTransaksi.trim() != '' ? this.keteranganTransaksi : null,
+              uniquePayment: this.modelInputSelectedMetodeBayar.trim() != '' ? this.modelInputSelectedMetodeBayar : null,
+
+              products: this.dataProductInList,
+              activeStore: activeStore,
+          }
+          
+          const storeTr = await axios({
+            method: 'post',
+            url: this.$root.API_URL + '/sales/storeNewTransaction',
+            data: dataTr,
+          });
+
+          if(storeTr.status == 201 || storeTr.status == 200){
+            const dataStoreTr = storeTr.data.data;
+
+            this.generatePdfCheckout();
+            this.dataProductInList = [];
+            this.memberOverview = null;
+    
+            this.dataMoreMetodeBayar = [];
+            this.nominalMoreMetodeBayar = [];
+            this.selectedMetodeBayar = {};
+            this.selectMethodPayment = '';
+            this.modelInputSelectedMetodeBayar = '';
+            this.modelInputMoreMetodeBayar = [];
+    
+            this.selectedFilterBrand = null;
+            this.selectedBscWa = '';
+            this.inputSearchMember = '';
+            this.keteranganTransaksi = '';
+            this.checkboxMemberPotonganPoint = false;
+            
+            this.isBuatkanTiketBtn = true;
+            this.calculateAmoutPrice();
+            $('#modalCheckoutConfirm').modal('hide');
+            $('#modalConfirmPay').modal('hide');
+            $('#modalTransactionFinishSuccess').modal('show');
+          }else{
+            this.$root.showAlertFunction('warning', 'Traksaksi Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+        } catch (error) {
+          this.$root.showAlertFunction('warning', 'Traksaksi Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          console.log(error);
+        }
+        this.$root.hideLoading();
+      },
+
+      storeNewTransaction: async function(){
       },
 
       generatePdfCheckout: function(){

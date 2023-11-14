@@ -9,7 +9,7 @@
     <div class="container-fluid" data-layout="container">
       <component v-if="activeRoute.name != 'Login'" :is="navbar"></component>
       <div class="content pb-0">
-        <component v-if="activeRoute.name != 'Login'" :is="header"></component>
+        <component v-if="activeRoute.name != 'Login'" :is="header" :userLogin="dataAuthToken" :storeActive="selectedStoreAccess"></component>
 
         <component :is="alert" :status="alertParam.status" :title="alertParam.title" :msg="alertParam.msg" :show-alert="showAlert"  @close-alert="showAlert = false"></component>
         <component :is="activeRoute"></component>
@@ -161,12 +161,12 @@ export default {
 
       if(!check_uuid){
         const getStatusToken = await this.checkAuthenticationToken();
-        if(!getStatusToken){
-          this.clearSessionLocalStorege();
-          this.hideLoading();
-          return false;
+        if(getStatusToken){
+          // this.clearSessionLocalStorege();
+          // this.hideLoading();
+          // return false;
+          check_uuid = getStatusToken.uuid;
         }
-        check_uuid = getStatusToken.uuid;
       }
 
       const getDatUserRegis = await this.checkUserRegistered(check_uuid);
@@ -178,7 +178,7 @@ export default {
 
         if(getDatUserRegis.access_store_outlet.length === 1){
           const firstUserStoreAccess = getDatUserRegis.access_store_outlet[0];
-          firstUserStoreAccess.nama_toko = firstUserStoreAccess.store_outlet.nama_toko;
+          firstUserStoreAccess.storeName = firstUserStoreAccess.store_outlet.storeName;
 
           this.selectedStoreAccess = firstUserStoreAccess;
           localStorage.setItem(this.local_storage.access_store, JSON.stringify(firstUserStoreAccess));
@@ -243,6 +243,7 @@ export default {
             return objToken;
           }
         }else{
+          this.clearSessionLocalStorege();
           return null;
         }
       } catch (error) {
