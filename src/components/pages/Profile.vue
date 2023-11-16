@@ -34,7 +34,7 @@
                 <img class="rounded-circle img-thumbnail shadow-sm mb-2" src="@/assets/img/profile/avatar-male.png" width="200" alt="">
               </div>
             </div>
-            <div class="col-md-9 text-md-start mt-2">
+            <div class="col-md-9 text-md-start mt-2 px-0">
               <h4 class="mb-1">
                 {{ dataUser.nama_lengkap ? dataUser.nama_lengkap : 'nama lengkap' }}
                 <span v-if="dataUserRegister && dataUserRegister.flag_active == true" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Verified" data-bs-original-title="Verified">
@@ -97,12 +97,21 @@
             </div>
           </div>
           <div class="mb-2">
+            <div class="d-flex align-items-end">
+              <h6 class="m-0">Login SSO: </h6>
+              <span class="badge rounded-pill bg-success fs--2 ms-1">YES</span>
+            </div>
+          </div>
+          <div class="mb-2">
             <div class="d-flex">
-              <h6 class="m-0">Access Store: 
+              <h6 class="m-0">Access Store: <br>
                 <span v-if="dataUserRegister">
                   <span v-if="dataUserRegister.flag_active != null">
                     <span v-if="dataUserRegister.access_store_outlet.length > 0">
-                      <span v-for="store in dataUserRegister.access_store_outlet">{{ store.storeName }}, </span>
+                      <span v-for="(store, index) in dataUserRegister.access_store_outlet">
+                        {{ index + 1 }}.
+                        {{ store.store_outlet.storeName }}{{ index == dataUserRegister.access_store_outlet.length - 1 ? '' : ', ' }} 
+                      </span>
                     </span>
                     <span v-else>-</span>
                   </span>
@@ -110,12 +119,6 @@
                 </span>
                 <span v-else><i>Waiting For <span class="badge rounded-pill badge-subtle-secondary ms-1">Registred</span></i></span>
               </h6>
-            </div>
-          </div>
-          <div class="mb-2">
-            <div class="d-flex align-items-end">
-              <h6 class="m-0">Login SSO: </h6>
-              <span class="badge rounded-pill bg-success fs--2 ms-1">YES</span>
             </div>
           </div>
         </div>
@@ -360,6 +363,7 @@
               const response = store.data;
               const getCheckUser = await this.$root.checkUserRegistered(this.dataAuthUserSso.uuid);
               if(getCheckUser){
+                this.$root.dataAuthToken = getCheckUser;
                 $('#modalFinishSendApprove').modal('show');
                 this.isRequestApproveBtn = false;
                 

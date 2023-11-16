@@ -30,6 +30,17 @@
           </li>
           
           <li class="nav-item">
+            <a v-on:click="validateGoto('dashboard')" href="javascript:void(0)" class="nav-link" role="button">
+              <div class="d-flex align-items-center">
+                <span class="nav-link-icon">
+                  <span class="fas fa-chart-line"></span>
+                </span>
+                <span class="nav-link-text ps-1">Transaksi</span>
+              </div>
+            </a>
+          </li>
+          
+          <li class="nav-item">
             <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
               <div class="col-auto navbar-vertical-label">App</div>
               <div class="col ps-0">

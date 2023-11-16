@@ -7,9 +7,9 @@
   </div>
   <main class="main" id="top">
     <div class="container-fluid" data-layout="container">
-      <component v-if="activeRoute.name != 'Login'" :is="navbar"></component>
+      <!-- <component v-if="activeRoute.name != 'Login'" :is="navbar"></component> -->
       <div class="content pb-0">
-        <component v-if="activeRoute.name != 'Login'" :is="header" :userLogin="dataAuthToken" :storeActive="selectedStoreAccess"></component>
+        <component v-if="activeRoute.name != 'Login'" :is="header"></component>
 
         <component :is="alert" :status="alertParam.status" :title="alertParam.title" :msg="alertParam.msg" :show-alert="showAlert"  @close-alert="showAlert = false"></component>
         <component :is="activeRoute"></component>

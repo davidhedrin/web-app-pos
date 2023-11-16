@@ -20,7 +20,7 @@
                 <div class="col-md-auto position-relative">
                   <div class="input-group">
                     <input :value="selectedStoreOutlet ? `${selectedStoreOutlet.store_outlet.storeName} (${selectedStoreOutlet.store_code})` : ''" class="form-control datetimepicker flatpickr-input" type="text" readonly="readonly">
-                    <button class="btn btn-primary btn-sm card-link" type="button" data-bs-toggle="modal" data-bs-target="#modalSelectAccessStore">
+                    <button class="btn btn-primary btn-sm card-link" type="button" data-bs-toggle="modal" data-bs-target="#modalSelectAccessStoreDashboard">
                       <span class="me-1">Pindah</span> <span class="fas fa-store-alt"></span>
                     </button>
                   </div>
@@ -105,14 +105,13 @@
 
   <div class="card mb-3">
     <div class="card-body">
-      <h5 class="text-primary">
-        Daftar Product, <span class="typed-text fw-bold ms-1">Kalapa Gading</span>
+      <h5 class="text-primary mb-0">
+        Daftar Product, <span class="typed-text fw-bold ms-1">{{ $root.selectedStoreAccess ? $root.selectedStoreAccess.storeName : '' }}</span>
       </h5>
       <div class="row align-items-center">
         <div class="col-md-8">
-          <span class="fs--1">
-            Store: <strong class="text-dark">Kalapa Gading</strong> <br>
-            Alamat: Alamat
+          <span v-if="$root.selectedStoreAccess" class="fs--1">
+            Alamat: {{ $root.selectedStoreAccess.store_outlet.address }}
           </span>
         </div>
         <div class="col-md-4">
@@ -210,10 +209,10 @@
     </div>
   </div> -->
 
-  <div class="modal fade" id="modalSelectAccessStore" tabindex="0" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true">
+  <div class="modal fade" id="modalSelectAccessStoreDashboard" tabindex="0" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px">
       <div class="modal-content position-relative">
-        <form @submit.prevent="selesaiSelectStoreAccessBtn()" id="formApproveUser">
+        <form @submit.prevent="selesaiSelectStoreAccessBtn()" id="formApproveUserDashboard">
           <div class="modal-body p-0">
             <div class="py-3 text-center">
               <div class="d-flex justify-content-center mb-2 mt-2">
@@ -262,7 +261,7 @@
 
         dataAllProduct: [],
 
-        selectedStoreOutlet: null,
+        selectedStoreOutlet: this.$root.selectedStoreAccess,
       }
     },
 
@@ -309,11 +308,12 @@
             
             if(cacheStoreAccess == null){
               if(getUserLogo.access_store_outlet.length > 1) {
-                $('#modalSelectAccessStore').modal('show');
+                $('#modalSelectAccessStoreDashboard').modal('show');
               }else{
                 const firstUserStoreAccess = getUserLogo.access_store_outlet[0];
                 firstUserStoreAccess.storeName = firstUserStoreAccess.store_outlet.storeName;
 
+                this.$root.selectedStoreAccess = firstUserStoreAccess;
                 this.selectedStoreOutlet = firstUserStoreAccess;
                 this.dataAllProduct = getAllProduct;
               }
@@ -336,7 +336,7 @@
           return false;
         }
 
-        $('#modalSelectAccessStore').modal('hide');
+        $('#modalSelectAccessStoreDashboard').modal('hide');
         this.$root.showLoading();
         this.$root.selectedStoreAccess = this.selectedStoreOutlet;
         localStorage.setItem(this.local_storage.access_store, JSON.stringify(this.selectedStoreOutlet));
@@ -348,7 +348,7 @@
       },
 
       logoutModalSelectStoreBtn: function(){
-        $('#modalSelectAccessStore').modal('hide');
+        $('#modalSelectAccessStoreDashboard').modal('hide');
         this.$root.clearSessionLocalStorege();
       }
     }

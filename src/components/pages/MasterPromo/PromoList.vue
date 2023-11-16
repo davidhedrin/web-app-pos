@@ -65,6 +65,20 @@
       </div>
     </div>
   </div>
+  <div class="card" v-if="dataAllMasterPromo.length < 1">
+    <div class="card-body overflow-hidden pb-0 pt-5">
+      <div class="row align-items-center">
+        <div class="col-lg-4"><img style="max-width: 100%; height: auto;" src="@/assets/img/illustration/21.png" alt=""></div>
+        <div class="col-lg-8 ps-lg-4 my-5 text-center text-lg-start">
+          <h3 class="text-primary">Edit me!</h3>
+          <p class="lead">Tidak ada promo terdaftar.</p>
+          <a class="btn btn-falcon-primary" href="javascript:void(0)">
+            Getting started
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- <div class="card">
     <div class="bg-holder d-none d-lg-block bg-card"
