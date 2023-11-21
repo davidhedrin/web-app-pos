@@ -1,28 +1,41 @@
 <template>
   <div class="row">
     <div class="col-lg-9">
-      <div class="card mb-3">
-        <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5j.png); background-size: cover;"></div>
+      <div class="card overflow-hidden mb-3">
+        <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-5j.png); background-size: auto;"></div>
         <div class="card-header position-relative pb-0">
-          <div class="row">
-            <div class="col-md-6">
+          <div class="row align-items-center">
+            <div class="col-md-3 mb-2 mb-md-0">
               <h5 class="mb-0 d-flex align-items-center">
-                <span class="d-none d-sm-block">Order List</span>
-                <span class="badge rounded-pill badge-subtle-primary fs-0 ms-1">{{ dataProductInList.length > 0 ? dataProductInList.length : '0' }} item{{ dataProductInList.length > 1 ? 's' : '' }} <span v-if="dataProductInList.length > 0" class="fs--1">({{ totalPcsItemOrder }} pcs)</span></span>
+                <span class="fs-0">Order List</span>
+                <span class="badge rounded-pill badge-subtle-primary fs--1 ms-1">{{ dataProductInList.length > 0 ? dataProductInList.length : '0' }} item{{ dataProductInList.length > 1 ? 's' : '' }} <span v-if="dataProductInList.length > 0">({{ totalPcsItemOrder }} pcs)</span></span>
                 <!-- <span class="badge rounded-pill bg-info fs--1 ms-1"></span> -->
               </h5>
             </div>
-            <div class="col-md-6">
-              <div class="d-flex justify-content-end">
-                <div>
-                  <form class="input-group">
-                    <input class="form-control form-control-sm ps-2 pe-0" type="search" placeholder="#No Tiket" style="width: 90px;">
-                    <button class="btn btn-primary btn-sm card-link" type="submit"><span class="fas fa-ticket-alt"></span></button>
-                  </form>
-                </div>
-                <div class="ms-2">
-                  <button class="btn btn-primary btn-sm card-link" type="submit" @click="showListModalTiket()">Tiket <span class="far fa-list-alt"></span></button>
-                </div>
+            <div class="col-md-6 mb-2 mb-md-0 pe-md-0 text-end">
+              <div class="customn-scrollable-x">
+                <span v-if="allTicketInOrder.length > 0">
+                  Tiket: 
+                </span>
+                <span v-for="(tiket, index) in this.allTicketInOrder" class="badge badge-subtle-primary ms-2">
+                  {{ tiket.tiket }}
+                  <span class="cursor-pointer" @click="deleteOrderTiketByIdx(index)">
+                    <span class="fas fa-window-close text-danger ms-1"></span>
+                  </span>
+                </span>
+              </div>
+            </div>
+            <div class="col-md-3 d-flex justify-content-end">
+              <div>
+                <form class="input-group" @submit.prevent="submitFindOrderWithTiket()">
+                  <input v-model="inputFindNoTiket" class="form-control form-control-sm" type="search" placeholder="#No Tiket">
+                  <button class="btn btn-primary card-link" type="submit">
+                    <span class="fas fa-ticket-alt"></span>
+                  </button>
+                </form>
+              </div>
+              <div>
+                <button class="btn btn-primary card-link ms-2" type="submit" @click="showListModalTiket()">Tiket</button>
               </div>
             </div>
           </div>
@@ -104,10 +117,14 @@
                   <td>
                     <input class="form-control p-0 ps-2" type="number" min="1" :value="data.qty" style="width: 60px;" 
                     @input="incDecQtyInput($event, data)"
-                    @change="incDecQtyChange($event, data)">
+                    @change="incDecQtyChange($event, data)"
+                    :disabled="data.is_ticket">
                   </td>
                   <td class="text-end">
-                    <a href="javascript:void(0)" v-on:click="deleteProductById(data)" class="p-0 ms-2 text-secondary">
+                    <a v-if="data.is_ticket" href="javascript:void(0)" class="p-0 ms-2 text-secondary" style="cursor: not-allowed;">
+                      <span class="fas fa-window-close"></span>
+                    </a>
+                    <a v-else href="javascript:void(0)" @click="deleteProductById(data)" class="p-0 ms-2 text-danger">
                       <span class="fas fa-window-close"></span>
                     </a>
                   </td>
@@ -118,8 +135,8 @@
         </div>
       </div>
       
-      <div class="card mb-3">
-        <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-4.png);"></div>
+      <div class="card overflow-hidden mb-3">
+        <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-4.png); background-size: auto;"></div>
         <div class="row card-header position-relative align-items-center pb-2 pt-1">
           <div class="col-md-6 py-1">
             <div class="form-check form-check-inline m-0 me-2">
@@ -266,7 +283,7 @@
           </div>
 
           <div class="card mb-3" :class="{'border-red' : invalidMemberSelect}">
-            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-4.png);"></div>
+            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-4.png);"></div>
             <div class="card-body position-relative p-2">
               <div class="d-flex justify-content-between mb-0">
                 <p class="mb-0 fs--1">No.Member</p>
@@ -356,7 +373,7 @@
           </div>
           <hr class="mb-2 mt-2">
           <div class="d-grid gap-2">
-            <button v-if="isBuatkanTiketBtn" class="btn btn-info" type="submit" v-on:click="buatkanSebagaiTiket"><span class="me-2">Buatkan Tiket</span><span class="fas fa-ticket-alt"></span></button>
+            <button v-if="isBuatkanTiketBtn" class="btn btn-info" type="submit" v-on:click="modalBuatkanTiket()"><span class="me-2">Buatkan Tiket</span><span class="fas fa-ticket-alt"></span></button>
             <button v-else class="btn btn-secondary" type="submit" disabled><span class="me-2">Buatkan Tiket</span><span class="fas fa-ticket-alt"></span></button>
           </div>
         </div>
@@ -369,7 +386,7 @@
       <div class="modal-content position-relative border-0">
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: auto;"></div>
             <div class="card-body position-relative p-0">
               <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
                 <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -378,13 +395,13 @@
                 <h5 class="mb-0" id="modalFindMemberLabel">Daftar List Tiket</h5>
               </div>
               <div class="p-4 pt-0">
-                <div class="table-scrollable-wrapper" style="min-height: 30vh; max-height: 30vh;">
+                <div class="table-scrollable-wrapper" style="min-height: 3vh; max-height: 30vh;">
                   <table class="table table-scrollable table-hover">
                     <thead>
                       <tr>
                         <!-- <th class="bg-white">Tipe</th> -->
                         <th class="bg-white">#</th>
-                        <th class="bg-white">Konsumen</th>
+                        <th class="bg-white">Member</th>
                         <th class="bg-white">No Hp</th>
                         <th class="bg-white">Tiket Pesanan</th>
                       </tr>
@@ -395,19 +412,27 @@
                           <component :is="loadingBlack"></component>
                         </td>
                       </tr>
-                      <tr v-if="dataFilterAllTicket.length > 0 && !showLoadingTicket" v-for="(ticket, index) in dataFilterAllTicket" :key="ticket.member_id" style="cursor: pointer;" @click="clickRowTicketList(ticket)">
+                      <tr v-if="dataFilterAllTicket.length > 0 && !showLoadingTicket" v-for="(ticket, index) in dataFilterAllTicket" :key="ticket.no_ticket" style="cursor: pointer;" @click="clickRowTicketList(ticket)">
                         <td>{{ index+1 }}</td>
-                        <td>{{ ticket.member.nama }}</td>
-                        <td>{{ ticket.member.no_hp }}</td>
+                        <td>
+                          <span :class="ticket.member == null && 'fst-italic'">
+                            {{ ticket.member ? ticket.member.nama : 'Unknown' }}
+                          </span>
+                        </td>
+                        <td>
+                          <span :class="ticket.member == null && 'fst-italic'">
+                            {{ ticket.member ? ticket.member.no_hp : 'Unknown' }}
+                          </span>
+                        </td>
                         <td>
                           <span class="badge badge-subtle-primary mx-1" v-for="no_ticket in ticket.no_ticket">
                             {{ no_ticket }}
                           </span>
                         </td>
                       </tr>
-                      <tr v-if="!showLoadingTicket">
+                      <tr v-if="dataFilterAllTicket.length == 0 && !showLoadingTicket">
                         <td class="text-center" colspan="4">
-                          <h5 class="fs--1">Tidak ada tiket terdaftar</h5>
+                          <h5 class="fs-0"><i>Tidak ada tiket terdaftar</i></h5>
                         </td>
                       </tr>
                     </tbody>
@@ -426,7 +451,7 @@
       <div class="modal-content position-relative border-0">
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: cover;"></div>
             <div class="card-body position-relative p-0">
               <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
                 <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -448,7 +473,7 @@
                     </div>
                   </div>
                   <hr class="p-0 m-0">
-                  <div class="table-scrollable-wrapper" style="min-height: 30vh; max-height: 30vh;">
+                  <div class="table-scrollable-wrapper" style="min-height: 3h; max-height: 30vh;">
                     <table class="table table-scrollable table-sm table-hover">
                       <thead>
                         <tr>
@@ -461,6 +486,11 @@
                         </tr>
                       </thead>
                       <tbody>
+                        <tr v-if="filteredMembers.length == 0">
+                          <td class="text-center py-3" colspan="5">
+                            <h5 class="fs-0"><i>Data member tidak ditemukan</i></h5>
+                          </td>
+                        </tr>
                         <tr v-for="member in filteredMembers" :id="member.member_id" class="align-middle">
                           <!-- <td class="text-nowrap" v-on:click="selectMemberOverview(member)" style="cursor: pointer;">
                             <span class="badge rounded-pill" :class="member.tipe_konsumen.slug == master_code.tipeKonsumen.member ? 'badge-subtle-success' : member.tipe_konsumen.slug == master_code.tipeKonsumen.reseller ? 'badge-subtle-warning' : member.tipe_konsumen.id == master_code.tipeKonsumen.karyawan ? 'badge-subtle-primary' : ''">
@@ -529,7 +559,7 @@
       <div class="modal-content position-relative border-0">
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: auto;"></div>
             <div class="card-body position-relative p-0">
               <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
                 <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -585,7 +615,7 @@
       <div class="modal-content border-0">
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-1-left.png); background-position: left; background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1-left.png); background-position: left; background-size: cover;"></div>
             <div class="card-body position-relative p-0">
               <div class="rounded-top-3 py-3 text-center">
                 <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
@@ -867,7 +897,7 @@
         </div>
         <div class="modal-footer d-flex justify-content-center">
           <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">Batal</button>
-          <button class="btn btn-primary btn-sm" type="button" @click="confirmasiBuatTiket">Buat</button>
+          <button class="btn btn-primary btn-sm" type="submit" @click="confirmasiBuatTiket()">Buat</button>
         </div>
       </div>
     </div>
@@ -904,7 +934,7 @@
       <div class="modal-content position-relative border-0">
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-4i.png); background-size: cover;"></div>
             <div class="card-body position-relative p-0">
               <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
                 <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -1209,6 +1239,8 @@
         },
 
         numberTicketOrder: '',
+        inputFindNoTiket: '',
+        allTicketInOrder: [],
         isBuatkanTiketBtn: true,
         showLoadingTicket: true,
         
@@ -1548,6 +1580,16 @@
         
         if (indexToDelete != null) {
           this.dataProductInList.splice(indexToDelete, 1);
+
+          // if(product.is_ticket){
+          //   const findTiket = this.allTicketInOrder.findIndex((tiket) => tiket.tiket === product.is_ticket.no_ticket);
+          //   if(findTiket >= 0){
+          //     this.allTicketInOrder.splice(findTiket, 1);
+          //   }
+          // }
+          if(this.dataProductInList.length == 0){
+            this.isBuatkanTiketBtn = true;
+          }
         } else {
           console.log('Product not found');
         }
@@ -1558,6 +1600,7 @@
       
       emptyProductList: function(){
         this.dataProductInList = [];
+        this.allTicketInOrder = [];
         this.isBuatkanTiketBtn = true;
         this.calculatePcsItemOrderList();
         this.calculateAmoutPrice();
@@ -1584,9 +1627,9 @@
         }
 
         if(existingProduct){
-          existingProduct.qty = newValue;
-          this.calculatePcsItemOrderList();
           if (!isNaN(newValue) || newValue > 0) {
+            existingProduct.qty = newValue;
+            this.calculatePcsItemOrderList();
             this.calculateAmoutPrice();
           }
         }
@@ -1761,6 +1804,295 @@
       },
       // End Logic
 
+      // Logic Tiket Booking
+      modalBuatkanTiket: function(){
+        if(this.dataProductInList.length < 1){
+          this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
+          return false;
+        }
+
+        // if(Object.keys(this.memberOverview).length < 1){
+        //   this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih dan tentukan member!');
+        //   this.invalidMemberSelect = true;
+        //   return false;
+        // }
+
+        $('#modalConfirmCreateTicket').modal('show');
+      },
+
+      confirmasiBuatTiket: async function (){
+        try{
+          $('#modalConfirmCreateTicket').modal('hide');
+          this.$root.showLoading();
+
+          const storeActive = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+          const dataPost = {
+            member: this.memberOverview,
+            products: this.dataProductInList,
+            access_store: storeActive,
+            user_login: this.$root.dataAuthToken
+          };
+
+          const store = await axios({
+            method: 'post',
+            url: this.$root.API_URL + '/sales/storeNewTicket',
+            data: dataPost,
+          });
+          
+          if(store.status == 201 || store.status == 200){
+            this.numberTicketOrder = store.data.data.no_ticket;
+            $('#showCreateNoTicket').modal('show');
+
+            this.memberOverview = null;
+            this.dataProductInList = [];
+          }else{
+            this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+
+          this.$root.hideLoading();
+        } catch (error) {
+          this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          this.$root.hideLoading();
+          console.log(error);
+        }
+      },
+
+      showListModalTiket: async function (){
+        try{
+          this.showLoadingTicket = true;
+          $('#modalListTicket').modal('show');
+
+          const storeActive = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+          const store = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/sales/getAllTicket/' + storeActive.store_code,
+          });
+
+          this.dataAllTicket = store.data;
+
+          // const groupedData = {};
+          // store.data.forEach(item => {
+          //   const key = `${item.member_id}_${item.member}`;
+            
+          //   if (!groupedData[key]) {
+          //     groupedData[key] = {
+          //       member_id: item.member_id,
+          //       no_ticket: [],
+          //       member: item.member,
+          //     };
+          //   }
+            
+          //   groupedData[key].no_ticket.push(item.no_ticket);
+          // });
+
+          // const finishDataFilter = Object.values(groupedData);
+
+          const groupedData = {};
+          store.data.forEach((data) => {
+            const member_id = data.member_id;
+
+            if (!groupedData[member_id]) {
+              groupedData[member_id] = {
+                member_id: member_id,
+                member: data.member,
+                tiket_info: [],
+                no_ticket: [],
+                products: [],
+              };
+            }
+
+            groupedData[member_id].no_ticket.push(data.no_ticket);
+            groupedData[member_id].tiket_info.push({
+              member: data.member,
+              user: data.user,
+              tiket: data.no_ticket,
+              tiket_detail: data.tiket_detail,
+            });
+
+            data.tiket_detail.forEach(datax => {
+              const product = datax.product;
+              const existingProduct = groupedData[member_id].products.find(
+                (p) => p.product && p.product.itemCode === product.itemCode
+              );
+              
+              if (existingProduct) {
+                // Produk yang sama ditemukan, tambahkan qty
+                existingProduct.qty += datax.qty;
+              } else {
+                // Tambahkan produk baru
+                groupedData[member_id].products.push({
+                  qty: datax.qty,
+                  product: product,
+                  is_promo_product: product.master_promo_id ? product : null,
+                  is_ticket: data,
+                });
+              }
+            });
+
+          //   data.products.forEach((product) => {
+          //     const isPromo = product.is_promo_product !== null;
+
+          //     if (!isPromo) {
+          //       // Produk tidak memiliki is_promo_product
+          //       const existingProduct = groupedData[member_id].products.find(
+          //         (p) => p.product && p.product.id === product.product.id
+          //       );
+
+          //       if (existingProduct) {
+          //         // Produk yang sama ditemukan, tambahkan qty
+          //         existingProduct.qty += product.qty;
+          //       } else {
+          //         // Tambahkan produk baru
+          //         groupedData[member_id].products.push({
+          //           qty: product.qty,
+          //           product: product.product,
+          //           is_promo_product: product.is_promo_product,
+          //         });
+          //       }
+          //     } else {
+          //       // Produk memiliki is_promo_product, cek produk yang ada di hasil sebelumnya
+          //       const existingProduct = groupedData[member_id].products.find(
+          //         (p) =>
+          //           p.product &&
+          //           p.product.id === product.product.id &&
+          //           p.is_promo_product &&
+          //           p.is_promo_product.id === product.is_promo_product.id
+          //       );
+
+          //       if (existingProduct) {
+          //         // Produk yang sama ditemukan, tambahkan qty
+          //         existingProduct.qty += product.qty;
+          //       } else {
+          //         // Produk dengan is_promo_product yang berbeda, tambahkan sebagai produk baru
+          //         groupedData[member_id].products.push({
+          //           qty: product.qty,
+          //           product: product.product,
+          //           is_promo_product: product.is_promo_product,
+          //         });
+          //       }
+          //     }
+          //   });
+          });
+
+          const finishDataFilter = Object.values(groupedData);
+          this.dataFilterAllTicket = finishDataFilter;
+          
+          this.showLoadingTicket = false;
+        } catch (error) {
+          this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          this.$root.hideLoading();
+          this.showLoadingTicket = false;
+          console.log(error);
+        }
+      },
+
+      submitFindOrderWithTiket: async function (){
+        try{
+          this.$root.showLoading();
+          const store = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/sales/findOrderWithTicket/' + this.inputFindNoTiket,
+          });
+
+          if(store.status == 200){
+            const responseData = store.data.data;
+            this.inputFindNoTiket = '';
+
+            const findInTiketOder = this.allTicketInOrder.find((tiket) => tiket.tiket == responseData.no_ticket);
+            if(findInTiketOder){
+              this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Tiket booking sudah masuk kedalam antrian');
+            }else{
+              if(this.memberOverview != null){
+                if(responseData.member != null && this.memberOverview.member_id != responseData.member.member_id){
+                  this.$root.hideLoading();
+                  this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Member pemlik tiket booking tidak sesuai');
+                  return false;
+                }
+              }else{
+                this.memberOverview = responseData.member ?? null;
+              }
+
+              const objToAddOrder = {
+                member: responseData.member,
+                user: responseData.user,
+                tiket: responseData.no_ticket,
+                tiket_detail: responseData.tiket_detail,
+              };
+              this.allTicketInOrder.push(objToAddOrder);
+              responseData.tiket_detail.forEach(data => {
+                var product = data.product;
+                const productObj = {
+                  product: product,
+                  qty: data.qty,
+                  is_promo_product: product.master_promo_id ? product : null,
+                  is_ticket: data,
+                };
+                this.dataProductInList.push(productObj);
+              });
+  
+              this.calculateAmoutPrice();
+              this.calculatePcsItemOrderList();
+              this.isBuatkanTiketBtn = false;
+              this.$root.showAlertFunction('success', 'Tiket Ditemukan!', 'Tiket pesanan telah berhasil ditambahkan.');
+            }
+          }
+          else{
+            this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+        } catch (error) {
+          if(error.response.status == 404){
+            this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Maaf, Tiket pesanan tidak ditemukan.');
+          }else{
+            this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+          console.log(error);
+        }
+
+        this.$root.hideLoading();
+      },
+
+      clickRowTicketList: function (ticket){
+        if(this.memberOverview != null){
+          if(ticket.member != null && this.memberOverview.member_id != ticket.member_id){
+            this.$root.hideLoading();
+            this.$root.showAlertFunction('warning', 'Tiket Gagal!', 'Member pemlik tiket booking tidak sesuai');
+            return false;
+          }
+        }else{
+          this.memberOverview = ticket.member ?? null;
+        }
+
+        ticket.products.forEach(product => {
+          this.dataProductInList.push(product);
+        });
+        ticket.tiket_info.forEach(tiket => {
+          this.allTicketInOrder.push(tiket);
+        });
+
+        this.calculateAmoutPrice();
+        this.calculatePcsItemOrderList();
+        this.isBuatkanTiketBtn = false;
+        $('#modalListTicket').modal('hide');
+      },
+
+      deleteOrderTiketByIdx: function (index){
+        const getTiket = this.allTicketInOrder[index];
+        getTiket.tiket_detail.forEach(product => {
+          const findProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.itemCode === product.itemCode);
+          if(product.qty == findProduct.qty){
+            this.deleteProductById(product);
+          }else{
+            findProduct.qty = findProduct.qty - product.qty;
+          }
+        });
+        this.allTicketInOrder.splice(index, 1);
+
+        if(getTiket.member != null){
+          this.memberOverview = null;
+        }
+      },
+      // End Logic
+
       batalModalCheckoutConfirm: function(){
         this.dataMoreMetodeBayar = [];
         this.validasiMetodePembayaran = [];
@@ -1789,6 +2121,10 @@
 
       checkInputNominalMethodCash: function(){
         const inputElement = document.getElementById('inputNominalMethodCash');
+        if(inputElement === null){
+          return false;
+        }
+
         const price = inputElement.value;
         const numericPrice = price.replace(/[^0-9]/g, '');
         
@@ -1969,16 +2305,16 @@
               subTotalAmount: this.totalPriceRingkasanProduct > 0 ? parseInt(this.totalPriceRingkasanProduct) : null,
               totalDicountAmount: this.totalHematDiskon > 0 ? parseInt(this.totalHematDiskon) : null,
               afterTotalDicountAmount: this.totalBayarPrice > 0 ? parseInt(this.totalBayarPrice) : null,
-              
-              gelarPembalian: this.getCheckGelarPembelian,
-              // resellerType: this.getCheckGelarPembelian ? this.getCheckGelarPembelian.slug : null,
-              // resellerDiskonAmount: this.getCheckGelarPembelian ? this.getCheckGelarPembelian.amount : null,
-
               extraDiscountAmount: this.totalDiskonPercentReseller > 0 ? parseInt(this.totalDiskonPercentReseller) : null,
+              
+              amountDiskonPoint: this.checkboxMemberPotonganPoint ? parseInt(this.memberOverview.point) : null,
+              gelarPembalian: this.getCheckGelarPembelian,
 
               paymentAmount: this.calculateTotalBayarPrice > 0 ? parseInt(this.calculateTotalBayarPrice) : null,
 
               description: this.keteranganTransaksi.trim() != '' ? this.keteranganTransaksi : null,
+
+              paymentMethodCode: this.selectedMetodeBayar.slug,
               uniquePayment: this.modelInputSelectedMetodeBayar.trim() != '' ? this.modelInputSelectedMetodeBayar : null,
 
               products: this.dataProductInList,
@@ -2026,9 +2362,6 @@
         this.$root.hideLoading();
       },
 
-      storeNewTransaction: async function(){
-      },
-
       generatePdfCheckout: function(){
         const docStruk = new jsPDF({
           orientation: "portrait",
@@ -2038,7 +2371,7 @@
         const sizeFont = 6;
         const callPadding = [0, 0, 0, 0];
         const callPaddingProduct = [0.5, 0, 0.5, 0];
-        const marginPaper = [0, 1, 0, 1];
+        const marginPaper = [0, 1, 0, 0];
         const startLine = 1;
         const endLine = 71;
         const plusHeightLine = 3;
@@ -2053,11 +2386,13 @@
         docStruk.addImage(logoImg, 'PNG', x, 0, imageWidth, imageHeight);
 
         // Alamat dibagian atas
+        const storeActive = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+        const storeDetail = storeActive.store_outlet;
         autoTable(docStruk, {
           body: [
             [
               {
-                content: 'Jl. Pulo Kambing II No.1, RW.11, Jatinegara, Kec. Cakung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13930',
+                content: storeDetail.address,
                 styles: {
                   halign: 'center',
                   fontSize: sizeFont,
@@ -2068,7 +2403,7 @@
 
             [
               {
-                content: '021 59407217',
+                content: storeDetail.phone,
                 styles: {
                   halign: 'center',
                   fontSize: sizeFont,
@@ -2150,35 +2485,35 @@
           const product = data.product;
           const obj = [
             {
+              content: product.itemNameShort,
+              styles: {
+                halign: 'left',
+                fontSize: sizeFont,
+                cellPadding: [0.5, 1.5, 0.5, 0],
+              }
+            },
+            {
               content: data.qty,
               styles: {
-                halign: 'left',
+                halign: 'center',
                 fontSize: sizeFont,
                 cellPadding: callPaddingProduct,
-              }
-            },
-            {
-              content: 'x',
-              styles: {
-                halign: 'left',
-                fontSize: sizeFont,
-                cellPadding: callPaddingProduct,
-              }
-            },
-            {
-              content: product.itemName,
-              styles: {
-                halign: 'left',
-                fontSize: sizeFont,
-                cellPadding: [0.5, 2, 0.5, 0],
               }
             },
             {
               content: this.$root.formatPrice(this.$root.filterPriceProduct(product).price),
               styles: {
+                halign: 'left',
+                fontSize: sizeFont,
+                cellPadding: [0.5, 0, 0.5, 1],
+              }
+            },
+            {
+              content: this.$root.formatPrice(this.$root.filterPriceProduct(product).price * data.qty),
+              styles: {
                 halign: 'right',
                 fontSize: sizeFont,
-                cellPadding: callPaddingProduct,
+                cellPadding: [0.5, 0, 0.5, 0.5],
               }
             }
           ];
@@ -2200,11 +2535,12 @@
         docStruk.line(startLine, lineY2, endLine, lineY2);
 
         // Total Ringkasan Product
+        const textTotalBayarProduct = `Total Bayar Produk: ${this.totalPcsItemOrder} pcs`;
         autoTable(docStruk, {
           head: [
             [
               {
-                content: 'Total Bayar Produk:',
+                content: textTotalBayarProduct,
                 styles: {
                   halign: 'left',
                   fontSize: sizeFont,
@@ -2330,7 +2666,17 @@
           body: [
             [
               {
-                content: 'Terimakasih telah berbelanja di Martha Tilaar Shop, PT Tara Parama Semesta atau Martha Tilaar Shop, one stop beauty online shopping. Selamat menikmati pengalaman berbelanja yang mudah dan menyenangkan di Martha Tilaar Shop.',
+                content: 'NPWP: 12.123.123.1-123.123',
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+            ],
+            [
+              {
+                content: 'Jl. Pulo Kambing II No.1, RW.11, Jatinegara, Kec. Cakung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13930',
                 styles: {
                   halign: 'center',
                   fontSize: sizeFont,
@@ -2363,16 +2709,6 @@
         
         autoTable(docStruk, {
           body: [
-            [
-              {
-                content: '-',
-                styles: {
-                  halign: 'center',
-                  fontSize: sizeFont,
-                  cellPadding: callPadding,
-                }
-              }
-            ],
             [
               {
                 content: '-',
@@ -2439,6 +2775,7 @@
 .max-width-text-truncate{
   max-width: 135px;
 }
+
 @media (min-width: 600px) and (max-width: 1024px) {
   .max-width-text-truncate{
     max-width: 500px;

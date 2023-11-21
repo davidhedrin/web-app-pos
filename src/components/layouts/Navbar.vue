@@ -19,7 +19,7 @@
       <div class="navbar-vertical-content scrollbar">
         <ul class="navbar-nav flex-column mb-3" id="navbarVerticalNav">
           <li class="nav-item">
-            <a v-on:click="validateGoto('dashboard')" href="javascript:void(0)" class="nav-link" role="button">
+            <a v-on:click="validateGoto('Dashboard')" href="javascript:void(0)" class="nav-link" role="button">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
                   <span class="fas fa-chart-pie"></span>
@@ -30,7 +30,7 @@
           </li>
           
           <li class="nav-item">
-            <a v-on:click="validateGoto('dashboard')" href="javascript:void(0)" class="nav-link" role="button">
+            <a v-on:click="validateGoto('Dashboard')" href="javascript:void(0)" class="nav-link" role="button">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
                   <span class="fas fa-chart-line"></span>
@@ -48,7 +48,7 @@
               </div>
             </div>
             
-            <a v-on:click="validateGoto('sales')" href="javascript:void(0)" class="nav-link" role="button">
+            <a v-on:click="validateGoto('Sales')" href="javascript:void(0)" class="nav-link" role="button">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
                   <span class="fas fa-cash-register"></span>
@@ -85,14 +85,14 @@
             </a>
             <ul class="nav collapse" id="master_promo">
               <li class="nav-item">
-                <a v-on:click="validateGoto('promo-product')" class="nav-link" href="javascript:void(0)">
+                <a v-on:click="validateGoto('PromoProduct')" class="nav-link" href="javascript:void(0)">
                   <div class="d-flex align-items-center">
                     <span class="nav-link-text ps-1">Promo Product</span>
                   </div>
                 </a>
               </li>
               <li class="nav-item">
-                <a v-on:click="validateGoto('promo-list')" class="nav-link" href="javascript:void(0)">
+                <a v-on:click="validateGoto('PromoList')" class="nav-link" href="javascript:void(0)">
                   <div class="d-flex align-items-center">
                     <span class="nav-link-text ps-1">Promo List</span>
                   </div>
@@ -110,7 +110,7 @@
             </a>
             <ul class="nav collapse" id="master_product">
               <li class="nav-item">
-                <a v-on:click="validateGoto('product-list')" class="nav-link" href="javascript:void(0)">
+                <a v-on:click="validateGoto('ProductList')" class="nav-link" href="javascript:void(0)">
                   <div class="d-flex align-items-center">
                     <span class="nav-link-text ps-1">Product List</span>
                   </div>
@@ -125,7 +125,7 @@
               </li>
             </ul>
             
-            <a v-on:click="validateGoto('user-list')" class="nav-link" href="javascript:void(0)" role="button">
+            <a v-on:click="validateGoto('UserList')" class="nav-link" href="javascript:void(0)" role="button">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
                   <span class="fas fa-users"></span>
@@ -143,7 +143,7 @@
               </div>
             </div>
             
-            <a @click="validateGoto('profilepage')" class="nav-link" href="javascript:void(0)" role="button">
+            <a @click="validateGoto('Profile')" class="nav-link" href="javascript:void(0)" role="button">
               <div class="d-flex align-items-center">
                 <span class="nav-link-icon">
                   <span class="fas fa-user"></span>
@@ -187,8 +187,8 @@ export default {
         }
       }
       else{
-        // this.activeRoute = markRaw(routeComponent['profilepage']);
-        // sessionStorage.setItem('current_page', 'profilepage');
+        // this.activeRoute = markRaw(routeComponent['Profile']);
+        // sessionStorage.setItem('current_page', 'Profile');
         return false;
       }
     },

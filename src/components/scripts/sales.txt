@@ -441,7 +441,7 @@ buatkanSebagaiTiket: function(){
   $('#modalConfirmCreateTicket').modal('show');
 },
 
-confirmasiBuatTiket: async function (){
+confirmasiBuatTiket: a56sync function (){
   try{
     $('#modalConfirmCreateTicket').modal('hide');
     this.$root.showLoading();

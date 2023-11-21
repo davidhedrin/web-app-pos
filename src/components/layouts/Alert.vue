@@ -1,8 +1,10 @@
 <template>
   <div v-if="showAlert" class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
     <div :class="'alert-' + status" class="alert border-0 d-flex align-items-center" role="alert" style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);">
-      <div :class="'bg-' + status" class="bg-success me-3 icon-item"><span :class="checkIconStatus" class="text-white fs-3"></span></div>
-      <div class="me-3">
+      <div class="w-sm-15">
+        <div :class="'bg-' + status" class="bg-success me-3 icon-item"><span :class="checkIconStatus" class="text-white fs-3"></span></div>
+      </div>
+      <div class="me-3 w-100">
         <h5 class="alert-heading fw-semi-bold mb-0">{{ title }}</h5>
         <p class="m-0 fs--1 flex-1">{{ msg }}</p>
       </div>

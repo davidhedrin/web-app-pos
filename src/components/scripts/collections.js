@@ -116,3 +116,17 @@ export const local_storage = {
   is_dynamic: 'is_dynamic',
   access_store: 'selected_access_store'
 }
+
+export const pages = {
+  dashboard: 'Dashboard',
+  login: 'Login',
+  profile: 'Profile',
+  sales:  'Sales',
+  transaksi: 'Transaksi',
+
+  // Master
+  productlist: 'ProductList',
+  promolist: 'PromoList',
+  promoproduct: 'PromoProduct',
+  userlist: 'UserList',
+}

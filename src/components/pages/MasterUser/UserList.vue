@@ -86,7 +86,7 @@
                       <a class="dropdown-item" href="#!" data-bs-toggle="modal" data-bs-target="#modalActiveInactiveUser" @click="setStatusUserUpdate = user.flag_active; idUserForApprove = user.id">{{ user.flag_active ? 'Inactived' : 'Actived' }}</a>
                     </div>
                     <div v-else class="py-2">
-                      <a class="dropdown-item" href="javascript:void(0)" @click="idUserForApprove = user.id" data-bs-toggle="modal" data-bs-target="#modalConfirmApproveUser">Approve</a>
+                      <a class="dropdown-item" href="javascript:void(0)" @click="showModalApproveUser(user)">Approve</a>
                     </div>
                   </div>
                 </div>
@@ -95,9 +95,9 @@
                 <button class="btn btn-link p-0" type="button" @click="showModalDataUser(user)">
                   <span class="fas fa-edit text-warning"></span>
                 </button>
-                <button class="btn btn-link p-0 ms-2" type="button" :disabled="user.this_user">
+                <!-- <button class="btn btn-link p-0 ms-2" type="button" :disabled="user.this_user">
                   <span class="fas fa-trash-alt text-danger"></span>
-                </button>
+                </button> -->
               </td>
             </tr>
           </tbody>
@@ -179,13 +179,22 @@
                 Lanjut untuk menyetujui permintaan!
               </h5>
               <p class="m-0 px-3 mb-1">
-                Pilih Role user untuk lanjut menyetujui
+                Pilih Role dan Store User untuk lanjut menyetujui
               </p>
               <div class="m-0 px-3">
-                <select v-model="idRoleForApprove" class="form-select bg-transparent" id="select_role_user" @change="$root.removeRedBorder('select_role_user')">
+                <select v-model="idRoleForApprove" class="form-select bg-transparent mb-2" id="select_role_user" @change="$root.removeRedBorder('select_role_user')">
                   <option value="">Pilih role user</option>
                   <option v-for="role in allMasterRole" :value="role.role_code">{{ role.nama_role }}</option>
                 </select>
+
+                <v-select id="select_access_store_outlet"
+                  v-model="selectedStoreOutlet"
+                  :options="allMasterStoreOutlet" 
+                  multiple 
+                  value="store_code" 
+                  label="storeName"
+                  placeholder="Pilih store outlet"
+                />
               </div>
             </div>
           </div>
@@ -236,12 +245,15 @@
         dataUserLogin: null,
         allDataUser: [],
         allMasterRole: [],
+        allMasterStoreOutlet: [],
 
         showDataUserModal: {},
         idUserForApprove: null,
+        userForApprove: null,
         idRoleForApprove: '',
 
         setStatusUserUpdate: false,
+        selectedStoreOutlet: [],
       }
     },
 
@@ -261,17 +273,13 @@
             url: this.$root.API_URL + '/master-user'
           });
 
-          if(store.status == 200){
-            const storeData = store.data;
-
-            this.allDataUser = storeData.getAllUser.map(user => {
-              user.this_user = user.user_uuid === this.dataUserLogin.user_uuid;
-              return user;
-            });
-            this.allMasterRole = storeData.getAllMasterRole;
-          }else{
-
-          }
+          const storeData = store.data;
+          this.allDataUser = storeData.getAllUser.map(user => {
+            user.this_user = user.user_uuid === this.dataUserLogin.user_uuid;
+            return user;
+          });
+          this.allMasterRole = storeData.getAllMasterRole;
+          this.allMasterStoreOutlet = storeData.getAllStoreOutlet;
         } catch (error) {
           console.log(error);
         }
@@ -283,14 +291,35 @@
         this.showDataUserModal = user;
         $('#modalEditDataUser').modal('show');
       },
+      
+      showModalApproveUser: function(user){
+        this.userForApprove = user;
+        $('#modalConfirmApproveUser').modal('show');
+      },
 
-      confirmApproveUser: async function(){
+      checkFormApprove: function(){
         var formApprove = $('#formApproveUser');
         var selectRole = formApprove.find('#select_role_user');
-
+        var selectStore = formApprove.find('#select_access_store_outlet');
         var valueSelectRole = selectRole.val();
+
+        var result = true;
+
         if(valueSelectRole.trim() == ''){
           selectRole.addClass('border-red');
+          result = false;
+        }
+
+        if(this.selectedStoreOutlet.length == 0){
+          selectStore.addClass('border-red');
+          result = false;
+        }
+
+        return result;
+      },
+
+      confirmApproveUser: async function(){
+        if(this.checkFormApprove() == false){
           return false;
         }
 
@@ -302,8 +331,10 @@
             method: 'put',
             url: this.$root.API_URL + '/master-user/approve-user',
             data: {
-              id_user: this.idUserForApprove,
-              role_code: this.idRoleForApprove
+              for_user: this.userForApprove,
+              role_code: this.idRoleForApprove,
+              access_store: this.selectedStoreOutlet,
+              user_login: this.$root.dataAuthToken
             }
           });
 

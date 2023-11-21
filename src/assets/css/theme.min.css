@@ -11361,6 +11361,10 @@ fieldset:disabled .tox .tox-dialog__footer .tox-button--secondary,
     width: 15% !important
 }
 
+.w-20 {
+    width: 20% !important
+}
+
 .w-25 {
     width: 25% !important
 }
@@ -37252,6 +37256,27 @@ html[data-bs-theme=dark] .bg-priority-low:checked {
     background: #55555585;
 }
 .scrollable-customize::-webkit-scrollbar-thumb:hover:horizontal {
+    background: #55555585;
+}
+
+.customn-scrollable-x {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 3px;
+}
+.customn-scrollable-x::-webkit-scrollbar{
+    width: 4px;
+    height: 4px;
+}
+.customn-scrollable-x::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.customn-scrollable-x::-webkit-scrollbar-thumb:horizontal{
+    background: #8888884a;
+    border-radius: 5px;
+}
+.customn-scrollable-x::-webkit-scrollbar-thumb:hover:horizontal {
     background: #55555585;
 }
 

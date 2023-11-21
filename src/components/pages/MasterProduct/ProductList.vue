@@ -103,214 +103,217 @@
           <div class="rounded-top-3 py-3 ps-4 pe-6 bg-body-tertiary">
             <h5 class="mb-0">Detail Product </h5>
           </div>
-          <div class="mt-3">
-            <div class="scrollable-customize mb-3" style="min-height: 200px; max-height: 650px;">
-              <div v-if="productShowDetail">
-                <div class="row mx-0 mb-3">
-                  <div class="col-md-3 mb-3">
-                    <img class="rounded" src="@/assets/img/product/sariayu_martha.jpg" alt="" style="width: 100%; height: 155px; object-fit: cover;">
-                  </div>
-                  <!-- Review Product -->
-                  <div class="col-md-9 mb-2">
-                    <h5 class="mb-0"><span class="fas fa-box-open"></span> Product:</h5>
-                    <hr class="my-1">
-  
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="fs--1">
-                          Manufaktur: <span class="fw-bold">{{ productShowDetail.mnfctName }} ({{ productShowDetail.mnfctCode }})</span>
+          <div class="card">
+            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-4i.png); background-size: cover;"></div>
+            <div class="card-body position-relative">
+              <div class="scrollable-customize mb-0" style="min-height: 200px; max-height: 650px;">
+                <div v-if="productShowDetail">
+                  <div class="row mx-0 mb-3">
+                    <div class="col-md-3 mb-3">
+                      <img class="rounded" src="@/assets/img/product/sariayu_martha.jpg" alt="" style="width: 100%; height: 155px; object-fit: cover;">
+                    </div>
+                    <!-- Review Product -->
+                    <div class="col-md-9 mb-2">
+                      <h5 class="mb-0"><span class="fas fa-box-open"></span> Product:</h5>
+                      <hr class="my-1">
+    
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="fs--1">
+                            Manufaktur: <span class="fw-bold">{{ productShowDetail.mnfctName }} ({{ productShowDetail.mnfctCode }})</span>
+                          </div>
+                          <div class="fs--1">
+                            Reting Product: 
+                            <span class="fw-bold">
+                              {{ productShowDetail.itemReting }}
+                              <span v-for="index in $root.convertToInteger(productShowDetail.itemReting)" :key="index" class="fas fa-star"></span>
+                              <!-- <span v-if="ishasHalfStar" class="fas fa-star-half-alt"></span> -->
+                            </span>
+                          </div>
+                          <div class="fs--1">
+                            Nilai UOM 2: <span class="fw-bold">{{ productShowDetail.uom2 }}</span>
+                          </div>
+                          <div class="fs--1">
+                            Nilai UOM 3: <span class="fw-bold">{{ productShowDetail.uom3 }}</span>
+                          </div>
                         </div>
-                        <div class="fs--1">
-                          Reting Product: 
-                          <span class="fw-bold">
-                            {{ productShowDetail.itemReting }}
-                            <span v-for="index in $root.convertToInteger(productShowDetail.itemReting)" :key="index" class="fas fa-star"></span>
-                            <!-- <span v-if="ishasHalfStar" class="fas fa-star-half-alt"></span> -->
-                          </span>
+                        <div class="col-md-6 text-md-end text-start">
+                          <div class="fs--1">
+                            Parent Code: <span class="fw-bold">{{ productShowDetail.parentCode }}</span>
+                          </div>
+                          <div class="fs--1">
+                            Product Barcode: <span class="fw-bold">{{ productShowDetail.barCode }}</span>
+                          </div>
+                          <div class="fs--1">
+                            Product Code (SKU): <span class="badge rounded-pill bg-secondary fs--2">{{ productShowDetail.itemCode }}</span>
+                          </div>
                         </div>
-                        <div class="fs--1">
-                          Nilai UOM 2: <span class="fw-bold">{{ productShowDetail.uom2 }}</span>
-                        </div>
-                        <div class="fs--1">
-                          Nilai UOM 3: <span class="fw-bold">{{ productShowDetail.uom3 }}</span>
+                        <div class="col-md-12">
+                          <div class="fs--1">
+                            Nama Pendek: <span class="fw-bold">{{ productShowDetail.itemNameShort }}</span>
+                          </div>
+                          <div class="fs-1">
+                            <span class="fw-bold">{{ productShowDetail.itemName }}</span>
+                          </div>
                         </div>
                       </div>
-                      <div class="col-md-6 text-md-end text-start">
-                        <div class="fs--1">
-                          Parent Code: <span class="fw-bold">{{ productShowDetail.parentCode }}</span>
-                        </div>
-                        <div class="fs--1">
-                          Product Barcode: <span class="fw-bold">{{ productShowDetail.barCode }}</span>
-                        </div>
-                        <div class="fs--1">
-                          Product Code (SKU): <span class="badge rounded-pill bg-secondary fs--2">{{ productShowDetail.itemCode }}</span>
-                        </div>
-                      </div>
-                      <div class="col-md-12">
-                        <div class="fs--1">
-                          Nama Pendek: <span class="fw-bold">{{ productShowDetail.itemNameShort }}</span>
-                        </div>
-                        <div class="fs-1">
-                          <span class="fw-bold">{{ productShowDetail.itemName }}</span>
-                        </div>
+                    </div>
+  
+                    <div class="fs--1">
+                      Deskripsi Produk: 
+                      <div class="scrollable-customize" style="max-height: 60px;">
+                        <span class="fw-bold">{{ productShowDetail.deskripsi }}</span>
                       </div>
                     </div>
                   </div>
-
-                  <div class="fs--1">
-                    Deskripsi Produk: 
-                    <div class="scrollable-customize" style="max-height: 60px;">
-                      <span class="fw-bold">{{ productShowDetail.deskripsi }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <hr>
   
-                <!-- Review Price and Diskon -->
-                <div class="row mx-0">
-                  <div class="col-md-6 mb-3">
-                    <h5 class="mb-0"><span class="fas fa-dollar-sign"></span> Price:</h5>
-                    <hr class="my-1">
-                    <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
-                      <table class="table table-scrollable table-sm">
-                        <thead>
-                          <tr class="fs--1">
-                            <th class="ps-0 py-2 bg-white">Price Code</th>
-                            <th class="py-2 bg-white">Product Price</th>
-                            <th class="pe-0 py-2 bg-white">Product Cost</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="price in data_master_price" class="fs--1">
-                            <td class="ps-0">{{ price.price_code.priceName + ` (${price.price_code.priceCode})` }}</td>
-                            <td>Rp {{ price.price ? $root.formatPrice(price.price) : '-' }}</td>
-                            <td class="pe-0">Rp {{ price.cost ? $root.formatPrice(price.cost) : '-' }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                  <hr>
+    
+                  <!-- Review Price and Diskon -->
+                  <div class="row mx-0">
+                    <div class="col-md-6 mb-3">
+                      <h5 class="mb-0"><span class="fas fa-dollar-sign"></span> Price:</h5>
+                      <hr class="my-1">
+                      <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
+                        <table class="table table-scrollable table-sm">
+                          <thead>
+                            <tr class="fs--1">
+                              <th class="ps-0 py-2 bg-white">Price Code</th>
+                              <th class="py-2 bg-white">Product Price</th>
+                              <th class="pe-0 py-2 bg-white">Product Cost</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="price in data_master_price" class="fs--1">
+                              <td class="ps-0">{{ price.price_code.priceName + ` (${price.price_code.priceCode})` }}</td>
+                              <td>Rp {{ price.price ? $root.formatPrice(price.price) : '-' }}</td>
+                              <td class="pe-0">Rp {{ price.cost ? $root.formatPrice(price.cost) : '-' }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <h5 class="mb-0"><span class="fas fa-percentage"></span> Diskon:</h5>
+                      <hr class="my-1">
+                      <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
+                        <table class="table table-scrollable table-sm">
+                          <thead>
+                            <tr class="fs--1">
+                              <th class="ps-0 py-2 bg-white">Diskon Code</th>
+                              <th class="py-2 bg-white">Deskripsi</th>
+                              <th class="pe-0 py-2 bg-white">Diskon(%)</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="diskon in data_master_diskon" class="fs--1">
+                              <td class="ps-0">#{{ diskon.diskon_code.discCode }}</td>
+                              <td>{{ diskon.name }}</td>
+                              <td class="pe-0">
+                                <span v-if="diskon.diskon_code.discCode != '0'">{{ diskon.nilai_diskon ? diskon.nilai_diskon : '0' }}</span>
+                                <span v-else>-</span>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
-                  <div class="col-md-6 mb-3">
-                    <h5 class="mb-0"><span class="fas fa-percentage"></span> Diskon:</h5>
+    
+                  <!-- Review Inventory and Supplier -->
+                  <div class="row mx-0">
+                    <div class="col-md-6 mb-3">
+                      <h5 class="mb-0"><span class="fas fa-dolly"></span> Inventory:</h5>
+                      <hr class="my-1">
+                      <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
+                        <table class="table table-scrollable table-sm">
+                          <thead>
+                            <tr class="fs--1">
+                              <th class="ps-0 py-2 bg-white">Code</th>
+                              <th class="py-2 bg-white">Name</th>
+                              <th class="py-2 bg-white">On Hand</th>
+                              <th class="py-2 bg-white">On Order</th>
+                              <th class="py-2 bg-white">Min Buffer</th>
+                              <th class="pe-0 py-2 bg-white">Max Buffer</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="whs in data_master_warehouse" class="fs--1">
+                              <td class="ps-0">{{ whs.whs_code.whsCode }}</td>
+                              <td>{{ whs.name }}</td>
+                              <td>{{ whs.on_hand ? whs.on_hand : '-' }}</td>
+                              <td>{{ whs.on_order ? whs.on_order : '-' }}</td>
+                              <td>{{ whs.min_buffer ? whs.min_buffer : '-' }}</td>
+                              <td class="pe-0">{{ whs.max_buffer ? whs.max_buffer : '-' }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <h5 class="mb-0"><span class="fas fa-truck-loading"></span> Supplier:</h5>
+                      <hr class="my-1">
+                      <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
+                        <table class="table table-scrollable table-sm">
+                          <thead>
+                            <tr class="fs--1">
+                              <th class="ps-0 py-2 bg-white">Code</th>
+                              <th class="py-2 bg-white">Name</th>
+                              <th class="py-2 bg-white">Priority</th>
+                              <th class="pe-0 py-2 bg-white">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="supplier in data_master_supplier" class="fs--1">
+                              <td class="ps-0">{{ supplier.code }}</td>
+                              <td>{{ supplier.name }}</td>
+                              <td>{{ getSelectedNamePriority(supplier.priority) }}</td>
+                              <td class="pe-0">
+                                <span class="badge rounded-pill" :class="supplier.status ? 'badge-subtle-success' : 'badge-subtle-danger'">
+                                  {{ supplier.status ? 'Active' : 'No Active' }}
+                                </span>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+    
+                  <!-- Review Optional Info -->
+                  <div class="px-3">
+                    <h5 class="mb-0"><span class="fas fa-adobe"></span> Optional Info:</h5>
                     <hr class="my-1">
-                    <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
+                    <div class="table-scrollable-wrapper" style="min-height: 0; max-height: 146px;">
                       <table class="table table-scrollable table-sm">
                         <thead>
                           <tr class="fs--1">
-                            <th class="ps-0 py-2 bg-white">Diskon Code</th>
-                            <th class="py-2 bg-white">Deskripsi</th>
-                            <th class="pe-0 py-2 bg-white">Diskon(%)</th>
+                            <th class="ps-0 py-2 bg-white">Info Code</th>
+                            <th class="py-2 bg-white">Info Name</th>
+                            <th class="py-2 bg-white">Detail Code</th>
+                            <th class="pe-0 py-2 bg-white">Detail Name</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr v-for="diskon in data_master_diskon" class="fs--1">
-                            <td class="ps-0">#{{ diskon.diskon_code.discCode }}</td>
-                            <td>{{ diskon.name }}</td>
-                            <td class="pe-0">
-                              <span v-if="diskon.diskon_code.discCode != '0'">{{ diskon.nilai_diskon ? diskon.nilai_diskon : '0' }}</span>
-                              <span v-else>-</span>
-                            </td>
+                          <tr v-for="code in data_master_opt_info" class="fs--1">
+                            <td class="ps-0">{{ code.code }}</td>
+                            <td>{{ code.name }}</td>
+                            <td>{{ code.select_opt_info ? code.select_opt_info.optDtlCode : '-' }}</td>
+                            <td class="pe-0">{{ code.select_opt_info ? code.select_opt_info.optDtlName : '-' }}</td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
                   </div>
                 </div>
-  
-                <!-- Review Inventory and Supplier -->
-                <div class="row mx-0">
-                  <div class="col-md-6 mb-3">
-                    <h5 class="mb-0"><span class="fas fa-dolly"></span> Inventory:</h5>
-                    <hr class="my-1">
-                    <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
-                      <table class="table table-scrollable table-sm">
-                        <thead>
-                          <tr class="fs--1">
-                            <th class="ps-0 py-2 bg-white">Code</th>
-                            <th class="py-2 bg-white">Name</th>
-                            <th class="py-2 bg-white">On Hand</th>
-                            <th class="py-2 bg-white">On Order</th>
-                            <th class="py-2 bg-white">Min Buffer</th>
-                            <th class="pe-0 py-2 bg-white">Max Buffer</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="whs in data_master_warehouse" class="fs--1">
-                            <td class="ps-0">{{ whs.whs_code.whsCode }}</td>
-                            <td>{{ whs.name }}</td>
-                            <td>{{ whs.on_hand ? whs.on_hand : '-' }}</td>
-                            <td>{{ whs.on_order ? whs.on_order : '-' }}</td>
-                            <td>{{ whs.min_buffer ? whs.min_buffer : '-' }}</td>
-                            <td class="pe-0">{{ whs.max_buffer ? whs.max_buffer : '-' }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                <div v-else class="text-center">
+                  <div class="mt-5">
+                    <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
                   </div>
-                  <div class="col-md-6 mb-3">
-                    <h5 class="mb-0"><span class="fas fa-truck-loading"></span> Supplier:</h5>
-                    <hr class="my-1">
-                    <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
-                      <table class="table table-scrollable table-sm">
-                        <thead>
-                          <tr class="fs--1">
-                            <th class="ps-0 py-2 bg-white">Code</th>
-                            <th class="py-2 bg-white">Name</th>
-                            <th class="py-2 bg-white">Priority</th>
-                            <th class="pe-0 py-2 bg-white">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="supplier in data_master_supplier" class="fs--1">
-                            <td class="ps-0">{{ supplier.code }}</td>
-                            <td>{{ supplier.name }}</td>
-                            <td>{{ getSelectedNamePriority(supplier.priority) }}</td>
-                            <td class="pe-0">
-                              <span class="badge rounded-pill" :class="supplier.status ? 'badge-subtle-success' : 'badge-subtle-danger'">
-                                {{ supplier.status ? 'Active' : 'No Active' }}
-                              </span>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                  <h5 class="fs-0 mt-3">
+                    Product Tidak Ditemukan!
+                  </h5>
                 </div>
-  
-                <!-- Review Optional Info -->
-                <div class="px-3">
-                  <h5 class="mb-0"><span class="fas fa-adobe"></span> Optional Info:</h5>
-                  <hr class="my-1">
-                  <div class="table-scrollable-wrapper" style="min-height: 0; max-height: 146px;">
-                    <table class="table table-scrollable table-sm">
-                      <thead>
-                        <tr class="fs--1">
-                          <th class="ps-0 py-2 bg-white">Info Code</th>
-                          <th class="py-2 bg-white">Info Name</th>
-                          <th class="py-2 bg-white">Detail Code</th>
-                          <th class="pe-0 py-2 bg-white">Detail Name</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="code in data_master_opt_info" class="fs--1">
-                          <td class="ps-0">{{ code.code }}</td>
-                          <td>{{ code.name }}</td>
-                          <td>{{ code.select_opt_info ? code.select_opt_info.optDtlCode : '-' }}</td>
-                          <td class="pe-0">{{ code.select_opt_info ? code.select_opt_info.optDtlName : '-' }}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              <div v-else class="text-center">
-                <div class="mt-5">
-                  <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
-                </div>
-                <h5 class="fs-0 mt-3">
-                  Product Tidak Ditemukan!
-                </h5>
               </div>
             </div>
           </div>

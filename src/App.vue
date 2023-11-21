@@ -23,7 +23,7 @@
 <script>
 import axios from "axios";
 import { markRaw } from 'vue';
-import { master_code, master_coll, local_storage } from '@/components/scripts/collections.js';
+import { master_code, master_coll, local_storage, pages } from '@/components/scripts/collections.js';
 
 // Layouts
 import NavbarLayout from '@/components/layouts/Navbar.vue';
@@ -34,31 +34,13 @@ import Alert from '@/components/layouts/Alert.vue';
 
 // Pages
 import Login from '@/components/pages/Login.vue';
-import Dashboard from '@/components/pages/Dashboard.vue';
-import ProfilePage from '@/components/pages/Profile.vue';
-import Sales from '@/components/pages/Sales.vue';
 
-import PromoList from '@/components/pages/MasterPromo/PromoList.vue';
-import PromoProduct from '@/components/pages/MasterPromo/PromoProduct.vue';
-import UserList from '@/components/pages/MasterUser/UserList.vue';
-import ProductList from '@/components/pages/MasterProduct/ProductList.vue';
-
-const routeComponent = {
-  'login': Login,
-  'dashboard': Dashboard,
-  'profilepage': ProfilePage,
-  'sales': Sales,
-
-  // Master Promo
-  'promo-list': PromoList,
-  'promo-product': PromoProduct,
-
-  // Master User
-  'user-list': UserList,
-
-  // Master Product
-  'product-list': ProductList,
-}
+const componentPage = import.meta.globEager('@/components/pages/**/*.vue');
+let routeComponent = {};
+Object.entries(componentPage).forEach((path,i) => {
+  let name = path[0].split("/").pop().replace('.vue','');
+  routeComponent[name] = path[1].default;
+});
 
 export default {
   data(){
@@ -78,9 +60,10 @@ export default {
       master_code: master_code,
       master_coll: master_coll,
       local_storage: local_storage,
+      pages: pages,
       
       current_page: sessionStorage.getItem(local_storage.current_page),
-      activeRoute: markRaw(routeComponent['dashboard']),
+      activeRoute: markRaw(routeComponent[pages.dashboard]),
       navbar: markRaw(NavbarLayout),
       header: markRaw(HeaderLayout),
       login: markRaw(Login),
@@ -99,10 +82,10 @@ export default {
       },
       
       superAdminMenu: [
-        'promo-list',
-        'promo-product',
-        'user-list',
-        'product-list',
+        pages.productlist,
+        pages.promolist,
+        pages.promoproduct,
+        pages.userlist,
       ],
     }
   },
@@ -185,7 +168,7 @@ export default {
         }
   
         if(getDatUserRegis.flag_active == false){
-          this.$root.goto('profilepage');
+          this.goto(pages.profile);
         }
       }
       
@@ -282,7 +265,7 @@ export default {
       this.selectedStoreAccess = null;
       localStorage.clear();
       sessionStorage.clear();
-      this.activeRoute = markRaw(routeComponent['login']);
+      this.activeRoute = markRaw(routeComponent['Login']);
     },
     
     gotoCompoWithParam: function(param, goto){
