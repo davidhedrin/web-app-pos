@@ -342,7 +342,6 @@
 
           if(getAllDataTr.status == 200){
             this.dataAllTransaction = getAllDataTr.data;
-            console.log(getAllDataTr.data);
           }
         } catch (error) {
           console.log(error);

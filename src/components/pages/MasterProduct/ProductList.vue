@@ -13,14 +13,10 @@
   </div>
 
   <div class="card mb-3">
-    <div class="card-body">
+    <div class="card-header">
       <div class="d-lg-flex justify-content-between">
         <div class="d-flex align-items-center justify-content-between justify-content-lg-end">
           <div class="d-flex align-items-center">
-            <!-- <button class="btn btn-primary btn-sm me-2" type="button" data-bs-toggle="modal" data-bs-target="#modalAddNewProduct">
-              <span class="fas fa-plus" data-fa-transform="shrink-3"></span>
-              <span class="d-none d-md-inline-block ms-1">Baru</span>
-            </button> -->
             <div class="d-flex align-items-center">
               <small class="fw-semi-bold lh-1">View:</small>
               <div class="d-flex">
@@ -56,8 +52,8 @@
 
   <div class="card">
     <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-4.png);"></div>
-    <div class="card-body position-relative">
-      <div class="table-scrollable-wrapper" style="max-height: 64vh; min-height: 64vh;">
+    <div class="card-body position-relative pb-0">
+      <div class="table-scrollable-wrapper mb-2" style="max-height: 64vh; min-height: 64vh;">
         <table class="table table-scrollable table-sm">
           <thead>
             <tr>
@@ -88,6 +84,28 @@
             </tr>
           </tbody>
         </table>
+      </div>
+      
+      <div v-if="totalPageProduct > 1" class="d-flex justify-content-end">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination pagination-sm">
+            <li class="page-item" :class="{ 'disabled': currentPageProduct === 1 }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchProductData(currentPageProduct - 1)">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+  
+            <li v-for="pageNumber in totalPageProduct" :key="pageNumber" class="page-item"  :class="{ 'active': pageNumber === currentPageProduct }">
+              <a class="page-link" href="javascript:void(0)" @click="fatchProductData(pageNumber)">{{ pageNumber }}</a>
+            </li>
+  
+            <li class="page-item" :class="{ 'disabled': currentPageProduct === totalPageProduct }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchProductData(currentPageProduct + 1)">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -334,6 +352,10 @@
         master_coll: this.$root.master_coll,
 
         allDataProduct: [],
+        currentPageProduct: 1,
+        perPageProduct: 10,
+        totalPageProduct: 0,
+
         productShowDetail: null,
         data_master_price: [],
         data_master_diskon: [],
@@ -433,9 +455,15 @@
           this.dataMasterWarehouse = allData.getAllMasterWarehouse; //All Warehouse
           this.dataMasterSupplierCode = allData.getAllMasterSupplierCode; //All Supplier Code
 
-          this.dataMasterOptionInfoCode = allData.getAllMasterOptionInfoCode; //All Option Info Code
-          this.dataMasterOptionInfo = allData.getAllMasterOptionInfo; //All Option Info
-          allData.getAllMasterOptionInfo.forEach((data) => {
+          
+          const getAllDataOptInfo = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/master-product/getMasterOptInfoData',
+          });
+          const dataMasterOptInfo = getAllDataOptInfo.data;
+          this.dataMasterOptionInfoCode = dataMasterOptInfo.getAllMasterOptionInfoCode; //All Option Info Code
+          this.dataMasterOptionInfo = dataMasterOptInfo.getAllMasterOptionInfo; //All Option Info
+          dataMasterOptInfo.getAllMasterOptionInfo.forEach((data) => {
             if(data.optionalCode === this.master_code.productOptInfo.brand_code){
               this.dataMasterOptionInfoBrand.push(data);
             }
@@ -444,13 +472,29 @@
             }
           });
 
+          await this.fatchProductData(this.currentPageProduct);
+        } catch (error) {
+          console.log(error);
+        }
+        this.$root.hideLoading();
+      },
+
+      fatchProductData: async function(page){
+        this.$root.showLoading();
+        try{
           const getAllDataProduct = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/master-product/get-all-prodcut',
+            url: this.$root.API_URL + '/master-product/getAllMasterProduct',
+            params: {
+              page: page,
+              per_page: this.perPageProduct,
+            },
           });
 
-          const allDataProduct = getAllDataProduct.data;
-          this.allDataProduct = allDataProduct;
+          const response = getAllDataProduct.data;
+          this.currentPageProduct = response.current_page;
+          this.totalPageProduct = response.last_page;
+          this.allDataProduct = response.data;
         } catch (error) {
           console.log(error);
         }

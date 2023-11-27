@@ -105,7 +105,12 @@ export const master_coll = {
   tipePromo: {
     bundle: '1',
     percent: '2',
-  }
+  },
+
+  tipeMasterPromo: {
+    first: '1', //Product
+    secound: '2', //Diskon
+  },
 }
 
 export const local_storage = {
@@ -123,6 +128,7 @@ export const pages = {
   profile: 'Profile',
   sales:  'Sales',
   transaksi: 'Transaksi',
+  receiptitem: 'ReceiptItem',
 
   // Master
   productlist: 'ProductList',

@@ -19,7 +19,7 @@
                 </div>
                 <div class="col-md-auto position-relative">
                   <div class="input-group">
-                    <input :value="selectedStoreOutlet ? `${selectedStoreOutlet.store_outlet.storeName} (${selectedStoreOutlet.store_code})` : ''" class="form-control datetimepicker flatpickr-input" type="text" readonly="readonly">
+                    <input :value="currentActiveStoreOutlet ? `${currentActiveStoreOutlet.store_outlet.storeName} (${currentActiveStoreOutlet.store_code})` : ''" class="form-control datetimepicker flatpickr-input" type="text" readonly="readonly">
                     <button class="btn btn-primary btn-sm card-link" type="button" data-bs-toggle="modal" data-bs-target="#modalSelectAccessStoreDashboard">
                       <span class="me-1">Pindah</span> <span class="fas fa-store-alt"></span>
                     </button>
@@ -109,12 +109,12 @@
         Daftar Product, <span class="typed-text fw-bold ms-1">{{ $root.selectedStoreAccess ? $root.selectedStoreAccess.storeName : '' }}</span>
       </h5>
       <div class="row align-items-center">
-        <div class="col-md-8">
+        <div class="col-md-9">
           <span v-if="$root.selectedStoreAccess" class="fs--1">
             Alamat: {{ $root.selectedStoreAccess.store_outlet.address }}
           </span>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <form @submit.prevent="">
             <div class="input-group">
               <input class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
@@ -124,7 +124,7 @@
         </div>
       </div>
 
-      <div class="table-responsive scrollbar">
+      <div class="table-responsive scrollbar mb-2">
         <table class="table table-hover table-striped overflow-hidden mb-0">
           <thead>
             <tr>
@@ -147,6 +147,28 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div v-if="totalPageProduct > 1" class="d-flex justify-content-end">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination pagination-sm">
+            <li class="page-item" :class="{ 'disabled': currentPageProduct === 1 }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="loadAllProduct(currentPageProduct - 1)">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+  
+            <li v-for="pageNumber in totalPageProduct" :key="pageNumber" class="page-item"  :class="{ 'active': pageNumber === currentPageProduct }">
+              <a class="page-link" href="javascript:void(0)" @click="loadAllProduct(pageNumber)">{{ pageNumber }}</a>
+            </li>
+  
+            <li class="page-item" :class="{ 'disabled': currentPageProduct === totalPageProduct }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="loadAllProduct(currentPageProduct + 1)">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -236,7 +258,7 @@
             </div>
           </div>
           <div class="modal-footer d-flex justify-content-center">
-            <button v-if="selectedStoreOutlet == null" class="btn btn-secondary btn-sm" type="button" @click="logoutModalSelectStoreBtn()">Logout <span class="fas fa-sign-out-alt"></span></button>
+            <button v-if="currentActiveStoreOutlet == null" class="btn btn-secondary btn-sm" type="button" @click="logoutModalSelectStoreBtn()">Logout <span class="fas fa-sign-out-alt"></span></button>
             <button v-else class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">Batal</button>
             <button class="btn btn-primary btn-sm" type="submit">Selesai</button>
           </div>
@@ -252,16 +274,21 @@
   export default {
     name: 'Dashboard',
     data(){
+      const local_storage = this.$root.local_storage;
       return{
-        local_storage: this.$root.local_storage,
+        local_storage: local_storage,
 
         dateNow: null,
         dataUserLogin: null,
         accessStoreUser: [],
 
         dataAllProduct: [],
+        currentPageProduct: 1,
+        perPageProduct: 10,
+        totalPageProduct: 0,
 
         selectedStoreOutlet: this.$root.selectedStoreAccess,
+        currentActiveStoreOutlet: localStorage.getItem(JSON.stringify(local_storage.access_store)),
       }
     },
 
@@ -280,19 +307,26 @@
     },
 
     methods: {
-      loadAllProduct: async function(){
+      loadAllProduct: async function(page){
+        this.$root.showLoading();
         try{
           const store = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/master-product/get-all-prodcut',
+            url: this.$root.API_URL + '/dashboard/getAllProduct',
+            params: {
+              page: page,
+              per_page: this.perPageProduct,
+            },
           });
-          const getDataProduct = store.data;
-          
-          return getDataProduct;
+
+          const response = store.data;
+          this.currentPageProduct = response.current_page;
+          this.totalPageProduct = response.last_page;
+          this.dataAllProduct = response.data;
         } catch (error) {
           console.log(error);
-          return null;
         }
+        this.$root.hideLoading();
       },
 
       loadAllDatas: async function(){
@@ -304,7 +338,6 @@
           if(getUserLogo){
             this.dataUserLogin = getUserLogo;
             this.accessStoreUser = getUserLogo.access_store_outlet;
-            const getAllProduct = await this.loadAllProduct();
             
             if(cacheStoreAccess == null){
               if(getUserLogo.access_store_outlet.length > 1) {
@@ -315,11 +348,11 @@
 
                 this.$root.selectedStoreAccess = firstUserStoreAccess;
                 this.selectedStoreOutlet = firstUserStoreAccess;
-                this.dataAllProduct = getAllProduct;
+                await this.loadAllProduct(this.currentPageProduct);
               }
             }else{
               this.selectedStoreOutlet = cacheStoreAccess;
-              this.dataAllProduct = getAllProduct;
+              await this.loadAllProduct(this.currentPageProduct);
             }
           }else{
             this.$root.clearSessionLocalStorege();
@@ -339,11 +372,10 @@
         $('#modalSelectAccessStoreDashboard').modal('hide');
         this.$root.showLoading();
         this.$root.selectedStoreAccess = this.selectedStoreOutlet;
+        this.currentActiveStoreOutlet = this.selectedStoreOutlet;
         localStorage.setItem(this.local_storage.access_store, JSON.stringify(this.selectedStoreOutlet));
 
-        const getAllProduct = await this.loadAllProduct();
-        this.dataAllProduct = getAllProduct;
-        
+        await this.loadAllProduct(this.currentPageProduct);
         this.$root.hideLoading();
       },
 

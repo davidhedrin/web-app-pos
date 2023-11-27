@@ -45,6 +45,7 @@ Object.entries(componentPage).forEach((path,i) => {
 export default {
   data(){
     const API_URL = import.meta.env.VITE_API_URL;
+    const API_ERP = import.meta.env.VITE_API_ERP;
     const APP_SSO_URL = import.meta.env.VITE_APP_SSO_URL;
     const APP_SSO_TOKEN_STATUS = import.meta.env.VITE_APP_SSO_TOKEN_STATUS;
     // const APP_SSO_URL = 'http://178.1.7.230:8072?t=sso&app_id=019e4e2609fc2c0eb334a1901797f856';
@@ -52,6 +53,7 @@ export default {
 
     return {
       API_URL: API_URL,
+      API_ERP: API_ERP,
       APP_SSO_URL: APP_SSO_URL,
       APP_SSO_TOKEN_STATUS: APP_SSO_TOKEN_STATUS,
       dataAuthToken: null,
@@ -410,6 +412,6 @@ export default {
 }
 
 .tr-middle {
-    vertical-align: middle;
-  }
+  vertical-align: middle;
+}
 </style>

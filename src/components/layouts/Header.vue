@@ -32,28 +32,34 @@
           </svg>
         </a>
         <div class="dropdown-menu dropdown-caret dropdown-menu-end dropdown-menu-card dropdown-caret-bg py-0" aria-labelledby="navbarDropdownMenuMaster">
-          <div class="card shadow-none p-2" style="width: 270px;">
+          <div class="card shadow-none p-2" style="width: 290px;">
             <div class="scrollable-customize" style="max-height: 300px;">
               <div class="row gx-0 gy-0">
                 <div class="col-12 px-0">
                   <span class="px-1">Main Menu</span>
                 </div>
                 <div class="col-4">
-                  <a @click="validateGoto(pages.dashboard)" class="d-block hover-bg-200 px-2 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                  <a @click="validateGoto(pages.dashboard)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-chart-pie" style="font-size: 30px;"></span></div>
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">Dashboard</p>
                   </a>
                 </div>
                 <div class="col-4">
-                  <a @click="validateGoto(pages.transaksi)" class="d-block hover-bg-200 px-2 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                  <a @click="validateGoto(pages.transaksi)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-chart-line" style="font-size: 30px;"></span></div>
-                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Transaksi</p>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Transaction</p>
                   </a>
                 </div>
                 <div class="col-4">
-                  <a @click="validateGoto(pages.sales)" class="d-block hover-bg-200 px-2 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                  <a @click="validateGoto(pages.sales)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-cash-register" style="font-size: 30px;"></span></div>
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">POS</p>
+                  </a>
+                </div>
+                <div class="col-4">
+                  <a @click="validateGoto(pages.receiptitem)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                    <div class="avatar"> <span class="fas fa-boxes" style="font-size: 30px;"></span></div>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Goods Receipt</p>
                   </a>
                 </div>
               </div>
@@ -64,32 +70,32 @@
                   <span class="px-1">Master Menu</span>
                 </div>
                 <div class="col-4">
-                  <a @click="validateGoto(pages.productlist)" class="d-block hover-bg-200 px-2 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                  <a @click="validateGoto(pages.productlist)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-dolly" style="font-size: 30px;"></span></div>
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">All Product</p>
                   </a>
                 </div>
                 <div class="col-4">
-                  <a @click="validateGoto(pages.promoproduct)" class="d-block hover-bg-200 px-2 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                  <a @click="validateGoto(pages.promoproduct)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-box-open" style="font-size: 30px;"></span></div>
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">Promo Product</p>
                   </a>
                 </div>
                 <div class="col-4">
-                  <a @click="validateGoto(pages.promolist)" class="d-block hover-bg-200 px-2 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                  <a @click="validateGoto(pages.promolist)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-ticket-alt" style="font-size: 30px;"></span></div>
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">Promo List</p>
                   </a>
                 </div>
                 <div class="col-4">
-                  <a class="d-block hover-bg-200 px-2 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                  <a class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-tags" style="font-size: 30px;"></span></div>
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">Bundle</p>
                   </a>
                 </div>
 
                 <div class="col-4">
-                  <a @click="validateGoto(pages.userlist)" class="d-block hover-bg-200 px-2 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                  <a @click="validateGoto(pages.userlist)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-users" style="font-size: 30px;"></span></div>
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">User List</p>
                   </a>
@@ -102,13 +108,13 @@
                   <span class="px-1">Setting</span>
                 </div>
                 <div class="col-4">
-                  <a @click="validateGoto(pages.profile)" class="d-block hover-bg-200 px-2 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                  <a @click="validateGoto(pages.profile)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-user" style="font-size: 30px;"></span></div>
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">Account</p>
                   </a>
                 </div>
                 <div class="col-4">
-                  <a @click="$root.clearSessionLocalStorege()" class="d-block hover-bg-200 px-2 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                  <a @click="$root.clearSessionLocalStorege()" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-sign-out-alt" style="font-size: 30px;"></span></div>
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">Logout</p>
                   </a>

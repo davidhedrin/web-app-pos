@@ -58,7 +58,7 @@
   
   <div class="card">
     <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-size: cover;"></div>
-    <div class="card-body position-relative pb-0 px-0">
+    <div v-if="dataAllPromoProduct.length > 0" class="card-body position-relative px-0">
       <div v-if="isListOrGrid" class="table-scrollable-wrapper" style="max-height: 66vh; min-height: 66vh;">
         <table class="table table-scrollable table-hover">
           <thead>
@@ -154,6 +154,16 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="card-body overflow-hidden pb-0 pt-5">
+      <div class="row align-items-center">
+        <div class="col-lg-4"><img style="max-width: 100%; height: auto;" src="@/assets/img/illustration/21.png" alt=""></div>
+        <div class="col-lg-8 ps-lg-4 my-5 text-center text-lg-start">
+          <h3 class="text-primary">Edit me!</h3>
+          <p class="lead">Tidak ada product terdaftar pada promo.</p>
         </div>
       </div>
     </div>

@@ -1369,7 +1369,6 @@
             // withCredentials: false,
           });
           const allData = getAllDataSales.data;
-          this.dataAllMembers = allData.getAllMember; //All Member
           this.dataAllGelars = allData.getAllGelar; //All Gelar
           this.dataAllKodeResellers = allData.getAllKodeReseller; //All Kode Reseller
           this.dataAllMetodeBayar = allData.getAllMetodeBayar; //All Metode Bayar
@@ -1387,46 +1386,59 @@
               this.dataMetodeBayarCC.push(metode);
             }
           });
+
+          const getAllMember = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/sales/getAllMember',
+          });
+          this.dataAllMembers = getAllMember.data; //All Member
+
+          const getAllDataOptInfo = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/sales/getMasterOptInfoData',
+          });
+          const dataMasterOptInfo = getAllDataOptInfo.data;
+          this.dataMasterOptionInfoCode = dataMasterOptInfo.getAllMasterOptionInfoCode; //All Option Info Code
+          this.dataMasterOptionInfo = dataMasterOptInfo.getAllMasterOptionInfo; //All Option Info
+
+          const getAllMasterPromo = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/sales/getAllMasterPromo',
+          });
+          var getDataMasterPromo = getAllMasterPromo.data;
+          // Logic load master promo product
+          const today = new Date();
+          for(let i in getDataMasterPromo){
+            const startDate = new Date(getDataMasterPromo[i].start_date);
+            const endDate = new Date(getDataMasterPromo[i].end_date);
+            if(today >= startDate && today <= endDate){
+              for(let j in getDataMasterPromo[i].all_promo_product){
+                this.dataAllProducts.push(getDataMasterPromo[i].all_promo_product[j]);
+              }
+            }
+          }
           
-          this.dataMasterOptionInfoCode = allData.getAllMasterOptionInfoCode; //All Option Info Code
-          this.dataMasterOptionInfo = allData.getAllMasterOptionInfo; //All Option Info
-
-          // console.log(this.dataAllGelars);
-
           const getAllProduct = await axios({
             method: 'get',
             url: this.$root.API_URL + '/sales/getAllProduct',
           });
           var getDataProduct = getAllProduct.data;
-
-          // Logic load master promo product
-          const today = new Date();
-          for(let i in getDataProduct.getAllMasterPromo){
-            const startDate = new Date(getDataProduct.getAllMasterPromo[i].start_date);
-            const endDate = new Date(getDataProduct.getAllMasterPromo[i].end_date);
-            if(today >= startDate && today <= endDate){
-              for(let j in getDataProduct.getAllMasterPromo[i].all_promo_product){
-                this.dataAllProducts.push(getDataProduct.getAllMasterPromo[i].all_promo_product[j]);
-              }
-            }
-          }
-
           // Logic load regular product
-          getDataProduct.getAllProduct.forEach(product => {
+          getDataProduct.forEach(product => {
             this.dataAllProducts.push(product);
           });
 
-          for (let i in getDataProduct.getAllMasterPromo) {
-            const startDate = new Date(getDataProduct.getAllMasterPromo[i].start_date);
-            const endDate = new Date(getDataProduct.getAllMasterPromo[i].end_date);
+          for (let i in getDataMasterPromo) {
+            const startDate = new Date(getDataMasterPromo[i].start_date);
+            const endDate = new Date(getDataMasterPromo[i].end_date);
             if(today >= startDate && today <= endDate){
-              if(getDataProduct.getAllMasterPromo[i].kode_promo == this.master_code.kodePromo.promo){ // Promo
+              if(getDataMasterPromo[i].kode_promo == this.master_code.kodePromo.promo){ // Promo
                 this.isCheckBoxPromo = true;
               };
-              if(getDataProduct.getAllMasterPromo[i].kode_promo == this.master_code.kodePromo.flush_out){ // Flushout
+              if(getDataMasterPromo[i].kode_promo == this.master_code.kodePromo.flush_out){ // Flushout
                 this.isCheckBoxFlushOut = true;
               };
-              if(getDataProduct.getAllMasterPromo[i].kode_promo == this.master_code.kodePromo.promo_karyawan){ // Karyawan
+              if(getDataMasterPromo[i].kode_promo == this.master_code.kodePromo.promo_karyawan){ // Karyawan
                 this.isCheckBoxKaryawan = true;
               };
             }
@@ -1436,7 +1448,6 @@
         }
 
         this.$root.hideLoading();
-        // console.log(this.dataAllProducts);
       },
       
       onChangeCheckVal: function(event){
