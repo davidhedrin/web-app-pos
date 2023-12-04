@@ -34,7 +34,7 @@
   <div class="row g-3 mb-3">
     <div class="col-sm-6 col-md-3">
       <div class="card overflow-hidden" style="min-width: 12rem">
-        <div class="card-body">
+        <div class="card-header">
           <h6>Jumlah Transaksi</h6>
           <div class="display-4 fs-4 mb-2 fw-normal font-sans-serif">
             {{ dataAllTransaction.length }}
@@ -45,7 +45,7 @@
     </div>
     <div class="col-sm-6 col-md-3">
       <div class="card overflow-hidden" style="min-width: 12rem">
-        <div class="card-body">
+        <div class="card-header">
           <h6>Tiket Booking <span class="badge badge-subtle-info rounded-pill ms-2">0.0%</span>
           </h6>
           <div class="display-4 fs-4 mb-2 fw-normal font-sans-serif">23.43k</div>
@@ -58,7 +58,7 @@
     </div>
     <div class="col-md-3">
       <div class="card overflow-hidden" style="min-width: 12rem">
-        <div class="card-body">
+        <div class="card-header">
           <h6>Revenue <span class="badge badge-subtle-success rounded-pill ms-2">9.54%</span>
           </h6>
           <div class="display-4 fs-4 mb-2 fw-normal font-sans-serif">Rp 43.594</div>
@@ -71,7 +71,7 @@
     </div>
     <div class="col-md-3">
       <div class="card overflow-hidden" style="min-width: 12rem">
-        <div class="card-body">
+        <div class="card-header">
           <h6>Revenue <span class="badge badge-subtle-success rounded-pill ms-2">9.54%</span>
           </h6>
           <div class="display-4 fs-4 mb-2 fw-normal font-sans-serif">Rp 13.594</div>
@@ -86,23 +86,31 @@
 
   <div class="card">
     <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1-left.png); background-position: left; background-size: auto;"></div>
-    <div class="card-body position-relative">
+    <div class="card-body pb-0 position-relative">
       <div class="row align-items-center">
-        <div class="col-md-8 mb-3">
+        <div class="col-md-3 mb-3">
           <h4>Daftar transaksi</h4>
         </div>
-        <div class="col-md-4 mb-3 d-flex align-items-center">
+        <div class="col-md-6 mb-3 d-flex align-items-center">
           <input v-model="dateRangeStart" type="datetime-local" class="form-control">
           <span class="fw-semi-bold px-2">s/d</span>
           <input v-model="dateRangeEnd" type="datetime-local" class="form-control">
         </div>
+        <div class="col-md-3 mb-3">
+          <select class="form-select">
+            <option value="" selected>Pilih Tipe</option>
+            <option value="">By Method</option>
+            <option value="">By Member</option>
+          </select>
+        </div>
       </div>
-      <div class="table-scrollable-wrapper" style="min-height: 2vh; max-height: 42vh;">
+      <div class="table-scrollable-wrapper mb-2" style="min-height: 2vh; max-height: 42vh;">
         <table class="table table-scrollable">
           <thead>
             <tr class="p-0">
               <th class="py-1 bg-white">#</th>
               <th class="py-1 bg-white">ID Transaksi</th>
+              <th class="py-1 bg-white">Nomor Bon</th>
               <th class="py-1 bg-white">Transfer Data</th>
               <th class="py-1 bg-white">Sales By</th>
               <th class="py-1 bg-white">Pembayaran</th>
@@ -112,16 +120,20 @@
             </tr>
           </thead>
           <tbody>
+            <tr v-if="dataAllTransaction.length < 1">
+              <td colspan="8" class="text-center"><i>Tidak ada transaksi tanggal sekarang</i></td>
+            </tr>
             <tr v-for="(trans, index) in dataAllTransaction" :key="trans.ducNum">
               <td>{{ index + 1 }}</td>
               <td>{{ trans.ducNum }}</td>
+              <td>{{ trans.bonStruk }}</td>
               <td>
                 <span class="badge rounded-pill" :class="trans.confirm_transfer ? 'badge-subtle-success' : 'badge-subtle-secondary'">
                   {{ trans.confirm_transfer ? 'Transfered' : 'Not-Transfer' }}
                 </span>
               </td>
               <td>{{ trans.sales_type.nama_sales }}</td>
-              <td><img :src="'src/assets/img/po-img/' + trans.payment_type.image" height="23" alt=""></td>
+              <td><img :src="'src/assets/img/po-img/' + trans.payment_type.image" height="20" alt=""></td>
               <td class="text-warning">Rp {{ $root.formatPrice(trans.paymentAmount) }}</td>
               <td>{{ formatDateTime(trans.docDate) }}</td>
               <td>
@@ -135,6 +147,28 @@
             </tr>
           </tbody>
         </table>
+      </div>
+      
+      <div v-if="totalPageTr > 1" class="d-flex justify-content-end">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination pagination-sm">
+            <li class="page-item" :class="{ 'disabled': currentPageTr === 1 }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchDataTransaction(currentPageTr - 1)">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+
+            <li v-for="pageNumber in totalPageTr" :key="pageNumber" class="page-item"  :class="{ 'active': pageNumber === currentPageTr }">
+              <a class="page-link" href="javascript:void(0)" @click="fatchDataTransaction(pageNumber)">{{ pageNumber }}</a>
+            </li>
+
+            <li class="page-item" :class="{ 'disabled': currentPageTr === totalPageTr }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchDataTransaction(currentPageTr + 1)">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -154,8 +188,8 @@
                   </div>
                   <div class="col text-sm-end mt-3 mt-sm-0">
                     <h3>Detail Transaksi</h3>
-                    <h6 class="mb-0"><u>Transaksi Number</u></h6>
-                    <p class="fs-0 mb-0">{{ selectedTrView.ducNum }}</p>
+                    <h6 class="mb-0"><u>Nomor Bon</u></h6>
+                    <p class="fs-0 mb-0 fw-semi-bold">{{ selectedTrView.bonStruk }}</p>
                     <h6 class="mb-0"><u>Status Transfer Data</u></h6>
                     <span class="badge rounded-pill" :class="selectedTrView.confirm_transfer ? 'badge-subtle-success' : 'badge-subtle-secondary'">
                       {{ selectedTrView.confirm_transfer ? 'Transfered' : 'Not-Transfer' }}
@@ -166,18 +200,31 @@
                   </div>
                 </div>
                 
-                <div class="row align-items-center mx-0">
-                  <div class="col text-center text-sm-start">
-                    <h6 class="text-600 mb-0"><u>Transaksi Dari</u></h6>
-                    <h5 class="mb-0">{{ selectedTrView.member.nama }}</h5>
-                    <p class="fs--1 mb-1">
-                      Member ID: {{ selectedTrView.member.member_id }}
-                    </p>
-                    <p class="fs--1">
-                      <a :href="`mailto:${selectedTrView.member.email}`">{{ selectedTrView.member.email }}</a>
-                      <br>
-                      <a :href="`tel:${selectedTrView.member.no_hp}`">{{ selectedTrView.member.no_hp }}</a>
-                    </p>
+                <div class="row align-items-start mx-0">
+                  <div class="col text-center text-sm-start mb-3">
+                    <h6 class="text-600 mb-0"><u>Member Overview</u></h6>
+                    <div v-if="selectedTrView.member">
+                      <h5 class="mb-0">{{ selectedTrView.member.nama }}</h5>
+                      <p class="fs--1 mb-0">
+                        Member ID: {{ selectedTrView.member.member_id }}
+                      </p>
+                      <p class="fs--1 mb-0">
+                        <a :href="`mailto:${selectedTrView.member.email}`">{{ selectedTrView.member.email }}</a>
+                        <br>
+                        <a :href="`tel:${selectedTrView.member.no_hp}`">{{ selectedTrView.member.no_hp }}</a>
+                      </p>
+                    </div>
+                    <div v-else>
+                      <h5 class="mb-0">-</h5>
+                      <p class="fs--1 mb-0">
+                        Member ID: -
+                      </p>
+                      <p class="fs--1 mb-0">
+                        <span>Email: -</span>
+                        <br>
+                        <span>No Handphone: -</span>
+                      </p>
+                    </div>
                   </div>
                   <div class="col-sm-auto ms-auto">
                     <div class="table-responsive">
@@ -201,7 +248,7 @@
                               <img :src="'src/assets/img/po-img/' + selectedTrView.payment_type.image" height="18" alt="">
                             </td>
                           </tr>
-                          <tr class="align-middle">
+                          <tr v-if="selectedTrView.uniquePayment" class="align-middle">
                             <th class="text-end py-0">Unik Number:</th>
                             <td class="p-0 pb-2 text-sm-end">
                               <span class="badge bg-dark dark__bg-dark">{{ selectedTrView.uniquePayment }}</span>
@@ -276,8 +323,16 @@
                           <td class="fw-semi-bold text-end">-Rp {{ $root.formatPrice(selectedTrView.amountDiskonPoint) }}</td>
                         </tr>
                         <tr class="border-top border-top-2 fw-bolder">
-                          <th class="text-900">Total</th>
+                          <th class="text-900">Total Bayar</th>
                           <td class="text-end fs-0 text-dark">Rp {{ $root.formatPrice(selectedTrView.paymentAmount) }}</td>
+                        </tr>
+                        <tr v-if="selectedTrView.cashValue" class="border-top border-top-2 fw-bolder">
+                          <th class="text-900">Tunai</th>
+                          <td class="fw-semi-bold text-end">Rp {{ $root.formatPrice(selectedTrView.cashValue) }}</td>
+                        </tr>
+                        <tr v-if="selectedTrView.returnCashValue">
+                          <th class="text-900">Kembalian</th>
+                          <td class="fw-semi-bold text-end">Rp {{ $root.formatPrice(selectedTrView.returnCashValue) }}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -293,8 +348,8 @@
                 </h5>
               </div> -->
               <div v-if="selectedTrView" class="text-end px-3 pb-2">
-                <button class="btn btn-secondary btn-sm me-2">Invoice <span class="fas fa-print"></span></button>
-                <button class="btn btn-secondary btn-sm me-2">Struk <span class="fas fa-print"></span></button>
+                <button class="btn btn-secondary btn-sm me-2">Struk by Email <span class="fas fa-print"></span></button>
+                <button class="btn btn-secondary btn-sm me-2">Struk Printed <span class="fas fa-print"></span></button>
                 <button class="btn btn-primary btn-sm" data-bs-dismiss="modal">Selesai</button>
               </div>
             </div>
@@ -307,12 +362,16 @@
 
 <script>
   import axios from "axios";
+  
   export default {
     name: 'Transaksi',
     data(){
       return{
         local_storage: this.$root.local_storage,
         dataAllTransaction: [],
+        currentPageTr: 1,
+        perPageTr: 5,
+        totalPageTr: 0,
 
         dateRangeStart: null,
         dateRangeEnd: null,
@@ -334,23 +393,39 @@
         this.$root.showLoading();
 
         try{
+          await this.fatchDataTransaction(this.currentPageTr);
+        } catch (error) {
+          console.log(error);
+        }
+      
+        this.$root.hideLoading();
+      },
+
+      fatchDataTransaction: async function(page){
+        this.$root.showLoading();
+        try{
           const check_uuid = localStorage.getItem(this.local_storage.is_dynamic);
           const getAllDataTr = await axios({
             method: 'get',
             url: this.$root.API_URL + '/transaksi/getTrByUserLogin/' + check_uuid,
+            params: {
+              page: page,
+              per_page: this.perPageTr,
+            },
           });
 
-          if(getAllDataTr.status == 200){
-            this.dataAllTransaction = getAllDataTr.data;
-          }
+          const response = getAllDataTr.data;
+          this.currentPageTr = response.current_page;
+          this.totalPageTr = response.last_page;
+          this.dataAllTransaction = response.data;
         } catch (error) {
           console.log(error);
         }
-        
         this.$root.hideLoading();
       },
 
       showDetailTransaction: function(trans){
+        this.selectedTrView = null;
         this.selectedTrView = trans;
         $('#modalViewProduct').modal('show');
       },
@@ -367,16 +442,17 @@
       },
       
       formatDateTime: function (dateTimeString) {
-        const isTFormat = dateTimeString.includes('T');
-        const separator = isTFormat ? 'T' : ' ';
-        const [datePart, timePart] = dateTimeString.split(separator);
-        const [year, month, day] = datePart.split('-');
-        const [hour, minute] = timePart.split(':');
-
-        const formattedDate = `${day}/${month}/${year}`;
-        const formattedTime = `${hour}:${minute}`;
-
-        return `${formattedDate} ${formattedTime}`;
+        const dateObj = new Date(dateTimeString);
+        
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+        
+        const formattedDateTime = `${day}-${month}-${year} ${hours}:${minutes}`;
+        return formattedDateTime;
       },
     },
   }

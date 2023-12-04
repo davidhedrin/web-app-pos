@@ -83,6 +83,7 @@
     data() {
       return {
         local_storage: this.$root.local_storage,
+        pages: this.$root.pages,
 
         dataLogin: {
           email: null,
@@ -112,9 +113,9 @@
             localStorage.setItem(this.local_storage.is_dynamic, dataUser.user_uuid);
             
             if(dataUser.flag_active == true){
-              this.$root.goto('dashboard');
+              this.$root.goto(this.pages.dashboard);
             }else{
-              this.$root.goto('profilepage');
+              this.$root.goto(this.pages.profile);
             }
             
             window.location.reload();
@@ -183,9 +184,9 @@
             const getUserExist = await this.$root.checkUserRegistered(getStatusToken.uuid);
             if(getUserExist && getUserExist.flag_active){
               localStorage.setItem(this.local_storage.is_dynamic, getStatusToken.uuid);
-              this.$root.goto('dashboard');
+              this.$root.goto(this.pages.dashboard);
             }else{
-              this.$root.goto('profilepage');
+              this.$root.goto(this.pages.profile);
             }
             window.location.reload();
           }

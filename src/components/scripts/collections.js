@@ -111,6 +111,12 @@ export const master_coll = {
     first: '1', //Product
     secound: '2', //Diskon
   },
+
+  tipe_gwp: {
+    first: '1',
+    secound: '2',
+    three: '3',
+  }
 }
 
 export const local_storage = {
@@ -129,6 +135,7 @@ export const pages = {
   sales:  'Sales',
   transaksi: 'Transaksi',
   receiptitem: 'ReceiptItem',
+  syncdata: 'SyncData',
 
   // Master
   productlist: 'ProductList',

@@ -69,7 +69,7 @@
   <div class="row">
     <div v-for="promo in dataAllMasterPromo" class="col-lg-4 mb-3">
       <div class="card">
-        <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1i.png); background-size: cover;"></div>
+        <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/discount-i.png); background-size: cover;"></div>
         <div class="card-header d-flex justify-content-between position-relative">
           <div>
             <!-- <h6><span class="badge rounded-pill mb-0" :class="'bg-'+promo.master_kode_promo.badge">{{ promo.master_kode_promo.nama_promo }}</span></h6> -->
@@ -133,25 +133,146 @@
   </div>
 
   <div class="modal fade" id="modalDetailPromo" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 600px;">
       <div class="modal-content position-relative border-0">
         <div class="position-absolute top-0 end-0 mt-2 me-2 z-1">
           <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-4-left.png); background-position: left; background-size: cover;"></div>
-            <div class="card-body position-relative p-0">
-              <div class="rounded-top-3 py-3 ps-4 pe-6">
+            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1i.png); background-position: left; background-size: cover;"></div>
+            <div class="card-body position-relative">
+              <div class="rounded-top-3 mb-2">
                 <h5 class="mb-1">Detail Promo</h5>
               </div>
               
               <div v-if="detailDataPromo != null">
+                <div class="row align-items-center">
+                  <div class="col-md-6">
+                    <span class="fs--2"><u>nama promo:</u></span>
+                    <h4 class="mb-0">{{ detailDataPromo.nama_promo }}</h4>
+                  </div>
+                  <div class="col-md-6 text-start text-sm-end">
+                    <span class="fs--2"><u>promo code:</u></span>
+                    <p class="mb-0">
+                      <strong>{{ detailDataPromo.promo_code }}</strong>
+                    </p>
+                    <!-- <span class="badge badge rounded-pill fs--2" :class="detailDataPromo.kode_tipe_promo == master_coll.tipeMasterPromo.first ? 'badge-subtle-warning' : 'badge-subtle-primary'">
+                      {{ detailDataPromo.master_kode_promo.name }}
+                      <span v-if="detailDataPromo.kode_tipe_promo == master_coll.tipeMasterPromo.secound">
+                        ({{ detailDataPromo.percent }}%)
+                      </span>
+                    </span> -->
+                  </div>
+                </div>
 
+                <div class="row mb-2">
+                  <div class="col-md-6">
+                    <div>
+                      <span class="fs--2"><u>promo start:</u></span>
+                      <p class="mb-0">
+                        <strong>
+                          {{ formatDateTime(detailDataPromo.start_date) }}
+                        </strong>
+                      </p>
+                    </div>
+                    <div>
+                      <span class="fs--2"><u>promo end:</u></span>
+                      <p class="mb-0">
+                        <strong>
+                          {{ formatDateTime(detailDataPromo.end_date) }}
+                        </strong>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col-md-6 text-start text-sm-end">
+                    <span class="fs--2"><u>type:</u></span>
+                    <div>
+                      <span class="badge badge rounded-pill fs--2" :class="detailDataPromo.kode_tipe_promo == master_coll.tipeMasterPromo.first ? 'badge-subtle-warning' : 'badge-subtle-primary'">
+                        {{ detailDataPromo.master_kode_promo.name }}
+                      </span>
+                    </div>
+                    <h1 class="mb-0" v-if="detailDataPromo.kode_tipe_promo == master_coll.tipeMasterPromo.secound">
+                      {{ detailDataPromo.percent }}%
+                    </h1>
+                  </div>
+                </div>
+
+                <span class="fs--1 fw-bold">Syarat & Ketentuan:</span>
+                <hr class="my-0">
+
+                <div class="row mb-2">
+                  <div class="col-md-3">
+                    <span class="fs--2"><u>minimal pcs:</u></span>
+                    <p class="mb-0">
+                      <strong>{{ detailDataPromo.min_buy ?? '-' }}</strong>
+                    </p>
+                  </div>
+                  <div class="col-md-3">
+                    <span class="fs--2"><u>minimal value buy:</u></span>
+                    <p class="mb-0">
+                      <strong>Rp {{ detailDataPromo.min_value ? $root.formatPrice(detailDataPromo.min_value) : '-' }}</strong>
+                    </p>
+                  </div>
+                  <div class="col-md-3">
+                    <span class="fs--2"><u>after discount:</u></span>
+                    <p class="mb-0">
+                      <strong>{{ detailDataPromo.percent_after_dic ? detailDataPromo.percent_after_dic + '%' : '-' }}</strong>
+                    </p>
+                  </div>
+                  <div class="col-md-3">
+                    <span class="fs--2"><u>additional discount:</u></span>
+                    <p class="mb-0">
+                      <strong>{{ detailDataPromo.percent_additional ? detailDataPromo.percent_additional + '%' : '-' }}</strong>
+                    </p>
+                  </div>
+                </div>
+
+                <span class="fs--1 fw-bold">
+                  Gift With Purchase:
+                  <span v-if="detailDataPromo.is_gwp" class="badge rounded-pill bg-success">
+                    <span class="fas fa-check-circle"></span> Active
+                  </span>
+                  <span v-else class="badge rounded-pill bg-danger">
+                    <span class="fas fa-window-close"></span> Not Added
+                  </span>
+                </span>
+                <hr class="my-0">
+
+                <div v-if="detailDataPromo.is_gwp && detailDataPromo.master_tipe_gwp" class="row">
+                  <div class="col-md-6">
+                    <span class="fs--2"><u>GWP type:</u></span>
+                    <p class="mb-0">
+                      <strong>{{ detailDataPromo.master_tipe_gwp.name ?? '-' }}</strong>
+                    </p>
+                  </div>
+                  <div v-if="detailDataPromo.tipe_gwp == master_coll.tipe_gwp.three" class="col-md-6">
+                    <div>
+                      <span class="fs--2"><u>maximal get:</u></span>
+                      <p class="mb-0">
+                        <strong>{{ detailDataPromo.mix_get_pcs_gwp }} pcs</strong>
+                      </p>
+                    </div>
+                  </div>
+                  <div v-if="detailDataPromo.tipe_gwp == master_coll.tipe_gwp.secound" class="col-md-6">
+                    <div>
+                      <span class="fs--2"><u>maximal value:</u></span>
+                      <p class="mb-0">
+                        <strong>Rp {{ $root.formatPrice(detailDataPromo.min_value_product) }}</strong>
+                      </p>
+                    </div>
+                  </div>
+                  <div v-if="detailDataPromo.tipe_gwp != master_coll.tipe_gwp.secound" class="col-md-12">
+                    <span class="fs--2"><u>list added product:</u></span>
+                    <div>
+                      <span v-for="product in detailDataPromo.detail_promo" class="badge bg-secondary me-2">{{ product.item.itemName }}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div class="text-end px-2 pt-0 pb-3">
-                <button class="btn btn-secondary btn-sm me-2" type="button" data-bs-dismiss="modal">Selesai</button>
+              <div class="text-end mt-2">
+                <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">Selesai</button>
               </div>
             </div>
           </div>
@@ -178,7 +299,7 @@
 
         dataAllMasterPromo: [],
         currentPagePromo: 1,
-        perPagePromo: 9,
+        perPagePromo: 12,
         totalPagePromo: 0,
         
         dataAllProduct: [],
@@ -249,7 +370,6 @@
           this.currentPagePromo = response.current_page;
           this.totalPagePromo = response.last_page;
           this.dataAllMasterPromo = response.data;
-          console.log(response.data);
         } catch(e) {
           console.log(e);
         }
@@ -257,32 +377,13 @@
       },
 
       openModalDetailPromo: function(promo){
-        const setDataPromo = {
-          id: parseInt(promo.id),
-          namaPromo: promo.nama_promo,
-          tipePromo: promo.kode_tipe_promo,
-          tanggalMulai: promo.start_date,
-          tanggalSelesai: promo.end_date,
-          keterangan: promo.keterangan,
-          status: promo.status,
+        promo.selectedSingleGwpProduct = promo.detail_promo.length > 0 ? this.dataAllProduct.find((p) => p.itemCode == promo.detail_promo[0].itemCode) : null;
+        promo.selectedMultiGwpProduct = this.dataAllProduct.filter((p) => {
+          return promo.detail_promo.some(detail => detail.itemCode === p.itemCode);
+        });
 
-          percent: promo.percent,
-          minBuyPcs: promo.min_buy,
-          minBuyValue: promo.min_value,
-          percentAfterDisc: promo.percent_after_dic,
-          additionalPercent: promo.percent_additional,
-
-          switchBoxGwp: promo.is_gwp,
-          tipeGwpPromo: promo.tipe_gwp,
-          minValueGwpAll: promo.min_value_product,
-          selectedSingleGwpProduct: promo.detail_promo.length > 0 ? this.dataAllProduct.find((p) => p.itemCode == promo.detail_promo[0].itemCode) : null,
-          maxGetPcsMultiGwp: promo.mix_get_pcs_gwp,
-          selectedMultiGwpProduct: this.dataAllProduct.filter((p) => {
-            return promo.detail_promo.some(detail => detail.itemCode === p.itemCode);
-          }),
-        };
-
-        this.detailDataPromo = setDataPromo;
+        this.detailDataPromo = promo;
+        // console.log(promo);
         $('#modalDetailPromo').modal('show');
       },
 

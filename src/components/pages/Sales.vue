@@ -188,7 +188,7 @@
           </div>
         </div>
         <div class="card-body position-relative p-0">
-          <div class="scrollable-customize mb-3" style="max-height: 46vh; min-height: 46vh">
+          <div class="scrollable-customize mb-3" style="max-height: 45vh;">
             <div v-if="$root.selectedStoreAccess === null || filteredProducts.length < 1" class="text-center py-5">
               <div class="mt-5">
                 <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
@@ -205,7 +205,8 @@
                       <div class="position-relative rounded-top overflow-hidden" v-on:click="addProductToList(product)" style="cursor: pointer;">
                         <div class="d-block text-center">
                           <img v-if="product.master_promo_id" class="img-fluid rounded-top" :src="'src/assets/img/product/' + product.for_product.image" style="width: 100%; height: 110px;" alt="">
-                          <img v-else class="img-fluid rounded-top" :src="'src/assets/img/product/' + product.image" style="width: 100%; height: 110px;" alt="">
+                          <!-- <img v-else class="img-fluid rounded-top" :src="'src/assets/img/product/' + product.image" style="width: 100%; height: 110px;" alt=""> -->
+                          <img v-else class="img-fluid rounded-top" src="https://cf.shopee.co.id/file/id-11134201-23030-r0knjashvwov06" style="width: 100%; height: 110px;" alt="">
                           <div class=" position-absolute mt-1 me-2 z-2 top-0 end-0">
                             <div v-if="product.master_promo_id">
                               <span class="badge rounded-pill p-1 fs--3 me-1" :class="'bg-' + product.master_promo.master_kode_promo.badge">
@@ -369,7 +370,7 @@
 
           <div class="d-grid gap-2">
             <!-- Kontrol untuk penambahan metode pembayaran distruk checkout button confirm pay (di event v-on:click) -->
-            <button class="btn btn-success" type="submit" v-on:click="confirmationPayment">Confirm &amp; Pay</button>
+            <button class="btn btn-success" type="submit" @click="checkConfirmationPayment()">Confirm &amp; Pay</button>
           </div>
           <hr class="mb-2 mt-2">
           <div class="d-grid gap-2">
@@ -462,7 +463,7 @@
                   <p class="fs--2 mb-0">{{ memberFindOrRegis ? "Daftarkan member" : "Temukan member" }}</p>
                 </button>
               </div>
-              <div class="p-4 pt-0">
+              <div class="px-4 pt-0">
                 <div v-if="memberFindOrRegis">
                   <div class="row align-items-center">
                     <div class="col-md-8">
@@ -473,7 +474,7 @@
                     </div>
                   </div>
                   <hr class="p-0 m-0">
-                  <div class="table-scrollable-wrapper" style="min-height: 3h; max-height: 30vh;">
+                  <div class="table-scrollable-wrapper" style="min-height: 3vh; max-height: 30vh;">
                     <table class="table table-scrollable table-sm table-hover">
                       <thead>
                         <tr>
@@ -513,9 +514,31 @@
                       </tbody>
                     </table>
                   </div>
+                  
+                  <div v-if="totalPageMember > 1" class="d-flex justify-content-end mt-2">
+                    <nav aria-label="Page navigation example">
+                      <ul class="pagination pagination-sm">
+                        <li class="page-item" :class="{ 'disabled': currentPageMember === 1 }">
+                          <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchDataMember(currentPageMember - 1)">
+                            <span aria-hidden="true">&laquo;</span>
+                          </a>
+                        </li>
+
+                        <li v-for="pageNumber in totalPageMember" :key="pageNumber" class="page-item"  :class="{ 'active': pageNumber === currentPageMember }">
+                          <a class="page-link" href="javascript:void(0)" @click="fatchDataMember(pageNumber)">{{ pageNumber }}</a>
+                        </li>
+
+                        <li class="page-item" :class="{ 'disabled': currentPageMember === totalPageMember }">
+                          <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchDataMember(currentPageMember + 1)">
+                            <span aria-hidden="true">&raquo;</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
                 </div>
                 <div v-else>
-                 <form @submit.prevent="storeNewMember">
+                  <form @submit.prevent="storeNewMember">
                     <div class="mb-1">
                       <label class="form-label mb-0" for="nama_member">Name</label>
                       <input v-model="dataInputMember.nama" class="form-control bg-transparent" id="nama_member" type="text" placeholder="Masukkan nama lengkap">
@@ -693,6 +716,10 @@
                       <th class="ps-0 py-1" style="font-weight: normal;">Diskon Voucher </th>
                       <th class="pe-0 py-1 text-end text-dark">-Rp 5.000</th>
                     </tr> -->
+                    <tr v-if="selectedActivePromo != null" class="border-bottom">
+                      <th class="ps-0 py-1" style="font-weight: normal;">{{ selectedActivePromo.nama_promo.toUpperCase() }} ({{ selectedActivePromo.percent }}%)</th>
+                      <th class="pe-0 py-1 text-end text-dark">-Rp 5.000</th>
+                    </tr>
                     <tr class="border-bottom">
                       <th class="ps-0 py-1" style="font-weight: normal;">Total Bayar </th>
                       <th class="pe-0 fs-1 py-0 text-end text-warning">Rp {{ $root.formatPrice(calculateTotalBayarPrice) }}</th>
@@ -1012,6 +1039,63 @@
     </div>
   </div>
 
+  <!-- Modal select promo active -->
+  <div class="modal fade" id="modalShowActivePromoDiskon" data-bs-keyboard="false" data-bs-backdrop="static" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content border-0">
+        <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
+          <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="rounded-top-3 bg-body-tertiary py-3 ps-4 pe-6">
+            <h5 class="mb-1" id="staticBackdropLabel">Aktif Promo Diskon</h5>
+            <p class="fs--1 mb-0">
+              <strong>
+                {{ dataActiveMasterPromo.length }} 
+              </strong>
+              Promo aktif diperiode ini
+            </p>
+          </div>
+          <div class="p-4">
+            <div class="row">
+              <div v-for="promo in dataActiveMasterPromo" class="col-md-6">
+                <div class="card cursor-pointer" @click="clickPromoConfirmationPromo(promo)">
+                  <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/discount-i.png);"></div>
+                  <div class="card-header position-relative">
+                    <strong>
+                      {{ promo.nama_promo.toUpperCase() }}
+                    </strong>
+                    <h3 class="mb-0">
+                      Diskon {{ promo.percent }}%
+                    </h3>
+                    <u class="fs--1">Syarat & Ketentuan Berlaku:</u>
+                    <div class="fs--1">
+                      <span class="far fa-check-circle" :class="promo.min_buy && 'text-success'"></span>
+                      Minimal Pcs 
+                      <strong>{{ promo.min_buy ?? '-' }}</strong>
+                    </div>
+                    <div class="fs--1">
+                      <span class="far fa-check-circle" :class="promo.min_value && 'text-success'"></span>
+                      Minimal Value 
+                      <strong>Rp {{ promo.min_value ? $root.formatPrice(promo.min_value) : '-' }}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+          <button class="btn btn-success btn-sm" data-bs-dismiss="modal" @click="confirmationPayment()">
+            Lanjut tanpa promo
+            <span class="far fa-arrow-alt-circle-right"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="offcanvas offcanvas-end" id="canvasShowDetailProduct" tabindex="-1" aria-labelledby="canvasShowDetailProductLabel">
     <!-- Header nama product dan btn close -->
     <div v-if="productShowDetail" class="offcanvas-header pb-0 align-items-start">
@@ -1158,10 +1242,14 @@
         dataAllProducts: [],
         dataAllProductsPromo: [],
         dataProductInList: [],
-        dataAllMembers: [],
         dataAllGelars: [],
         dataAllKodeResellers: [],
         dataAllMasterSalesBy: [],
+
+        dataAllMembers: [],
+        currentPageMember: 1,
+        perPageMember: 10,
+        totalPageMember: 0,
 
         dataAllTicket: [],
         dataFilterAllTicket: [],
@@ -1247,6 +1335,9 @@
         dataMasterOptionInfoCode: [],
         dataMasterOptionInfo: [],
         allProductFindSearchBtn: [],
+
+        dataActiveMasterPromo: [],
+        selectedActivePromo: null,
       };
     },
 
@@ -1387,12 +1478,6 @@
             }
           });
 
-          const getAllMember = await axios({
-            method: 'get',
-            url: this.$root.API_URL + '/sales/getAllMember',
-          });
-          this.dataAllMembers = getAllMember.data; //All Member
-
           const getAllDataOptInfo = await axios({
             method: 'get',
             url: this.$root.API_URL + '/sales/getMasterOptInfoData',
@@ -1443,10 +1528,35 @@
               };
             }
           }
+
+          await this.fatchDataMember(this.currentPageMember);
         } catch (error) {
           console.log(error);
         }
 
+        this.$root.hideLoading();
+      },
+
+      fatchDataMember: async function(page){
+        this.$root.showLoading();
+        try{
+          const getAllMember = await axios({
+            method: 'get',
+            // url: this.$root.API_URL + '/sales/getAllMember',
+            url: this.$root.API_ERP + '/pos/getAllMember',
+            params: {
+              page: page,
+              per_page: this.perPageMember,
+            },
+          });
+
+          const response = getAllMember.data;
+          this.currentPageMember = response.current_page;
+          this.totalPageMember = response.last_page;
+          this.dataAllMembers = response.data;
+        }catch(e){
+          console.log(e);
+        }
         this.$root.hideLoading();
       },
       
@@ -1707,22 +1817,34 @@
           this.dataInputMember.user_login = this.$root.dataAuthToken;
           const store = await axios({
             method: 'post',
-            url: this.$root.API_URL + '/sales/storeNewMember',
+            url: this.$root.API_ERP + '/pos/storeNewMember',
             data: this.dataInputMember,
           });
 
           if(store.status == 201 || store.status == 200){
             var getResponsStore = store.data;
             var getDataUser = getResponsStore.data;
-            this.memberOverview = getDataUser;
-            this.dataAllMembers.push(getDataUser);
-    
-            for (let prop in this.dataInputMember) {
-              this.dataInputMember[prop] = '';
+
+            this.dataInputMember.member_id = getDataUser.member_id; 
+            const storeToPos = await axios({
+              method: 'post',
+              url: this.$root.API_URL + '/sales/storeNewMember',
+              data: this.dataInputMember,
+            });
+
+            if(storeToPos.status == 201 || storeToPos.status == 200){
+              this.memberOverview = getDataUser;
+              this.dataAllMembers.push(getDataUser);
+
+              for (let prop in this.dataInputMember) {
+                this.dataInputMember[prop] = '';
+              }
+              
+              this.invalidMemberSelect = false;
+              this.$root.showAlertFunction('success', 'Pendaftaran Berhasil!', 'Selamat, Member baru telah berhasil ditambahkan.');
+            }else{
+              this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
             }
-            
-            this.invalidMemberSelect = false;
-            this.$root.showAlertFunction('success', 'Pendaftaran Berhasil!', 'Selamat, Member baru telah berhasil ditambahkan.');
           }else{
             this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           }
@@ -2110,6 +2232,7 @@
         this.nominalMoreMetodeBayar = [];
         this.getCheckGelarPembelian = null;
         
+        this.selectedActivePromo = null;
         this.inputNominalMethodCash = null;
         this.totalKembalianMetodeCash = 0;
         this.checkboxMemberPotonganPoint = false;
@@ -2186,11 +2309,11 @@
           return false;
         }
 
-        if(this.memberOverview == null){
-          this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih dan tentukan member!');
-          this.invalidMemberSelect = true;
-          return false;
-        }
+        // if(this.memberOverview == null){
+        //   this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih dan tentukan member!');
+        //   this.invalidMemberSelect = true;
+        //   return false;
+        // }
 
         if(this.selectMethodPayment == ''){
           this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih metode pembayaran!');
@@ -2224,10 +2347,55 @@
         $('#modalBatalConfirm').modal('show');
       },
 
-      confirmationPayment: function(){
+      checkConfirmationPayment: async function(){
         if(this.validationBeforeContinueBtnBilling() == false){
           return false;
         }
+
+        this.$root.showLoading();
+        try{
+          const checkPromo = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/getActivePromoDiskon'
+          });
+          const dataPromo = checkPromo.data;
+          if(dataPromo.length > 0){
+            this.dataActiveMasterPromo = dataPromo;
+            $('#modalShowActivePromoDiskon').modal('show');
+          }else{
+            this.confirmationPayment();
+          }
+        }catch(e){
+          this.$root.showAlertFunction('warning', 'Traksaksi Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          console.log(e);
+        }
+        this.$root.hideLoading();
+      },
+
+      clickPromoConfirmationPromo: function(promo){
+        console.log(promo);
+        if(promo.min_buy != null){
+          if(this.totalPcsItemOrder < promo.min_buy){
+            this.$root.showAlertFunction('warning', 'Promo Gagal!', 'Syarat dan ketentuan tidak terpenuhi.');
+            this.$root.hideLoading();
+            return false;
+          }
+        }
+        if(promo.min_value != null){
+          if(this.totalBayarPrice < parseInt(promo.min_value)){
+            this.$root.showAlertFunction('warning', 'Promo Gagal!', 'Syarat dan ketentuan tidak terpenuhi.');
+            this.$root.hideLoading();
+            return false;
+          }
+        }
+
+        this.selectedActivePromo = promo;
+        $('#modalShowActivePromoDiskon').modal('hide');
+        this.$root.showAlertFunction('success', 'Promo Berhasil!', 'Selamat!! Promo telah berhasil dipasangkan.');
+        this.confirmationPayment();
+      },
+
+      confirmationPayment: function(){
         this.currentTime = new Date();
         
         const findMetodeBayar = this.dataAllMetodeBayar.find((metode) => metode.id === this.selectMethodPayment);
@@ -2308,7 +2476,7 @@
               user_login: user_login,
               
               storeCode: this.$root.selectedStoreAccess.store_code,
-              memberId: this.memberOverview.member_id,
+              memberId: this.memberOverview ? this.memberOverview.member_id : null,
               salesBy: this.selectSalesBy,
 
               totalQty: this.totalPcsItemOrder > 0 ? parseInt(this.totalPcsItemOrder) : null,
@@ -2328,6 +2496,9 @@
               paymentMethodCode: this.selectedMetodeBayar.slug,
               uniquePayment: this.modelInputSelectedMetodeBayar.trim() != '' ? this.modelInputSelectedMetodeBayar : null,
 
+              cashValue: this.inputNominalMethodCash ? parseInt(this.$root.formatCurrencyRemoveSeparator(this.inputNominalMethodCash)) : null,
+              returnCashValue: this.totalKembalianMetodeCash > 0 ? parseInt(this.totalKembalianMetodeCash) : null,
+
               products: this.dataProductInList,
               activeStore: activeStore,
           }
@@ -2341,7 +2512,7 @@
           if(storeTr.status == 201 || storeTr.status == 200){
             const dataStoreTr = storeTr.data.data;
 
-            this.generatePdfCheckout();
+            this.generatePdfCheckout(dataStoreTr);
             this.dataProductInList = [];
             this.memberOverview = null;
     
@@ -2373,7 +2544,7 @@
         this.$root.hideLoading();
       },
 
-      generatePdfCheckout: function(){
+      generatePdfCheckout: function(dataTr){
         const docStruk = new jsPDF({
           orientation: "portrait",
           unit: "mm",
@@ -2382,7 +2553,7 @@
         const sizeFont = 6;
         const callPadding = [0, 0, 0, 0];
         const callPaddingProduct = [0.5, 0, 0.5, 0];
-        const marginPaper = [0, 1, 0, 0];
+        const marginPaper = [0, 1, 0, 1];
         const startLine = 1;
         const endLine = 71;
         const plusHeightLine = 3;
@@ -2394,16 +2565,18 @@
         const imageWidth = 30;
         const imageHeight = 6;
         const x = (pageWidth - imageWidth) / 2;
-        docStruk.addImage(logoImg, 'PNG', x, 0, imageWidth, imageHeight);
+        // docStruk.addImage(logoImg, 'PNG', x, 0, imageWidth, imageHeight);
 
-        // Alamat dibagian atas
         const storeActive = JSON.parse(localStorage.getItem(this.local_storage.access_store));
         const storeDetail = storeActive.store_outlet;
+
+
+        // Nama Toko dan Alamat dibagian atas
         autoTable(docStruk, {
           body: [
             [
               {
-                content: storeDetail.address,
+                content: storeDetail.storeName.toUpperCase(),
                 styles: {
                   halign: 'center',
                   fontSize: sizeFont,
@@ -2414,7 +2587,30 @@
 
             [
               {
-                content: storeDetail.phone,
+                content: 'MITRA USAHA: PT. TARA PARAMA SEMESTA',
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: [0, 0, 1.5, 0],
+                }
+              }
+            ],
+
+
+            [
+              {
+                content: storeDetail.address.toUpperCase(),
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+
+            [
+              {
+                content: 'No telp. ' + storeDetail.phone,
                 styles: {
                   halign: 'center',
                   fontSize: sizeFont,
@@ -2424,13 +2620,52 @@
             ],
           ],
           margin: marginPaper,
-          startY: imageHeight + 3,
+          // startY: imageHeight + 3,
           theme: 'plain',
         });
 
         // Nama bsc dan tanggal transaksi
         autoTable(docStruk, {
           body: [
+            [
+              {
+                content: 'Bon:',
+                styles: {
+                  halign: 'left',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+              {
+                content: 'Member:',
+                styles: {
+                  halign: 'right',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+            [
+              {
+                content: dataTr.bonStruk,
+                styles: {
+                  halign: 'left',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+              {
+                // content: this.getDateTimeForStruk(),
+                content: this.memberOverview ? this.memberOverview.nama.toUpperCase() : '-',
+                styles: {
+                  halign: 'right',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+            
+
             [
               {
                 content: 'Kasir:',
@@ -2441,7 +2676,7 @@
                 }
               },
               {
-                content: 'Tanggal:',
+                content: 'Point:',
                 styles: {
                   halign: 'right',
                   fontSize: sizeFont,
@@ -2451,7 +2686,7 @@
             ],
             [
               {
-                content: this.$root.dataAuthToken.nama_lengkap,
+                content: this.$root.dataAuthToken.nama_lengkap.toUpperCase(),
                 styles: {
                   halign: 'left',
                   fontSize: sizeFont,
@@ -2459,7 +2694,7 @@
                 }
               },
               {
-                content: this.getDateTimeForStruk(),
+                content: this.memberOverview ? this.$root.formatPrice(this.memberOverview.point) : '-',
                 styles: {
                   halign: 'right',
                   fontSize: sizeFont,
@@ -2642,7 +2877,7 @@
         // Total Bayar Billing
         dataBillindDetail.push([
           {
-            content: 'Total Bayar:',
+            content: 'Total Bayar',
             styles: {
               halign: 'left',
               fontSize: sizeFont,
@@ -2658,6 +2893,78 @@
             }
           }
         ]);
+        
+        // Metode Pembayaran
+        dataBillindDetail.push([
+          {
+            content: 'Metode Bayar',
+            styles: {
+              halign: 'left',
+              fontSize: sizeFont,
+              cellPadding: callPadding,
+            }
+          },
+          {
+            content: this.selectedMetodeBayar.nama,
+            styles: {
+              halign: 'right',
+              fontSize: sizeFont,
+              cellPadding: callPadding,
+            }
+          }
+        ]);
+        // Metode bayar cash/tunai
+        if(this.selectedMetodeBayar.kode == this.master_code.metodeBayar.cash){
+          dataBillindDetail.push([
+            {
+              content: 'Cash Diberikan',
+              styles: {
+                halign: 'left',
+                fontSize: sizeFont,
+                cellPadding: callPadding,
+              }
+            },
+            {
+              content: this.inputNominalMethodCash,
+              styles: {
+                halign: 'right',
+                fontSize: sizeFont,
+                cellPadding: callPadding,
+              }
+            }
+          ]);
+          dataBillindDetail.push([
+            {
+              content: 'Kembalian',
+              styles: {
+                halign: 'left',
+                fontSize: sizeFont,
+                cellPadding: callPadding,
+              }
+            },
+            {
+              content: this.$root.formatPrice(this.totalKembalianMetodeCash),
+              styles: {
+                halign: 'right',
+                fontSize: sizeFont,
+                cellPadding: callPadding,
+              }
+            }
+          ]);
+        }
+
+        // PPN
+        dataBillindDetail.push([
+          {
+            content: 'PPN (10%)',
+            colSpan: 2,
+            styles: {
+              halign: 'left',
+              fontSize: sizeFont,
+              cellPadding: callPadding,
+            }
+          },
+        ]);
 
         // Billing detail
         autoTable(docStruk, {
@@ -2671,13 +2978,47 @@
         docStruk.setDrawColor(0);
         docStruk.setLineWidth(0);
         docStruk.line(startLine, lineY3, endLine, lineY3);
-
-        // Kata penutup dan ucapatan terimakasih
+        
         autoTable(docStruk, {
           body: [
             [
               {
-                content: 'NPWP: 12.123.123.1-123.123',
+                content: 'Tanggal Transaksi',
+                styles: {
+                  halign: 'left',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+              {
+                content: this.getDateTimeForStruk(dataTr.docDate),
+                styles: {
+                  halign: 'right',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+          ],
+          margin: marginPaper,
+          theme: 'plain',
+        });
+        
+        const startY4 = docStruk.autoTable.previous.finalY;
+        const lineY4 = startY4 + plusHeightLine;
+        docStruk.setDrawColor(0);
+        docStruk.setLineWidth(0);
+        docStruk.line(startLine, lineY4, endLine, lineY4);
+
+        // Alamat dibawah
+        var alamatPusat = "Jl. Pulo Kambing II No.1, RW.11, Jatinegara, Kec. Cakung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13930";
+        var npwp = "NPWP: 93.194.943.2 – 004.000";
+        var web = "www.marthatilaarshop.com";
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: npwp,
                 styles: {
                   halign: 'center',
                   fontSize: sizeFont,
@@ -2687,7 +3028,17 @@
             ],
             [
               {
-                content: 'Jl. Pulo Kambing II No.1, RW.11, Jatinegara, Kec. Cakung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13930',
+                content: alamatPusat.toUpperCase(),
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+            ],
+            [
+              {
+                content: web.toUpperCase(),
                 styles: {
                   halign: 'center',
                   fontSize: sizeFont,
@@ -2755,17 +3106,18 @@
         }
       },
 
-      getDateTimeForStruk: function(){
-        // Mengambil komponen tanggal, bulan, tahun, jam, dan menit
-        const day = this.currentTime.getDate().toString().padStart(2, '0');
-        const month = (this.currentTime.getMonth() + 1).toString().padStart(2, '0'); // Perlu ditambah 1 karena Januari dimulai dari 0
-        const year = this.currentTime.getFullYear();
-        const hours = this.currentTime.getHours().toString().padStart(2, '0');
-        const minutes = this.currentTime.getMinutes().toString().padStart(2, '0');
-
-        // Membuat string dengan format yang diinginkan
-        const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
-        return formattedDate;
+      getDateTimeForStruk: function(inputDate){
+        const dateObj = new Date(inputDate);
+        
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+        
+        const formattedDateTime = `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+        return formattedDateTime;
       }
     },
   }

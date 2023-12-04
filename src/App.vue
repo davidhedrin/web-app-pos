@@ -50,6 +50,7 @@ export default {
     const APP_SSO_TOKEN_STATUS = import.meta.env.VITE_APP_SSO_TOKEN_STATUS;
     // const APP_SSO_URL = 'http://178.1.7.230:8072?t=sso&app_id=019e4e2609fc2c0eb334a1901797f856';
     // const APP_SSO_TOKEN_STATUS = 'http://178.1.7.230:8071';
+    // const API_ERP = "https://ipos-tpsmtg.com:8087";
 
     return {
       API_URL: API_URL,

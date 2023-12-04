@@ -19,7 +19,7 @@
                 </div>
                 <div class="col-md-auto position-relative">
                   <div class="input-group">
-                    <input :value="currentActiveStoreOutlet ? `${currentActiveStoreOutlet.store_outlet.storeName} (${currentActiveStoreOutlet.store_code})` : ''" class="form-control datetimepicker flatpickr-input" type="text" readonly="readonly">
+                    <input :value="selectedStoreOutlet ? `${selectedStoreOutlet.store_outlet.storeName} (${selectedStoreOutlet.store_code})` : ''" class="form-control datetimepicker flatpickr-input" type="text" readonly="readonly">
                     <button class="btn btn-primary btn-sm card-link" type="button" data-bs-toggle="modal" data-bs-target="#modalSelectAccessStoreDashboard">
                       <span class="me-1">Pindah</span> <span class="fas fa-store-alt"></span>
                     </button>
