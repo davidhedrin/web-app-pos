@@ -12,12 +12,12 @@
       <li v-if="$root.dataAuthToken && $root.selectedStoreAccess" class="nav-item d-none d-md-block">
         <span>{{ $root.dataAuthToken.nama_lengkap }} ({{ $root.selectedStoreAccess.storeName }})</span>
       </li>
-      <li class="nav-item">
+      <li v-if="$root.dataAuthToken && $root.dataAuthToken.role" class="nav-item">
         <a @click="validateGoto(pages.sales)" class="nav-link py-0" role="button">
           <span class="fas fa-cash-register" data-fa-transform="shrink-6" style="font-size: 33px;"></span>
         </a>
       </li>
-      <li v-if="$root.dataAuthToken && $root.dataAuthToken.flag_active" class="nav-item dropdown">
+      <li class="nav-item dropdown">
         <a class="nav-link fa-icon-wait nine-dots py-0" id="navbarDropdownMenuMaster" role="button" data-hide-on-body-scroll="data-hide-on-body-scroll" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="43" viewBox="0 0 16 16" fill="none">
             <circle cx="2" cy="2" r="2" fill="#6C6E71"></circle>
@@ -34,7 +34,7 @@
         <div class="dropdown-menu dropdown-caret dropdown-menu-end dropdown-menu-card dropdown-caret-bg py-0" aria-labelledby="navbarDropdownMenuMaster">
           <div class="card shadow-none p-2" style="width: 300px;">
             <div class="scrollable-customize" style="max-height: 350px;">
-              <div class="row gx-0 gy-0">
+              <div v-if="$root.dataAuthToken && $root.dataAuthToken.role" class="row gx-0 gy-0">
                 <div class="col-12 px-0">
                   <span class="px-1">Main Menu</span>
                 </div>
@@ -65,56 +65,63 @@
                 <div class="col-4">
                   <a @click="validateGoto(pages.syncdata)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-sync" style="font-size: 30px;"></span></div>
-                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Sync Data</p>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Penarikan Data</p>
                   </a>
                 </div> 
               </div>
 
-              <div v-if="$root.dataAuthToken && $root.dataAuthToken.role.id == '1'" class="row gx-0 gy-0">
-                <div class="col-12 px-0">
-                  <hr class="my-2 bg-200">
-                  <span class="px-1">Master Menu</span>
-                </div>
-                <div class="col-4">
-                  <a @click="validateGoto(pages.productlist)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
-                    <div class="avatar"> <span class="fas fa-dolly" style="font-size: 30px;"></span></div>
-                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">All Product</p>
-                  </a>
-                </div>
-                <div class="col-4">
-                  <a @click="validateGoto(pages.promoproduct)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
-                    <div class="avatar"> <span class="fas fa-box-open" style="font-size: 30px;"></span></div>
-                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Promo Product</p>
-                  </a>
-                </div>
-                <div class="col-4">
-                  <a @click="validateGoto(pages.promolist)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
-                    <div class="avatar"> <span class="fas fa-ticket-alt" style="font-size: 30px;"></span></div>
-                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Promo List</p>
-                  </a>
-                </div>
-                <div class="col-4">
-                  <a class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
-                    <div class="avatar"> <span class="fas fa-tags" style="font-size: 30px;"></span></div>
-                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Bundle</p>
-                  </a>
-                </div>
-
-                <div class="col-4">
-                  <a @click="validateGoto(pages.userlist)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
-                    <div class="avatar"> <span class="fas fa-users" style="font-size: 30px;"></span></div>
-                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">User List</p>
-                  </a>
+              <div v-if="$root.dataAuthToken && $root.dataAuthToken.role">
+                <div v-if="$root.dataAuthToken.role.id == '1'" class="row gx-0 gy-0">
+                  <div class="col-12 px-0">
+                    <hr class="my-2 bg-200">
+                    <span class="px-1">Master Menu</span>
+                  </div>
+                  <div class="col-4">
+                    <a @click="validateGoto(pages.productlist)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                      <div class="avatar"> <span class="fas fa-dolly" style="font-size: 30px;"></span></div>
+                      <p class="mb-0 fw-medium text-800 text-truncate fs--2">All Product</p>
+                    </a>
+                  </div>
+                  <div class="col-4">
+                    <a @click="validateGoto(pages.promoproduct)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                      <div class="avatar"> <span class="fas fa-box-open" style="font-size: 30px;"></span></div>
+                      <p class="mb-0 fw-medium text-800 text-truncate fs--2">Promo Product</p>
+                    </a>
+                  </div>
+                  <div class="col-4">
+                    <a @click="validateGoto(pages.promolist)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                      <div class="avatar"> <span class="fas fa-ticket-alt" style="font-size: 30px;"></span></div>
+                      <p class="mb-0 fw-medium text-800 text-truncate fs--2">Promo List</p>
+                    </a>
+                  </div>
+                  <div class="col-4">
+                    <a class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                      <div class="avatar"> <span class="fas fa-tags" style="font-size: 30px;"></span></div>
+                      <p class="mb-0 fw-medium text-800 text-truncate fs--2">Bundle</p>
+                    </a>
+                  </div>
+                  <div class="col-4">
+                    <a @click="validateGoto(pages.userlist)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                      <div class="avatar"> <span class="fas fa-users" style="font-size: 30px;"></span></div>
+                      <p class="mb-0 fw-medium text-800 text-truncate fs--2">User List</p>
+                    </a>
+                  </div>
                 </div>
               </div>
               
               <div class="row gx-0 gy-0">
-                <div class="col-12 px-0">
+                <div v-if="$root.dataAuthToken && $root.dataAuthToken.role" class="col-12 px-0">
                   <hr class="my-2 bg-200">
                   <span class="px-1">Setting</span>
                 </div>
+                <div v-if="$root.dataAuthToken && !$root.dataAuthToken.role" class="col-4">
+                  <a @click="$root.goto(pages.syncdata)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                    <div class="avatar"> <span class="fas fa-sync" style="font-size: 30px;"></span></div>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Penarikan Data</p>
+                  </a>
+                </div> 
                 <div class="col-4">
-                  <a @click="validateGoto(pages.profile)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                  <a @click="$root.goto(pages.profile)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-user" style="font-size: 30px;"></span></div>
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">Account</p>
                   </a>

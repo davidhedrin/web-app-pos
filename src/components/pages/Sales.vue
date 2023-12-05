@@ -1811,9 +1811,9 @@
 
       // Logic Handle Member
       storeNewMember: async function(){
+        this.$root.showLoading();
         try{
           $('#modalFindMember').modal('hide');
-          this.$root.showLoading();
           this.dataInputMember.user_login = this.$root.dataAuthToken;
           const store = await axios({
             method: 'post',
@@ -1848,13 +1848,12 @@
           }else{
             this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           }
-          
-          this.$root.hideLoading();
         } catch (error) {
-          this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', error.response.data.message);
           this.$root.hideLoading();
           console.log(error);
         }
+        this.$root.hideLoading();
       },
 
       updateEditDataMember: async function (){
