@@ -170,7 +170,7 @@
                         <td class="text-center" colspan="12"><i>Get data item untuk menemukan!</i></td>
                       </tr> -->
                       <tr v-for="(detail, index) in dataDetailPenerimaan" :key="index" class="align-middle">
-                        <td>{{ index + 1 }}</td>
+                        <td>{{ detail.id }}</td>
                         <td>{{ detail.docEntry }}</td>
                         <td>{{ detail.bpItem1 }}</td>
                         <td>{{ detail.itemCode }}</td>
@@ -266,7 +266,6 @@
         master_code: this.$root.master_code,
         master_coll: this.$root.master_coll,
         local_storage: this.$root.local_storage,
-        urlPoduction: 'https://ipos-tpsmtg.com:8087',
 
         allDataPaging: [],
         dataShowFormPenerimaan: null,
@@ -291,7 +290,7 @@
 
           const getDataItem = await axios({
             method: 'get',
-            url: this.urlPoduction + `/wms/paging?offset=0&limit=1000&storecode=${storeDetail.store_code}`
+            url: this.$root.API_ERP_PROD + `/wms/paging?offset=0&limit=1000&storecode=${storeDetail.store_code}`
           });
           const response = getDataItem.data;
           const resData = response.results;
@@ -315,7 +314,7 @@
       //   try{
       //     const getData = await axios({
       //       method: 'get',
-      //       url: this.urlPoduction + `/wms/getRincianheaderID/${id}`,
+      //       url: this.$root.API_ERP_PROD + `/wms/getRincianheaderID/${id}`,
       //     });
 
       //     console.log(getData);
@@ -341,7 +340,7 @@
         try{
           const getData = await axios({
             method: 'get',
-            url: this.urlPoduction + `/wms/pagingRincian/${id}?limit=1000&offset=0`,
+            url: this.$root.API_ERP_PROD + `/wms/pagingRincian/${id}?limit=1000&offset=0`,
           });
 
           const resData = getData.data.results;
@@ -391,7 +390,7 @@
 
         // const getData = await axios({
         //   method: 'post',
-        //   url: this.urlPoduction + `/wms/savePenerimaanBarang/${id}`,
+        //   url: this.$root.API_ERP_PROD + `/wms/savePenerimaanBarang/${id}`,
         //   data: dataPost
         // });
       }

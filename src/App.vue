@@ -45,18 +45,20 @@ Object.entries(componentPage).forEach((path,i) => {
 export default {
   data(){
     const API_URL = import.meta.env.VITE_API_URL;
+    const API_ERP_PROD = "https://ipos-tpsmtg.com:8087";
     const API_ERP = import.meta.env.VITE_API_ERP;
     const APP_SSO_URL = import.meta.env.VITE_APP_SSO_URL;
     const APP_SSO_TOKEN_STATUS = import.meta.env.VITE_APP_SSO_TOKEN_STATUS;
+    // const API_ERP = "https://ipos-tpsmtg.com:8087";
     // const APP_SSO_URL = 'http://178.1.7.230:8072?t=sso&app_id=019e4e2609fc2c0eb334a1901797f856';
     // const APP_SSO_TOKEN_STATUS = 'http://178.1.7.230:8071';
-    // const API_ERP = "https://ipos-tpsmtg.com:8087";
 
     return {
       API_URL: API_URL,
       API_ERP: API_ERP,
       APP_SSO_URL: APP_SSO_URL,
       APP_SSO_TOKEN_STATUS: APP_SSO_TOKEN_STATUS,
+      API_ERP_PROD: API_ERP_PROD,
       dataAuthToken: null,
       selectedStoreAccess: JSON.parse(localStorage.getItem(local_storage.access_store)),
 
@@ -155,14 +157,15 @@ export default {
         }
       }
 
-      const getDatUserRegis = await this.checkUserRegistered(check_uuid);
+      let getDatUserRegis = await this.checkUserRegistered(check_uuid);
+      if(!getDatUserRegis) getDatUserRegis = await this.checkUserRegistered(check_uuid, true);
       if(getDatUserRegis){
         // this.clearSessionLocalStorege();
         // this.hideLoading();
         // return false;
         this.dataAuthToken = getDatUserRegis;
 
-        if(getDatUserRegis.access_store_outlet.length === 1){
+        if(getDatUserRegis.access_store_outlet && getDatUserRegis.access_store_outlet.length === 1){
           const firstUserStoreAccess = getDatUserRegis.access_store_outlet[0];
           firstUserStoreAccess.storeName = firstUserStoreAccess.store_outlet.storeName;
 
@@ -178,12 +181,21 @@ export default {
       // this.hideLoading();
     },
 
-    checkUserRegistered: async function(uuid){
+    checkUserRegistered: async function(uuid, isOnline = false){
       try{
-        const checkUserAxios = await axios({
-          method: 'get',
-          url: this.$root.API_URL + '/auth/check-user/' + uuid,
-        });
+        let checkUserAxios; 
+        
+        if(isOnline){
+          checkUserAxios = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/checkUser/' + uuid,
+          });
+        }else{
+          checkUserAxios = await axios({
+            method: 'get',
+            url: this.$root.API_URL + '/auth/check-user/' + uuid,
+          });
+        }
 
         if(checkUserAxios.data.status == 200){
           return checkUserAxios.data.data;
@@ -361,6 +373,19 @@ export default {
       // Memformat nomor telepon dengan format tiap 4 digit
       const formatted = phoneNumber.replace(/(\d{4})(?=\d)/g, "$1.");
       return formatted;
+    },
+
+    formatDateTime: function (dateTimeString) {
+      const isTFormat = dateTimeString.includes('T');
+      const separator = isTFormat ? 'T' : ' ';
+      const [datePart, timePart] = dateTimeString.split(separator);
+      const [year, month, day] = datePart.split('-');
+      const [hour, minute] = timePart.split(':');
+
+      const formattedDate = `${day}/${month}/${year}`;
+      const formattedTime = `${hour}:${minute}`;
+
+      return `${formattedDate} ${formattedTime}`;
     },
 
     showLoading: function(){

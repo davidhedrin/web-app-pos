@@ -25,7 +25,7 @@
           <strong class="text-warning">3</strong> Transaksi dalam antrian menunggu proses transfer
         </p>
       </div>
-      <div class="col-md-2 text-end">
+      <div class="col-md-2 text-start text-lg-end">
         <button class="btn btn-outline-primary btn-sm mt-2" type="button">Transfer Sekarang</button>
       </div>
     </div>

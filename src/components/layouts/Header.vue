@@ -9,8 +9,8 @@
     </a>
     
     <ul class="navbar-nav navbar-nav-icons ms-auto flex-row align-items-center">
-      <li v-if="$root.dataAuthToken && $root.selectedStoreAccess" class="nav-item d-none d-md-block">
-        <span>{{ $root.dataAuthToken.nama_lengkap }} ({{ $root.selectedStoreAccess.storeName }})</span>
+      <li v-if="$root.dataAuthToken" class="nav-item d-none d-md-block">
+        <span>{{ $root.dataAuthToken.nama_lengkap }} {{ $root.selectedStoreAccess && `(${$root.selectedStoreAccess.storeName})` }}</span>
       </li>
       <li v-if="$root.dataAuthToken && $root.dataAuthToken.role" class="nav-item">
         <a @click="validateGoto(pages.sales)" class="nav-link py-0" role="button">
@@ -140,7 +140,7 @@
       <li class="nav-item dropdown">
         <a class="nav-link py-0" id="navbarDropdownUser" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <div class="avatar avatar-xl">
-            <img class="rounded-circle" src="@/assets/img/profile.png" alt="" />
+            <img class="rounded-circle shadow-sm" src="@/assets/img/profile/avatar-male.png" alt="" />
           </div>
         </a>
         <div class="dropdown-menu dropdown-caret dropdown-menu-end py-0" aria-labelledby="navbarDropdownUser">

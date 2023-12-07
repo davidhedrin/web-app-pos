@@ -167,6 +167,10 @@
                       <input v-model="dataUser.tanggal_lahir" class="form-control bg-transparent" id="tanggal_lahir" type="date">
                     </div>
                     <div v-if="!dataUserRegister" class="col-md-12 mb-2">
+                      <label class="form-label mb-0" for="input_username">Username <span class="text-danger">*</span></label>
+                      <input v-model="dataUser.username" class="form-control bg-transparent" id="input_username" type="text" placeholder="Masukkan username">
+                    </div>
+                    <div v-if="!dataUserRegister" class="col-md-12 mb-2">
                       <label class="form-label mb-0" for="input_password">Password <span class="text-danger">*</span></label>
                       <input v-model="dataUser.password" class="form-control bg-transparent" id="input_password" type="password" placeholder="Masukkan nama lengkap">
                     </div>
@@ -268,6 +272,7 @@
           no_hp: null,
           gender: '',
           tanggal_lahir: null,
+          username: null,
           password: null,
           konfirmasi_password: null,
         },
@@ -302,7 +307,8 @@
           this.dataUser.no_hp = getDataProfileSSO.profile_phone;
         }
 
-        const checkUserRegis = await this.$root.checkUserRegistered(check_uuid);
+        let checkUserRegis = await this.$root.checkUserRegistered(check_uuid);
+        if(!checkUserRegis) checkUserRegis = await this.$root.checkUserRegistered(check_uuid, true);
         if(checkUserRegis){
           this.dataUserRegister = checkUserRegis;
     
@@ -350,34 +356,44 @@
       sendRequestApprove: async function (){
         try{
           this.$root.showLoading();
+          
+          const checkUsername = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/checkUsernameUser/' + this.dataUser.username,
+          });
+          const resCheckUsername = checkUsername.data;
 
-          if(this.dataAuthUserSso){
-            this.dataUser.uuid = this.dataAuthUserSso.uuid;
-            const store = await axios({
-              method: 'post',
-              url: this.$root.API_URL + '/auth/send-request-approve',
-              data: this.dataUser
-            });
-            
-            if(store.status == 201 || store.status == 200){
-              const response = store.data;
-              const getCheckUser = await this.$root.checkUserRegistered(this.dataAuthUserSso.uuid);
-              if(getCheckUser){
-                this.$root.dataAuthToken = getCheckUser;
-                $('#modalFinishSendApprove').modal('show');
-                this.isRequestApproveBtn = false;
-                
-                for (let prop in this.dataUser) {
-                  this.dataUser[prop] = '';
+          if(resCheckUsername.status == 200){
+            if(this.dataAuthUserSso){
+              this.dataUser.uuid = this.dataAuthUserSso.uuid;
+              const store = await axios({
+                method: 'post',
+                url: this.$root.API_ERP + '/pos/sendRequestApprove',
+                data: this.dataUser
+              });
+              
+              if(store.status == 201 || store.status == 200){
+                const response = store.data;
+                const getCheckUser = await this.$root.checkUserRegistered(this.dataAuthUserSso.uuid, true);
+                if(getCheckUser){
+                  this.$root.dataAuthToken = getCheckUser;
+                  $('#modalFinishSendApprove').modal('show');
+                  this.isRequestApproveBtn = false;
+                  
+                  for (let prop in this.dataUser) {
+                    this.dataUser[prop] = '';
+                  }
+                  
+                  await this.loadAllData();
+                }else{
+                  this.$root.showAlertFunction('warning', 'Request Approve!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
                 }
-                
-                await this.loadAllData();
-              }else{
-                this.$root.showAlertFunction('warning', 'Request Approve!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
               }
+            }else{
+              this.$root.clearSessionLocalStorege();
             }
-          }else{
-            this.$root.clearSessionLocalStorege();
+          }else if(resCheckUsername.status == 500){
+            this.$root.showAlertFunction('warning', 'Request Gagal!', `Username ${this.dataUser.username} telah terdaftar`);
           }
 
           this.$root.hideLoading();

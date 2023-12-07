@@ -274,9 +274,8 @@
   export default {
     name: 'Dashboard',
     data(){
-      const local_storage = this.$root.local_storage;
       return{
-        local_storage: local_storage,
+        local_storage: this.$root.local_storage,
 
         dateNow: null,
         dataUserLogin: null,
@@ -288,7 +287,7 @@
         totalPageProduct: 0,
 
         selectedStoreOutlet: this.$root.selectedStoreAccess,
-        currentActiveStoreOutlet: localStorage.getItem(JSON.stringify(local_storage.access_store)),
+        currentActiveStoreOutlet: localStorage.getItem(JSON.stringify(this.$root.local_storage.access_store)),
       }
     },
 
@@ -340,7 +339,7 @@
             this.accessStoreUser = getUserLogo.access_store_outlet;
             
             if(cacheStoreAccess == null){
-              if(getUserLogo.access_store_outlet.length > 1) {
+              if(getUserLogo.access_store_outlet && getUserLogo.access_store_outlet.length > 1) {
                 $('#modalSelectAccessStoreDashboard').modal('show');
               }else{
                 const firstUserStoreAccess = getUserLogo.access_store_outlet[0];

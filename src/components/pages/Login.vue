@@ -111,6 +111,12 @@
           if(store.status == 200){
             const dataUser = store.data;
             localStorage.setItem(this.local_storage.is_dynamic, dataUser.user_uuid);
+
+            if(dataUser.access_store_outlet.length == 1){
+              const firstUserStoreAccess = dataUser.access_store_outlet[0];
+              firstUserStoreAccess.storeName = firstUserStoreAccess.store_outlet.storeName;
+              this.$root.selectedStoreAccess = firstUserStoreAccess;
+            }
             
             if(dataUser.flag_active == true){
               this.$root.goto(this.pages.dashboard);
@@ -125,8 +131,8 @@
 
           this.$root.hideLoading();
         } catch (error) {
-          const responseData = error.response.data;
           if(error.response.status == 404){
+            const responseData = error.response.data;
             this.$root.showAlertFunction('warning', 'Login Gagal!', responseData.message);
           } else if(error.response.status == 408){
             this.$root.showAlertFunction('danger', 'Login Gagal!', 'Percobaan login telah mencapai batas, tunggu dalam waktu ' + responseData.minute + ' menit');
@@ -181,7 +187,7 @@
           localStorage.setItem(this.local_storage.token_sso, token_sso);
           const getStatusToken = await this.$root.checkAuthenticationToken();
           if(getStatusToken){
-            const getUserExist = await this.$root.checkUserRegistered(getStatusToken.uuid);
+            const getUserExist = await this.$root.checkUserRegistered(getStatusToken.uuid, true);
             if(getUserExist && getUserExist.flag_active){
               localStorage.setItem(this.local_storage.is_dynamic, getStatusToken.uuid);
               this.$root.goto(this.pages.dashboard);
