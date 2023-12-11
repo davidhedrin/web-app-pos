@@ -67,8 +67,7 @@
               <th class="py-2 bg-white text-center">Jenis</th>
               <th class="py-2 bg-white">SKU Product</th>
               <th class="py-2 bg-white">Nama Product</th>
-              <th class="py-2 bg-white">Promo</th>
-              <th class="py-2 bg-white text-center">Harga Product</th>
+              <th class="py-2 bg-white">Nama Promo</th>
               <th class="py-2 bg-white">Tipe</th>
               <th class="py-2 bg-white">Info</th>
             </tr>
@@ -77,26 +76,22 @@
             <tr v-for="(master, index) in dataAllPromoProduct" :key="master.id">
               <td>{{ index+1 }}</td>
               <td class="text-center">
-                <span class="badge rounded-pill" :class="'bg-' + master.master_promo.master_kode_promo.badge">
-                  {{ master.master_promo.master_kode_promo.nama_promo }}
+                <span class="badge rounded-pill" :class="'bg-' + master.master_promo_product.master_kode_promo_product.badge">
+                  {{ master.master_promo_product.master_kode_promo_product.nama_promo }}
                 </span>
               </td>
               <td>{{ master.for_product.itemCode }}</td>
               <td class="fw-bold">{{ master.for_product.itemName }}</td>
-              <td>{{ master.master_promo.nama_promo }}</td>
-              <td class="text-center">
-                <del v-if="master.master_promo.tipe_promo == master_coll.tipePromo.percent" class="fs--2 me-1">Rp {{$root.formatPrice($root.filterPriceProduct(master.for_product).price) }}</del>
-                <span class="fw-bold">Rp {{ master.master_promo.tipe_promo == master_coll.tipePromo.percent ? $root.formatPrice($root.filterPriceProduct(master.for_product).price - ($root.filterPriceProduct(master.for_product).price * (master.master_promo.percent/100))) : $root.formatPrice($root.filterPriceProduct(master.for_product).price) }}</span>
-              </td>
+              <td>{{ master.master_promo_product.master_promo.nama_promo }}</td>
               <td>
-                <span class="badge rounded-pill" :class="master.master_promo.tipe_promo == master_coll.tipePromo.bundle ? 'badge-subtle-warning' : 'badge-subtle-primary'">
-                  {{ master.master_promo.tipe_promo == master_coll.tipePromo.bundle ? 'Bundle' : 'Percent' }}
+                <span class="badge rounded-pill" :class="master.master_promo_product.tipe_promo == master_coll.tipePromo.bundle ? 'badge-subtle-warning' : 'badge-subtle-primary'">
+                  {{ master.master_promo_product.tipe_promo == master_coll.tipePromo.bundle ? 'Bundle' : 'Percent' }}
                 </span>
               </td>
               <td>
-                {{ master.master_promo.tipe_promo == master_coll.tipePromo.bundle 
-                  ? 'Buy ' + master.master_promo.buy_item + ' Get ' + master.master_promo.get_item
-                  : 'Diskon ' + master.master_promo.percent + '%'
+                {{ master.master_promo_product.tipe_promo == master_coll.tipePromo.bundle 
+                  ? 'Buy ' + master.master_promo_product.buy_item + ' Get ' + master.master_promo_product.get_item
+                  : 'Diskon ' + master.master_promo_product.percent + '%'
                 }}
               </td>
             </tr>
@@ -110,44 +105,35 @@
             <div class="border rounded-1 h-100 d-flex flex-column justify-content-between pb-3">
               <div class="overflow-hidden">
                 <div class="position-relative rounded-top overflow-hidden">
-                  <a class="d-block" href="javascripts:void(0)">
-                    <img class="img-fluid rounded-top" :src="'src/assets/img/product/' + master.for_product.image" style="width: 100%; height: 120px;" alt="">
-                  </a>
-                  <span class="badge rounded-pill position-absolute mt-2 me-2 z-2 top-0 end-0" :class="'bg-' + master.master_promo.master_kode_promo.badge">
-                    {{ master.master_promo.master_kode_promo.nama_promo }}
+                  <div class="d-block">
+                    <img v-if="master.for_product.image != null && master.for_product.image.trim() != ''" class="img-fluid rounded-top" :src="'src/assets/img/product/' + master.for_product.image" style="width: 100%; height: 120px;" alt="No Image">
+                    <img class="img-fluid rounded-top" src="@/assets/img/product/no_image.jpg" style="width: 100%; height: 120px;" alt="No Image">
+                  </div>
+                  <span class="badge rounded-pill position-absolute mt-2 me-2 z-2 top-0 end-0" :class="'bg-' + master.master_promo_product.master_kode_promo_product.badge">
+                    {{ master.master_promo_product.master_kode_promo_product.nama_promo }}
                   </span>
                   <span class="badge badge-subtle-secondary position-absolute mb-1 ms-2 z-2 bottom-0 start-0 fs--2 fw-bold" style="font-weight: normal;">{{ master.for_product.itemCode }}</span>
                 </div>
                 <div class="p-3 pt-2 pb-0">
                   <h5 class="fs-0 mb-0">
-                    <a class="text-1100" href="javascripts:void(0)">
+                    <div class="text-1100">
                       <span class="d-inline-block text-truncate max-width-text-truncate">
                         {{ master.for_product.itemName }}
                       </span>
-                    </a>
+                    </div>
                   </h5>
-                  <span class="badge rounded-pill badge-subtle-success mb-1">
-                    <div v-if="master.master_promo.tipe_promo == '1'">
-                      <span>Buy {{ master.master_promo.buy_item }} Get {{ master.master_promo.get_item }}</span>
-                    </div>
-                    <div v-if="master.master_promo.tipe_promo == '2'">
-                      <del class="fs--1 text-500">
-                        Rp. {{ $root.formatPrice($root.filterPriceProduct(master.for_product).price) }} 
-                      </del>
-                      (-{{ master.master_promo.percent }}%)
-                    </div>
+                  <span v-if="master.master_promo_product.tipe_promo == '1'" class="badge rounded-pill badge-subtle-warning mb-1">
+                    <span>Buy {{ master.master_promo_product.buy_item }} Get {{ master.master_promo_product.get_item }}</span>
                   </span>
-                  <h5 class="fs-md-1 text-warning mb-0 d-flex align-items-center mb-1">
-                    Rp {{ master.master_promo.tipe_promo == '2' ? $root.formatPrice($root.filterPriceProduct(master.for_product).price - ($root.filterPriceProduct(master.for_product).price * (master.master_promo.percent/100))) : $root.formatPrice($root.filterPriceProduct(master.for_product).price) }}
+                  <span v-if="master.master_promo_product.tipe_promo == '2'" class="badge rounded-pill badge-subtle-danger mb-1">
+                    (-{{ master.master_promo_product.percent }}%)
+                  </span>
+                  <h5 class="fs-md-1 text-dark mb-0 d-flex align-items-center mb-1">
+                    "{{ master.master_promo_product.master_promo.nama_promo }}"
                   </h5>
-                  <p class="fs--1 mb-0">
-                    <strong class="text-info">
-                      "{{ master.master_promo.nama_promo }}"
-                    </strong>
-                  </p>
                   <p class="fs--1 mb-0">
                     Tipe: <strong class="text-dark">
-                      {{ master.master_promo.tipe_promo == '1' ? 'Bundle' : 'Percent' }}
+                      {{ master.master_promo_product.tipe_promo == '1' ? 'Bundle' : 'Percent' }}
                     </strong>
                   </p>
                 </div>
@@ -197,25 +183,38 @@
         try{
           const getAllData = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/master-promo',
+            url: this.$root.API_ERP + '/pos/loadDataPromo',
           });
           const allData = getAllData.data;
-          this.dataAllProduct = allData.getAllProduct; // All Products
-          this.dataAllMasterKodePromo = allData.getAllKodePromo; // Master Kode Promo
-          this.dataAllMasterNamaPromo = allData.getAllNamaPromo; // Master Nama Promo
+          this.dataAllMasterKodePromo = allData.allTipePromoProduct; // Master Kode Promo
+          
+          // const getAllProduct = await axios({
+          //   method: 'get',
+          //   url: this.$root.API_ERP + '/pos/getAllProductPromo',
+          // });
+          // const resDataProduct = getAllProduct.data;
+          // for (let i = 1; i <= resDataProduct.last_page; i++) {
+          //   const getAllProductPage = await axios({
+          //     method: 'get',
+          //     url: this.$root.API_ERP + '/pos/getAllProductPromo?page=' + i,
+          //   });
+          //   const resDataProductPage = getAllProductPage.data.data;
+          //   this.dataAllProduct = this.dataAllProduct.concat(resDataProductPage);
+          // }
 
           //Get all data master promo
           const getAllDataPromo = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/master-promo/getAllMasterPromo',
+            url: this.$root.API_ERP + '/pos/getAllPromoProduct',
           });
           const allDataPromo = getAllDataPromo.data;
           this.dataAllMasterPromo = allDataPromo;
 
           for(let i = 0; i < allDataPromo.length; i++){
-            for(let j = 0; j < allDataPromo[i].all_promo_product.length; j++){
-              this.dataAllPromoProduct.push(allDataPromo[i].all_promo_product[j]);
-            }
+            // for(let j = 0; j < allDataPromo[i].all_promo_product.length; j++){
+            //   this.dataAllPromoProduct.push(allDataPromo[i].all_promo_product[j]);
+            // }
+            this.dataAllPromoProduct = this.dataAllPromoProduct.concat(allDataPromo[i].all_promo_product);
           }
           
           this.$root.hideLoading();

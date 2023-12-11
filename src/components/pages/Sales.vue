@@ -53,6 +53,8 @@
                   <th class="py-1 bg-white">Harga</th>
                   <th class="py-1 bg-white">Info</th>
                   <th class="py-1 bg-white">Banyak</th>
+                  <th class="py-1 bg-white">Batch</th>
+                  <th class="py-1 bg-white">Exp.Date</th>
                   <th class="text-end py-1 bg-white">
                     <a href="javascript:void(0)" v-on:click="emptyProductList" class="p-0 ms-2 text-danger">
                       <span class="fas fa-trash-alt"></span>
@@ -94,7 +96,7 @@
                       </span>
                     </span>
                     <span v-else>
-                      <span v-if="$root.filterDiskonProduct(data.product).disc_code == master_code.diskon.tanpa_diskon_code">
+                      <span v-if="$root.filterDiskonProduct(data.product).discCode == master_code.diskon.tanpa_diskon_code">
                         {{ $root.formatPrice($root.filterPriceProduct(data.product).price) }}
                       </span>
                       <span v-else>
@@ -109,22 +111,24 @@
                       </span>
                     </span>
                     <span v-else>
-                      <span v-if="$root.filterDiskonProduct(data.product).disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--2">
+                      <span v-if="$root.filterDiskonProduct(data.product).discCode != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--2">
                         -{{ $root.filterDiskonProduct(data.product).discount }}%
                       </span>
                     </span>
                   </td>
                   <td>
                     <input class="form-control p-0 ps-2" type="number" min="1" :value="data.qty" style="width: 60px;" 
-                    @input="incDecQtyInput($event, data)"
-                    @change="incDecQtyChange($event, data)"
+                    @input="incDecQtyInput($event, data, data.batch)"
+                    @change="incDecQtyChange($event, data, data.batch)"
                     :disabled="data.is_ticket">
                   </td>
+                  <td>{{ data.batch.batchNo }}</td>
+                  <td>{{ $root.formatDate(data.batch.expiredDate) }}</td>
                   <td class="text-end">
                     <a v-if="data.is_ticket" href="javascript:void(0)" class="p-0 ms-2 text-secondary" style="cursor: not-allowed;">
                       <span class="fas fa-window-close"></span>
                     </a>
-                    <a v-else href="javascript:void(0)" @click="deleteProductById(data)" class="p-0 ms-2 text-danger">
+                    <a v-else href="javascript:void(0)" @click="deleteProductById(data, data.batch)" class="p-0 ms-2 text-danger">
                       <span class="fas fa-window-close"></span>
                     </a>
                   </td>
@@ -188,7 +192,7 @@
           </div>
         </div>
         <div class="card-body position-relative p-0">
-          <div class="scrollable-customize mb-3" style="max-height: 45vh;">
+          <div class="scrollable-customize mb-3" style="max-height: 46vh;">
             <div v-if="$root.selectedStoreAccess === null || filteredProducts.length < 1" class="text-center py-5">
               <div class="mt-5">
                 <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
@@ -202,11 +206,15 @@
                 <div v-if="$root.selectedStoreAccess" class="mb-1 col-sm-6 col-md-2 p-1" v-for="product in filteredProducts" :key="product.sku">
                   <div class="border rounded-1 h-100 d-flex flex-column justify-content-between">
                     <div class="overflow-hidden">
-                      <div class="position-relative rounded-top overflow-hidden" v-on:click="addProductToList(product)" style="cursor: pointer;">
+                      <div class="position-relative rounded-top overflow-hidden" v-on:click="validateModalBatchProduct(product)" style="cursor: pointer;">
                         <div class="d-block text-center">
-                          <img v-if="product.master_promo_id" class="img-fluid rounded-top" :src="'src/assets/img/product/' + product.for_product.image" style="width: 100%; height: 110px;" alt="">
-                          <!-- <img v-else class="img-fluid rounded-top" :src="'src/assets/img/product/' + product.image" style="width: 100%; height: 110px;" alt=""> -->
-                          <img v-else class="img-fluid rounded-top" src="https://cf.shopee.co.id/file/id-11134201-23030-r0knjashvwov06" style="width: 100%; height: 110px;" alt="">
+                          <div v-if="product.imageUrl == null || product.imageUrl.trim() == ''">
+                            <img v-if="product.master_promo_id" class="img-fluid rounded-top" :src="product.for_product.imageUrl" style="width: 100%; height: 110px;" alt="">
+                            <img v-else class="img-fluid rounded-top" src="@/assets/img/product/no_image.jpg" style="width: 100%; height: 110px;" alt="">
+                          </div>
+                          <div v-else>
+                            <img class="img-fluid rounded-top" :src="product.imageUrl" style="width: 100%; height: 110px;" alt="">
+                          </div>
                           <div class=" position-absolute mt-1 me-2 z-2 top-0 end-0">
                             <div v-if="product.master_promo_id">
                               <span class="badge rounded-pill p-1 fs--3 me-1" :class="'bg-' + product.master_promo.master_kode_promo.badge">
@@ -220,7 +228,7 @@
                               </span>
                             </div>
                             <div v-else>
-                              <span v-if="$root.filterDiskonProduct(product).disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--3">
+                              <span v-if="$root.filterDiskonProduct(product).discCode != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--3">
                                 -{{ $root.filterDiskonProduct(product).discount }}%
                               </span>
                             </div>
@@ -248,7 +256,7 @@
                           </strong>
                         </div>
                         <div v-else>
-                          <div v-if="$root.filterDiskonProduct(product).disc_code == master_code.diskon.tanpa_diskon_code">
+                          <div v-if="$root.filterDiskonProduct(product).discCode == master_code.diskon.tanpa_diskon_code">
                             <strong class="fs-md-0 text-warning mb-0 text-center">
                               Rp {{ $root.formatPrice($root.filterPriceProduct(product).price) }}
                             </strong>
@@ -263,6 +271,19 @@
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <div v-if="totalPageProduct > 1" class="row mt-2 px-3 justify-content-end">
+                <div v-if="isLoadAllDataProduct" class="col-md-10 d-grid gap-2 p-0">
+                  <button class="btn btn-outline-primary me-1 mb-1" type="button" @click="fatchDataProduct(currentPageProduct + 1)">
+                    Selanjutnya <span class="fas fa-sort-amount-down-alt"></span>
+                  </button>
+                </div>
+                <div class="col-md-2 d-grid gap-2 p-0">
+                  <button class="btn btn-outline-secondary me-1 mb-1" type="button" @click="fatchAllDataProduct()">
+                    Semua <span class="fas fa-cloud-download-alt"></span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -564,7 +585,7 @@
                       <label class="form-label mb-0" for="tanggal_lahir">Tanggal Lahir</label>
                       <input v-model="dataInputMember.tanggal_lahir" class="form-control bg-transparent" id="tanggal_lahir" type="date">
                     </div>
-                    <div class="text-end">
+                    <div class="mb-3 text-end">
                       <button class="btn btn-primary btn-sm" type="submit">Submit</button>
                     </div>
                   </form>
@@ -981,7 +1002,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="(product, index) in allProductFindSearchBtn" :key="index" style="cursor: pointer" @click="addProductToList(product)">
+                      <tr v-for="(product, index) in allProductFindSearchBtn" :key="index" style="cursor: pointer" @click="validateModalBatchProduct(product)">
                         <td>{{ index + 1 }}</td>
                         <td>
                           {{ product.master_promo_id ? product.for_product.itemName : product.itemName }}
@@ -999,7 +1020,7 @@
                             </span>
                           </div>
                           <div v-else>
-                            <span v-if="$root.filterDiskonProduct(product).disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--3">
+                            <span v-if="$root.filterDiskonProduct(product).discCode != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill p-1 fs--3">
                               -{{ $root.filterDiskonProduct(product).discount }}%
                             </span>
                             <span v-else>-</span>
@@ -1016,7 +1037,7 @@
                             </span>
                           </span>
                           <span v-else>
-                            <span v-if="$root.filterDiskonProduct(product).disc_code == master_code.diskon.tanpa_diskon_code">
+                            <span v-if="$root.filterDiskonProduct(product).discCode == master_code.diskon.tanpa_diskon_code">
                               {{ $root.formatPrice($root.filterPriceProduct(product).price) }}
                             </span>
                             <span v-else>
@@ -1109,11 +1130,16 @@
     </div>
     
     <!-- Image gambar product -->
-    <div v-if="productShowDetail" class="offcanvas-header pt-0 pb-1">
-      <img v-if="productShowDetail.master_promo_id" class="img-fluid rounded" :src="'src/assets/img/product/' + productShowDetail.for_product.image" style="width: 100%; height: 200px;" alt="" />
-      <img v-else class="img-fluid rounded" :src="'src/assets/img/product/' + productShowDetail.image" style="width: 100%; height: 200px;" alt="" />
+    <div v-if="productShowDetail">
+      <div v-if="productShowDetail.imageUrl == null || productShowDetail.imageUrl.trim() == ''" class="offcanvas-header pt-0 pb-1">
+        <img v-if="productShowDetail.master_promo_id" class="img-fluid rounded" :src="productShowDetail.for_product.imageUrl" style="width: 100%; height: 200px;" alt="" />
+        <img v-else class="img-fluid rounded" src="@/assets/img/product/no_image.jpg" style="width: 100%; height: 200px; object-fit: fill;" alt="" />
+      </div>
+      <div v-else>
+        <img class="img-fluid rounded" :src="productShowDetail.imageUrl" style="width: 100%; height: 200px;" alt="" />
+      </div>
     </div>
-
+    
     <!-- Budge juka product mempunyai promo atau diskon -->
     <div v-if="productShowDetail" class="offcanvas-header justify-content-start pt-1 pb-1">
       <div v-if="productShowDetail.master_promo_id">
@@ -1129,7 +1155,7 @@
         </span>
       </div>
       <div v-else>
-        <span v-if="$root.filterDiskonProduct(productShowDetail).disc_code != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill px-2 fs--2">
+        <span v-if="$root.filterDiskonProduct(productShowDetail).discCode != master_code.diskon.tanpa_diskon_code" class="badge bg-danger rounded-pill px-2 fs--2">
           -{{ productShowDetail.product_diskon.discount }}%
         </span>
       </div>
@@ -1172,8 +1198,11 @@
 
     <!-- Deskripsi -->
     <div v-if="productShowDetail" class="offcanvas-body pt-0">
-      <p class="mb-1">
-        {{ productShowDetail.master_promo_id ? productShowDetail.for_product.deskripsi : productShowDetail.deskripsi }}
+      <p v-if="productShowDetail.deskripsi == null || productShowDetail.deskripsi.trim() == ''" class="mb-1">
+        {{ productShowDetail.master_promo_id ? productShowDetail.for_product.deskripsi : 'Deskripsi tidak ditemukan!' }}
+      </p>
+      <p v-else>
+        {{ productShowDetail.deskripsi }}
       </p>
     </div>
 
@@ -1191,7 +1220,7 @@
         </h5>
       </div>
       <div v-else>
-        <div v-if="$root.filterDiskonProduct(productShowDetail).disc_code != master_code.diskon.tanpa_diskon_code">
+        <div v-if="$root.filterDiskonProduct(productShowDetail).discCode != master_code.diskon.tanpa_diskon_code">
           <span class="fs--1">
             <del>Rp {{ $root.formatPrice(productShowDetail.product_price.price) }}</del>
           </span>
@@ -1207,9 +1236,74 @@
       </div>
       <div class="d-flex justify-content-end">
         <input class="form-control p-0 ps-2 me-2" type="number" min="1" :value="qtyProductShowDetail" style="width: 60px;" @input="incDecQtyInputCanvas($event)" @change="incDecQtyChangeCanvas($event)">
-        <button v-on:click="addProductToList(productShowDetail, qtyProductShowDetail)" class="btn btn-primary px-2" type="button" data-bs-dismiss="offcanvas" aria-label="Close">
+        <button v-on:click="validateModalBatchProduct(productShowDetail, qtyProductShowDetail)" class="btn btn-primary px-2" type="button" data-bs-dismiss="offcanvas" aria-label="Close">
           Tambah <span class="fas fa-cart-plus" data-fa-transform="shrink-3"></span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal show batch product -->
+  <div class="modal fade" id="modalShowBatchProduct" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 500px">
+      <div class="modal-content position-relative">
+        <div class="position-absolute top-0 end-0 mt-2 me-2 z-1">
+          <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="rounded-top-3 py-3 ps-4 pe-6 bg-body-tertiary">
+            <h5 class="mb-1" id="modalExampleDemoLabel">Batch product </h5>
+          </div>
+          <div v-if="productSelectBatch != null" class="px-4 pb-4">
+            <div v-if="productSelectBatch.product.all_inventory_batch.length > 0" class="card cursor-pointer mt-3" v-for="batch in productSelectBatch.product.all_inventory_batch" @click="addProductToList(productSelectBatch.product, batch, productSelectBatch.qty)">
+              <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-4.png); background-size: auto;"></div>
+              <div class="card-header position-relative py-2 px-3">
+                <div class="row align-items-center">
+                  <div class="col-md-4">
+                    <span class="fs--2"><u>Batch Number:</u></span>
+                    <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
+                  </div>
+                  <div class="col-md-8 text-end fs--1">
+                    <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
+                    <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="text-center mt-3">
+              <span><i>Product Batch Not Found!</i></span>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-primary" type="button">Understood </button>
+        </div> -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Loading penarikan data -->
+  <div class="modal fade" id="modalLoadingGetProduct" tabindex="-1" role="dialog" aria-hidden="true" data-bs-keyboard="false" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 500px">
+      <div class="modal-content position-relative">
+        <!-- <div class="position-absolute top-0 end-0 mt-2 me-2 z-1">
+          <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div> -->
+        <div class="modal-body p-0">
+          <div class="rounded-3 py-3 p-4 bg-body-tertiary">
+            <h5 class="mb-0" id="modalExampleDemoLabel">Loading Product...</h5>
+            <p class="m-0 mb-1 fs--1">
+              Proses penarikan semua product
+            </p>
+            <div class="progress" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress-toggle" style="width: 100%"></div>
+            </div>
+            <!-- <div class="text-end mt-3">
+              <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">Batal</button>
+            </div> -->
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1240,6 +1334,10 @@
 
         memberFindOrRegis: true,
         dataAllProducts: [],
+        currentPageProduct: 1,
+        perPageProduct: 12,
+        totalPageProduct: 0,
+
         dataAllProductsPromo: [],
         dataProductInList: [],
         dataAllGelars: [],
@@ -1308,6 +1406,7 @@
         invalidMetodePembayaran: false,
         invalidSelectSalesBsc: false,
 
+        productSelectBatch: null,
         productShowDetail: null,
         qtyProductShowDetail: 1,
 
@@ -1338,6 +1437,7 @@
 
         dataActiveMasterPromo: [],
         selectedActivePromo: null,
+        isLoadAllDataProduct: true,
       };
     },
 
@@ -1347,9 +1447,6 @@
 
     mounted() {
       this.currentTime = new Date();
-      // setInterval(() => {
-      //   this.currentTime = new Date();
-      // }, 1000);
     },
 
     computed: {
@@ -1361,13 +1458,14 @@
 
         return this.dataAllProducts.filter(product => {
           const checkProduct = product.master_promo_id ? product.for_product : product;
-          const brandProduct = checkProduct.all_product_detail.find((detail) => detail.optionalCode == this.master_code.productOptInfo.brand_code);
+          // const brandProduct = checkProduct.all_product_detail.find((detail) => detail.optionalCode == this.master_code.productOptInfo.brand_code);
 
           let filterExpression = checkProduct.itemName.toLowerCase().includes(queryInput) || 
           checkProduct.itemCode.toLowerCase().includes(queryInput) ||
           checkProduct.barCode.toLowerCase().includes(queryInput);
           if(valueSeletedBrand){
-            filterExpression = filterExpression && brandProduct.optDtlCode.toLowerCase().includes(valueSeletedBrand);
+            filterExpression = filterExpression;
+            // filterExpression = filterExpression && brandProduct.optDtlCode.toLowerCase().includes(valueSeletedBrand);
           }
 
           if(hasTruecheckboxProducts){ // Filter jika ada checkbox promo yang true
@@ -1452,12 +1550,11 @@
     methods: {
       loadAlldatas: async function(){
         this.$root.showLoading();
-
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
         try {
           const getAllDataSales = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/sales',
-            // withCredentials: false,
+            url: this.$root.API_ERP + '/pos/app/sales',
           });
           const allData = getAllDataSales.data;
           this.dataAllGelars = allData.getAllGelar; //All Gelar
@@ -1480,7 +1577,7 @@
 
           const getAllDataOptInfo = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/sales/getMasterOptInfoData',
+            url: this.$root.API_ERP + '/pos/app/sales/getMasterOptInfoData',
           });
           const dataMasterOptInfo = getAllDataOptInfo.data;
           this.dataMasterOptionInfoCode = dataMasterOptInfo.getAllMasterOptionInfoCode; //All Option Info Code
@@ -1488,7 +1585,7 @@
 
           const getAllMasterPromo = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/sales/getAllMasterPromo',
+            url: this.$root.API_ERP + '/pos/app/sales/getAllMasterPromo',
           });
           var getDataMasterPromo = getAllMasterPromo.data;
           // Logic load master promo product
@@ -1497,21 +1594,11 @@
             const startDate = new Date(getDataMasterPromo[i].start_date);
             const endDate = new Date(getDataMasterPromo[i].end_date);
             if(today >= startDate && today <= endDate){
-              for(let j in getDataMasterPromo[i].all_promo_product){
-                this.dataAllProducts.push(getDataMasterPromo[i].all_promo_product[j]);
-              }
+              this.dataAllProducts = this.dataAllProducts.concat(getDataMasterPromo[i].all_promo_product);
             }
           }
           
-          const getAllProduct = await axios({
-            method: 'get',
-            url: this.$root.API_URL + '/sales/getAllProduct',
-          });
-          var getDataProduct = getAllProduct.data;
-          // Logic load regular product
-          getDataProduct.forEach(product => {
-            this.dataAllProducts.push(product);
-          });
+          await this.fatchDataProduct(this.currentPageProduct);
 
           for (let i in getDataMasterPromo) {
             const startDate = new Date(getDataMasterPromo[i].start_date);
@@ -1537,13 +1624,86 @@
         this.$root.hideLoading();
       },
 
+      fatchDataProduct: async function(page){
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+        this.$root.showLoading();
+        try{
+          const getAllProduct = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/app/sales/getAllProduct',
+            params: {
+              page: page,
+              per_page: this.perPageProduct,
+              store_outlet: cacheStoreAccess.store_outlet
+            },
+          });
+          const response = getAllProduct.data;
+          this.currentPageProduct = response.current_page;
+          this.totalPageProduct = response.last_page;
+
+          var getDataProduct = response.data;
+          this.dataAllProducts = this.dataAllProducts.concat(getDataProduct);
+
+          if(response.current_page == response.last_page){
+            this.isLoadAllDataProduct = false;
+          }
+        }catch(e){
+          console.log(e);
+        }
+        this.$root.hideLoading();
+      },
+
+      fatchAllDataProduct: async function(){
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+        $('#modalLoadingGetProduct').modal('show');
+        try{
+          const getAllProduct = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/app/sales/getAllProduct',
+            params: {
+              page: this.currentPageProduct,
+              per_page: this.perPageProduct,
+              store_outlet: cacheStoreAccess.store_outlet
+            },
+          });
+
+          if(getAllProduct.status == 200 || getAllProduct.status == 201){
+            this.dataAllProducts = [];
+            const resDataProduct = getAllProduct.data;
+            for (let i = 1; i <= resDataProduct.last_page; i++) {
+              try{
+                const getAllProductPage = await axios({
+                  method: 'get',
+                  url: this.$root.API_ERP + '/pos/app/sales/getAllProduct',
+                  params: {
+                    page: i,
+                    per_page: this.perPageProduct,
+                    store_outlet: cacheStoreAccess.store_outlet
+                  },
+                });
+                const resDataProductPage = getAllProductPage.data.data;
+                this.dataAllProducts = this.dataAllProducts.concat(resDataProductPage);
+              } catch(e){
+                console.log(e);
+              }
+            }
+            this.isLoadAllDataProduct = false;
+          }else{
+            this.$root.showAlertFunction('warning', 'Permintaan Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+        } catch(e){
+          this.$root.showAlertFunction('warning', 'Permintaan Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          console.log(e);
+        }
+        $('#modalLoadingGetProduct').modal('hide');
+      },
+
       fatchDataMember: async function(page){
         this.$root.showLoading();
         try{
           const getAllMember = await axios({
             method: 'get',
-            // url: this.$root.API_URL + '/sales/getAllMember',
-            url: this.$root.API_ERP + '/pos/getAllMember',
+            url: this.$root.API_ERP + '/pos/app/sales/getAllMember',
             params: {
               page: page,
               per_page: this.perPageMember,
@@ -1610,7 +1770,7 @@
               formatHarga = parseInt(this.$root.filterPriceProduct(isPromoProduct.for_product).price - (this.$root.filterPriceProduct(isPromoProduct.for_product).price * (isPromoProduct.master_promo.percent/100)));
             }
           }else{
-            if(this.$root.filterDiskonProduct(getProduct).disc_code == this.master_code.diskon.tanpa_diskon_code){
+            if(this.$root.filterDiskonProduct(getProduct).discCode == this.master_code.diskon.tanpa_diskon_code){
               formatHarga = parseInt(this.$root.filterPriceProduct(getProduct).price);
             }else{
               formatHarga = parseInt(this.$root.filterPriceProduct(getProduct).price  - (this.$root.filterPriceProduct(getProduct).price * (this.$root.filterDiskonProduct(getProduct).discount/100)));
@@ -1643,7 +1803,16 @@
       },
       
       // Logic Product In Order List
-      addProductToList: function(product, qty = 1){
+      validateModalBatchProduct: function(product, qty = 1){
+        this.productSelectBatch = null;
+        this.productSelectBatch = {
+          product: product,
+          qty: qty
+        };
+        $('#modalShowBatchProduct').modal('show');
+      },
+
+      addProductToList: function(product, batch, qty = 1){
         if(qty > 0){
           let existingProduct = null;
 
@@ -1652,7 +1821,8 @@
               existingProduct = this.dataProductInList.find( (p) => {
                 if(p.is_promo_product){ // Jika sudah ada di list product yang diorder
                   return p.is_promo_product.master_promo_id === product.master_promo_id &&
-                  p.is_promo_product.for_product.itemCode === product.for_product.itemCode
+                  p.is_promo_product.for_product.itemCode === product.for_product.itemCode && 
+                  p.batch.batchNo.trim() === batch.batchNo.trim()
                 }
               });
             }catch(error){
@@ -1660,15 +1830,16 @@
               console.log(error);
             }
           }else{ // Jika product reguler
-            existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.itemCode === product.itemCode);
+            existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.itemCode === product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim());
           }
 
           if (existingProduct) {
-            existingProduct.qty = existingProduct.qty + qty;
+            existingProduct.qty += qty;
           }else{
             const productObj = {
               product: product.master_promo_id ? product.for_product : product,
               qty: qty,
+              batch: batch,
               is_promo_product: product.master_promo_id ? product : null,
             };
             this.dataProductInList.push(productObj);
@@ -1677,10 +1848,11 @@
           this.qtyProductShowDetail = 1;
           this.calculatePcsItemOrderList();
           this.calculateAmoutPrice();
+          $('#modalShowBatchProduct').modal('hide');
         }
       },
 
-      deleteProductById: function (product){
+      deleteProductById: function (product, batch){
         let indexToDelete = null;
 
         if(product.is_promo_product){ // Jika product promo
@@ -1688,7 +1860,8 @@
             indexToDelete = this.dataProductInList.findIndex((p) => {
               if(p.is_promo_product){
                 return p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
-                p.is_promo_product.for_product.itemCode === product.product.itemCode
+                p.is_promo_product.for_product.itemCode === product.product.itemCode && 
+                p.batch.batchNo.trim() === batch.batchNo.trim()
               }
             });
           }catch(error){
@@ -1696,7 +1869,7 @@
             console.log(error);
           }
         }else{ // Jika product reguler
-          indexToDelete = this.dataProductInList.findIndex((p) => !p.is_promo_product && p.product.itemCode === product.product.itemCode);
+          indexToDelete = this.dataProductInList.findIndex((p) => !p.is_promo_product && p.product.itemCode === product.product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim());
         }
         
         if (indexToDelete != null) {
@@ -1727,7 +1900,7 @@
         this.calculateAmoutPrice();
       },
 
-      incDecQtyInput: function(event, product){
+      incDecQtyInput: function(event, product, batch){
         const newValue = parseInt(event.target.value);
         let existingProduct = null;
         
@@ -1736,7 +1909,8 @@
             existingProduct = this.dataProductInList.find((p) => {
               if(p.is_promo_product){
                 return p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
-                p.is_promo_product.for_product.itemCode === product.product.itemCode
+                p.is_promo_product.for_product.itemCode === product.product.itemCode && 
+                p.batch.batchNo.trim() === batch.batchNo.trim()
               }
             });
           }catch(error){
@@ -1744,7 +1918,7 @@
             console.log(error);
           }
         }else{ // Jika product reguler
-          existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.itemCode === product.product.itemCode);
+          existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.itemCode === product.product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim());
         }
 
         if(existingProduct){
@@ -1756,7 +1930,7 @@
         }
       },
       
-      incDecQtyChange: function(event, product){
+      incDecQtyChange: function(event, product, batch){
         const newValue = parseInt(event.target.value);
         let existingProduct = null;
 
@@ -1765,7 +1939,8 @@
             existingProduct = this.dataProductInList.find((p) => {
               if(p.is_promo_product){
                 return p.is_promo_product.master_promo_id === product.is_promo_product.master_promo_id &&
-                p.is_promo_product.for_product.itemCode === product.product.itemCode
+                p.is_promo_product.for_product.itemCode === product.product.itemCode && 
+                p.batch.batchNo.trim() === batch.batchNo.trim()
               }
             });
           }catch(error){
@@ -1773,7 +1948,7 @@
             console.log(error);
           }
         }else{ // Jika product reguler
-          existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.itemCode === product.product.itemCode);
+          existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.itemCode === product.product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim());
         }
 
         if(existingProduct){
@@ -1817,34 +1992,23 @@
           this.dataInputMember.user_login = this.$root.dataAuthToken;
           const store = await axios({
             method: 'post',
-            url: this.$root.API_ERP + '/pos/storeNewMember',
+            url: this.$root.API_ERP + '/pos/app/sales/storeNewMember',
             data: this.dataInputMember,
           });
 
           if(store.status == 201 || store.status == 200){
             var getResponsStore = store.data;
             var getDataUser = getResponsStore.data;
+            
+            this.memberOverview = getDataUser;
+            this.dataAllMembers.push(getDataUser);
 
-            this.dataInputMember.member_id = getDataUser.member_id; 
-            const storeToPos = await axios({
-              method: 'post',
-              url: this.$root.API_URL + '/sales/storeNewMember',
-              data: this.dataInputMember,
-            });
-
-            if(storeToPos.status == 201 || storeToPos.status == 200){
-              this.memberOverview = getDataUser;
-              this.dataAllMembers.push(getDataUser);
-
-              for (let prop in this.dataInputMember) {
-                this.dataInputMember[prop] = '';
-              }
-              
-              this.invalidMemberSelect = false;
-              this.$root.showAlertFunction('success', 'Pendaftaran Berhasil!', 'Selamat, Member baru telah berhasil ditambahkan.');
-            }else{
-              this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+            for (let prop in this.dataInputMember) {
+              this.dataInputMember[prop] = '';
             }
+            
+            this.invalidMemberSelect = false;
+            this.$root.showAlertFunction('success', 'Pendaftaran Berhasil!', 'Selamat, Member baru telah berhasil ditambahkan.');
           }else{
             this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           }
@@ -1862,7 +2026,7 @@
           this.$root.showLoading();
           const store = await axios({
             method: 'put',
-            url: this.$root.API_URL + '/sales/updateDataMember',
+            url: this.$root.API_ERP + '/pos/app/sales/updateDataMember',
             data: this.dataInputMember,
           });
           
@@ -1967,7 +2131,7 @@
 
           const store = await axios({
             method: 'post',
-            url: this.$root.API_URL + '/sales/storeNewTicket',
+            url: this.$root.API_ERP + '/pos/app/sales/storeNewTicket',
             data: dataPost,
           });
           
@@ -1997,7 +2161,7 @@
           const storeActive = JSON.parse(localStorage.getItem(this.local_storage.access_store));
           const store = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/sales/getAllTicket/' + storeActive.store_code,
+            url: this.$root.API_ERP + '/pos/app/sales/getAllTicket/' + storeActive.store_code,
           });
 
           this.dataAllTicket = store.data;
@@ -2035,6 +2199,7 @@
 
             groupedData[member_id].no_ticket.push(data.no_ticket);
             groupedData[member_id].tiket_info.push({
+              ticket_id: data.id,
               member: data.member,
               user: data.user,
               tiket: data.no_ticket,
@@ -2044,7 +2209,7 @@
             data.tiket_detail.forEach(datax => {
               const product = datax.product;
               const existingProduct = groupedData[member_id].products.find(
-                (p) => p.product && p.product.itemCode === product.itemCode
+                (p) => p.product && p.product.itemCode === product.itemCode  && p.batch.batchNo.trim() === datax.batch.batchNo.trim()
               );
               
               if (existingProduct) {
@@ -2053,8 +2218,9 @@
               } else {
                 // Tambahkan produk baru
                 groupedData[member_id].products.push({
-                  qty: datax.qty,
                   product: product,
+                  qty: datax.qty,
+                  batch: datax.batch,
                   is_promo_product: product.master_promo_id ? product : null,
                   is_ticket: data,
                 });
@@ -2123,7 +2289,7 @@
           this.$root.showLoading();
           const store = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/sales/findOrderWithTicket/' + this.inputFindNoTiket,
+            url: this.$root.API_ERP + '/pos/app/sales/findOrderWithTicket/' + this.inputFindNoTiket,
           });
 
           if(store.status == 200){
@@ -2145,6 +2311,7 @@
               }
 
               const objToAddOrder = {
+                ticket_id: responseData.id,
                 member: responseData.member,
                 user: responseData.user,
                 tiket: responseData.no_ticket,
@@ -2153,13 +2320,20 @@
               this.allTicketInOrder.push(objToAddOrder);
               responseData.tiket_detail.forEach(data => {
                 var product = data.product;
-                const productObj = {
-                  product: product,
-                  qty: data.qty,
-                  is_promo_product: product.master_promo_id ? product : null,
-                  is_ticket: data,
-                };
-                this.dataProductInList.push(productObj);
+                const batch = data.batch;
+                const findProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.itemCode === product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim());
+                if(findProduct){
+                  findProduct.qty = findProduct.qty + data.qty;
+                }else{
+                  const productObj = {
+                    product: product,
+                    qty: data.qty,
+                    batch: data.batch,
+                    is_promo_product: product.master_promo_id ? product : null,
+                    is_ticket: data,
+                  };
+                  this.dataProductInList.push(productObj);
+                }
               });
   
               this.calculateAmoutPrice();
@@ -2194,9 +2368,10 @@
           this.memberOverview = ticket.member ?? null;
         }
 
-        ticket.products.forEach(product => {
-          this.dataProductInList.push(product);
-        });
+        // ticket.products.forEach(product => {
+        //   this.dataProductInList.push(product);
+        // });
+        this.dataProductInList = this.dataProductInList.concat(ticket.products);
         ticket.tiket_info.forEach(tiket => {
           this.allTicketInOrder.push(tiket);
         });
@@ -2210,9 +2385,10 @@
       deleteOrderTiketByIdx: function (index){
         const getTiket = this.allTicketInOrder[index];
         getTiket.tiket_detail.forEach(product => {
-          const findProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.itemCode === product.itemCode);
+          const batch = product.batch;
+          const findProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.itemCode === product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim());
           if(product.qty == findProduct.qty){
-            this.deleteProductById(product);
+            this.deleteProductById(product, batch);
           }else{
             findProduct.qty = findProduct.qty - product.qty;
           }
@@ -2335,7 +2511,7 @@
           if(checkAllProduct.length > 1){
             $('#modalSearchFoundProductMore').modal('show');
           }else{
-            this.addProductToList(checkAllProduct[0]);
+            this.validateModalBatchProduct(checkAllProduct[0]);
           }
           this.inputSearchProduct = '';
         }
@@ -2500,19 +2676,30 @@
 
               products: this.dataProductInList,
               activeStore: activeStore,
+              isTicket: this.allTicketInOrder.length > 0 ? this.allTicketInOrder : null,
           }
           
           const storeTr = await axios({
             method: 'post',
-            url: this.$root.API_URL + '/sales/storeNewTransaction',
+            url: this.$root.API_ERP + '/pos/app/sales/storeNewTransaction',
             data: dataTr,
           });
-
+      
           if(storeTr.status == 201 || storeTr.status == 200){
             const dataStoreTr = storeTr.data.data;
+            
+            this.dataProductInList.forEach(data => {
+              const product = data.product;
+              const productInList = this.dataAllProducts.find((p) => p.itemCode === product.itemCode);
+
+              const findInvtory = productInList.all_inventory_stok.find((w) => w.storeCode === activeStore.store_outlet.storeCode && w.whsCode === activeStore.store_outlet.whsCode);
+              const intOnHand = parseInt(findInvtory.onHand);
+              findInvtory.onHand -= data.qty;
+            });
 
             this.generatePdfCheckout(dataStoreTr);
             this.dataProductInList = [];
+            this.allTicketInOrder = [];
             this.memberOverview = null;
     
             this.dataMoreMetodeBayar = [];
@@ -2955,7 +3142,7 @@
         // PPN
         dataBillindDetail.push([
           {
-            content: 'PPN (10%)',
+            content: 'PPN (11%)',
             colSpan: 2,
             styles: {
               halign: 'left',

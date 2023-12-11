@@ -57,7 +57,7 @@
               <td>{{ index + 1  }}</td>
               <td>
                 <span v-if="user.role" class="badge rounded-pill badge-subtle-primary">{{ user.role.nama_role }}</span>
-                <span v-else class="fs--1"><i>Waiting for Approved</i></span>
+                <span v-else class="fs--1">-</span>
               </td>
               <td>{{ user.nama_lengkap  }}</td>
               <td>{{ user.email  }}</td>
@@ -75,9 +75,12 @@
                   </span>
                 </div>
                 <div v-else>
-                  <span class="badge rounded-pill badge-subtle-warning"><i>Waiting for Approved</i></span>
+                  <span class="badge rounded-pill badge-subtle-warning">
+                    <i>Waiting for Approved</i>
+                    <span class="fas fa-exclamation-triangle ms-1"></span>
+                  </span>
                 </div>
-                <div v-if="!user.this_user" class="dropdown font-sans-serif position-static">
+                <!-- <div v-if="!user.this_user" class="dropdown font-sans-serif position-static">
                   <button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false">
                     <span class="fas fa-ellipsis-h fs--1"></span>
                   </button>
@@ -89,7 +92,7 @@
                       <a class="dropdown-item" href="javascript:void(0)" @click="showModalApproveUser(user)">Approve</a>
                     </div>
                   </div>
-                </div>
+                </div> -->
               </td>
               <td>
                 <button class="btn btn-link p-0" type="button" @click="showModalDataUser(user)">
@@ -102,6 +105,38 @@
             </tr>
           </tbody>
         </table>
+      </div>
+      
+      <div v-if="totalPageUser > 1" class="d-flex justify-content-end">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination pagination-sm">
+
+            <li v-if="displayedPagesUser[0] > 1">
+              <a class="page-link" href="javascript:void(0)" @click="fatchUserData(1)">First</a>
+            </li>
+
+            <li class="page-item" :class="{ 'disabled': currentPageUser === 1 }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchUserData(currentPageUser - 1)">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+
+            <li v-for="pageNumber in displayedPagesUser" :key="pageNumber" class="page-item" :class="{ 'active': pageNumber === currentPageUser }">
+              <a class="page-link" href="javascript:void(0)" @click="fatchUserData(pageNumber)">{{ pageNumber }}</a>
+            </li>
+
+            <li class="page-item" :class="{ 'disabled': currentPageUser === totalPageUser }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchUserData(currentPageUser + 1)">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+
+            <li v-if="displayedPagesUser[displayedPagesUser.length - 1] < totalPageUser">
+              <a class="page-link" href="javascript:void(0)" @click="fatchUserData(totalPageUser)">Last</a>
+            </li>
+
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -244,6 +279,12 @@
       return {
         dataUserLogin: null,
         allDataUser: [],
+        displayedPagesUser: [],
+        totalDisplayedPagesUser: 3,
+        currentPageUser: 1,
+        perPageUser: 10,
+        totalPageUser: 0,
+
         allMasterRole: [],
         allMasterStoreOutlet: [],
 
@@ -270,21 +311,56 @@
         try{
           const store = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/master-user'
+            url: this.$root.API_ERP + '/pos/loadDataUser'
           });
 
           const storeData = store.data;
-          this.allDataUser = storeData.getAllUser.map(user => {
-            user.this_user = user.user_uuid === this.dataUserLogin.user_uuid;
-            return user;
-          });
           this.allMasterRole = storeData.getAllMasterRole;
           this.allMasterStoreOutlet = storeData.getAllStoreOutlet;
+
+          await this.fatchUserData(this.currentPageUser);
         } catch (error) {
           console.log(error);
         }
           
         this.$root.hideLoading();
+      },
+
+      fatchUserData: async function(page){
+        this.$root.showLoading();
+        try{
+          const getData = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/getAllDataUser',
+            params: {
+              page: page,
+              per_page: this.perPageUser,
+            },
+          });
+
+          const response = getData.data;
+          this.currentPageUser = response.current_page;
+          this.totalPageUser = response.last_page;
+          this.allDataUser = response.data;
+
+          this.updateDisplayedPagesUser();
+        } catch (error) {
+          console.log(error);
+        }
+        this.$root.hideLoading();
+      },
+      
+      updateDisplayedPagesUser() {
+        const halfDisplayedPages = Math.floor(this.totalDisplayedPagesUser / 2);
+
+        let startPage = Math.max(1, this.currentPageUser - halfDisplayedPages);
+        let endPage = Math.min(this.totalPageUser, startPage + this.totalDisplayedPagesUser - 1);
+
+        if (endPage - startPage + 1 < this.totalDisplayedPagesUser) {
+          startPage = Math.max(1, endPage - this.totalDisplayedPagesUser + 1);
+        }
+
+        this.displayedPagesUser = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
       },
 
       showModalDataUser: function(user){

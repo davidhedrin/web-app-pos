@@ -237,7 +237,7 @@
         try{
           const getData = await axios({
             method: 'get',
-            url: this.$root.API_ERP_PROD + '/pos/poscontroller/getAllConfNoLimit',
+            url: 'https://ipos-tpsmtg.com:8087/pos/poscontroller/getAllConfNoLimit',
           });
           
           if(getData.status == 200 || getData.status == 201){
@@ -276,7 +276,7 @@
               try{
                 const getData = await axios({
                   method: 'get',
-                  url: this.$root.API_ERP_PROD + `/${this.selectedDownloadDataSingle.url}`,
+                  url: `https://ipos-tpsmtg.com:8087/${this.selectedDownloadDataSingle.url}`,
                   params: {
                     offset: iOffset * parseInt(this.limitPenarikan),
                     limit: parseInt(this.limitPenarikan),

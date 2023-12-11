@@ -307,8 +307,7 @@
           this.dataUser.no_hp = getDataProfileSSO.profile_phone;
         }
 
-        let checkUserRegis = await this.$root.checkUserRegistered(check_uuid);
-        if(!checkUserRegis) checkUserRegis = await this.$root.checkUserRegistered(check_uuid, true);
+        const checkUserRegis = await this.$root.checkUserRegistered(check_uuid);
         if(checkUserRegis){
           this.dataUserRegister = checkUserRegis;
     
@@ -374,7 +373,7 @@
               
               if(store.status == 201 || store.status == 200){
                 const response = store.data;
-                const getCheckUser = await this.$root.checkUserRegistered(this.dataAuthUserSso.uuid, true);
+                const getCheckUser = await this.$root.checkUserRegistered(this.dataAuthUserSso.uuid);
                 if(getCheckUser){
                   this.$root.dataAuthToken = getCheckUser;
                   $('#modalFinishSendApprove').modal('show');

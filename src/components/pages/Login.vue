@@ -104,7 +104,7 @@
         try{
           const store = await axios({
             method: 'post',
-            url: this.$root.API_URL + '/auth/login',
+            url: this.$root.API_ERP + '/pos/login',
             data: this.dataLogin
           });
 
@@ -187,7 +187,7 @@
           localStorage.setItem(this.local_storage.token_sso, token_sso);
           const getStatusToken = await this.$root.checkAuthenticationToken();
           if(getStatusToken){
-            const getUserExist = await this.$root.checkUserRegistered(getStatusToken.uuid, true);
+            const getUserExist = await this.$root.checkUserRegistered(getStatusToken.uuid);
             if(getUserExist && getUserExist.flag_active){
               localStorage.setItem(this.local_storage.is_dynamic, getStatusToken.uuid);
               this.$root.goto(this.pages.dashboard);

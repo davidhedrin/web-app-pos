@@ -266,6 +266,7 @@
         master_code: this.$root.master_code,
         master_coll: this.$root.master_coll,
         local_storage: this.$root.local_storage,
+        dateNow: null,
 
         allDataPaging: [],
         dataShowFormPenerimaan: null,
@@ -278,6 +279,7 @@
     },
 
     async beforeMount() {
+      this.dateNow = this.$root.formatDateIdn(new Date());
       await this.loadAllData();
     },
 
@@ -290,7 +292,7 @@
 
           const getDataItem = await axios({
             method: 'get',
-            url: this.$root.API_ERP_PROD + `/wms/paging?offset=0&limit=1000&storecode=${storeDetail.store_code}`
+            url: this.$root.API_ERP + `/wms/paging?offset=0&limit=1000&storecode=${storeDetail.store_code}`
           });
           const response = getDataItem.data;
           const resData = response.results;
@@ -298,7 +300,7 @@
 
           const getData = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/recipt-item',
+            url: this.$root.API_ERP + '/pos/app/recipt-item',
           });
           const resGetData = getData.data;
           this.getAllMasterWarehouse = resGetData.getAllMasterWarehouse;
@@ -314,7 +316,7 @@
       //   try{
       //     const getData = await axios({
       //       method: 'get',
-      //       url: this.$root.API_ERP_PROD + `/wms/getRincianheaderID/${id}`,
+      //       url: this.$root.API_ERP + `/wms/getRincianheaderID/${id}`,
       //     });
 
       //     console.log(getData);
@@ -340,7 +342,7 @@
         try{
           const getData = await axios({
             method: 'get',
-            url: this.$root.API_ERP_PROD + `/wms/pagingRincian/${id}?limit=1000&offset=0`,
+            url: this.$root.API_ERP + `/wms/pagingRincian/${id}?limit=1000&offset=0`,
           });
 
           const resData = getData.data.results;
@@ -390,7 +392,7 @@
 
         // const getData = await axios({
         //   method: 'post',
-        //   url: this.$root.API_ERP_PROD + `/wms/savePenerimaanBarang/${id}`,
+        //   url: this.$root.API_ERP + `/wms/savePenerimaanBarang/${id}`,
         //   data: dataPost
         // });
       }

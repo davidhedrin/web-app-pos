@@ -70,7 +70,10 @@
           <tbody>
             <tr v-for="(product, index) in allDataProduct">
               <td class="tr-middle">{{ index + 1 }}</td>
-              <td class="tr-middle"><img class="img-product rounded-2" :src="'src/assets/img/product/' + product.image" alt=""></td>
+              <td class="tr-middle">
+                <img v-if="product.image == null || product.image.trim() == ''" class="img-product rounded-2" src="@/assets/img/product/no_image.jpg" alt="">
+                <img v-else class="img-product rounded-2" :src="'src/assets/img/product/' + product.image" alt="">
+              </td>
               <td class="tr-middle">{{ product.itemCode }}</td>
               <td class="tr-middle">{{ product.itemName }}</td>
               <td class="tr-middle">{{ product.mnfctName }} ({{ product.mnfctCode }})</td>
@@ -86,7 +89,7 @@
         </table>
       </div>
       
-      <div v-if="totalPageProduct > 1" class="d-flex justify-content-end">
+      <!-- <div v-if="totalPageProduct > 1" class="d-flex justify-content-end">
         <nav aria-label="Page navigation example">
           <ul class="pagination pagination-sm">
             <li class="page-item" :class="{ 'disabled': currentPageProduct === 1 }">
@@ -104,6 +107,39 @@
                 <span aria-hidden="true">&raquo;</span>
               </a>
             </li>
+          </ul>
+        </nav>
+      </div> -->
+
+      
+      <div v-if="totalPageProduct > 1" class="d-flex justify-content-end">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination pagination-sm">
+
+            <li v-if="displayedPages[0] > 1">
+              <a class="page-link" href="javascript:void(0)" @click="fatchProductData(1)">First</a>
+            </li>
+
+            <li class="page-item" :class="{ 'disabled': currentPageProduct === 1 }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchProductData(currentPageProduct - 1)">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+
+            <li v-for="pageNumber in displayedPages" :key="pageNumber" class="page-item" :class="{ 'active': pageNumber === currentPageProduct }">
+              <a class="page-link" href="javascript:void(0)" @click="fatchProductData(pageNumber)">{{ pageNumber }}</a>
+            </li>
+
+            <li class="page-item" :class="{ 'disabled': currentPageProduct === totalPageProduct }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchProductData(currentPageProduct + 1)">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+
+            <li v-if="displayedPages[displayedPages.length - 1] < totalPageProduct">
+              <a class="page-link" href="javascript:void(0)" @click="fatchProductData(totalPageProduct)">Last</a>
+            </li>
+
           </ul>
         </nav>
       </div>
@@ -157,13 +193,13 @@
                         </div>
                         <div class="col-md-6 text-md-end text-start">
                           <div class="fs--1">
-                            Parent Code: <span class="fw-bold">{{ productShowDetail.parentCode }}</span>
+                            Parent Code: <span class="fw-bold">{{ productShowDetail.parentCode == null || productShowDetail.parentCode.trim() == '' ? '-' : productShowDetail.parentCode }}</span>
                           </div>
                           <div class="fs--1">
-                            Product Barcode: <span class="fw-bold">{{ productShowDetail.barCode }}</span>
+                            Product Barcode: <span class="fw-bold">{{ productShowDetail.barCode == null || productShowDetail.barCode.trim() == '' ? '-' : productShowDetail.barCode }}</span>
                           </div>
                           <div class="fs--1">
-                            Product Code (SKU): <span class="badge rounded-pill bg-secondary fs--2">{{ productShowDetail.itemCode }}</span>
+                            Product Code (SKU): <span class="badge rounded-pill bg-secondary fs--2">{{ productShowDetail.itemCode == null || productShowDetail.itemCode.trim() == '' ? '-' : productShowDetail.itemCode }}</span>
                           </div>
                         </div>
                         <div class="col-md-12">
@@ -352,6 +388,8 @@
         master_coll: this.$root.master_coll,
 
         allDataProduct: [],
+        displayedPagesProduct: [],
+        totalDisplayedPagesProduct: 3,
         currentPageProduct: 1,
         perPageProduct: 10,
         totalPageProduct: 0,
@@ -445,7 +483,7 @@
         try{
           const getAllDataMaster = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/master-product',
+            url: this.$root.API_ERP + '/pos/app/master-product',
           });
           const allData = getAllDataMaster.data;
           this.dataMasterStoreOutlet = allData.getAllStoreOutlet; //All Store Outlet
@@ -458,7 +496,7 @@
           
           const getAllDataOptInfo = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/master-product/getMasterOptInfoData',
+            url: this.$root.API_ERP + '/pos/app/master-product/getMasterOptInfoData',
           });
           const dataMasterOptInfo = getAllDataOptInfo.data;
           this.dataMasterOptionInfoCode = dataMasterOptInfo.getAllMasterOptionInfoCode; //All Option Info Code
@@ -484,7 +522,7 @@
         try{
           const getAllDataProduct = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/master-product/getAllMasterProduct',
+            url: this.$root.API_ERP + '/pos/app/master-product/getAllMasterProduct',
             params: {
               page: page,
               per_page: this.perPageProduct,
@@ -495,10 +533,25 @@
           this.currentPageProduct = response.current_page;
           this.totalPageProduct = response.last_page;
           this.allDataProduct = response.data;
+
+          this.updateDisplayedPages();
         } catch (error) {
           console.log(error);
         }
         this.$root.hideLoading();
+      },
+
+      updateDisplayedPages() {
+        const halfDisplayedPages = Math.floor(this.totalDisplayedPagesProduct / 2);
+
+        let startPage = Math.max(1, this.currentPageProduct - halfDisplayedPages);
+        let endPage = Math.min(this.totalPageProduct, startPage + this.totalDisplayedPagesProduct - 1);
+
+        if (endPage - startPage + 1 < this.totalDisplayedPagesProduct) {
+          startPage = Math.max(1, endPage - this.totalDisplayedPagesProduct + 1);
+        }
+
+        this.displayedPages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
       },
 
       showModalDetailProduct: function(product){
@@ -547,31 +600,31 @@
         });
 
         // Set Object master supplier
-        this.data_master_supplier = this.dataMasterSupplierCode.map(supplier => {
-          const have_master = product.all_product_supplier;
-          const masterExists = have_master.find(item => item.suppCode === supplier.suppCode);
+        // this.data_master_supplier = this.dataMasterSupplierCode.map(supplier => {
+        //   const have_master = product.all_product_supplier;
+        //   const masterExists = have_master.find(item => item.suppCode === supplier.suppCode);
 
-          return {
-            supplier_code: supplier,
-            code: supplier.suppCode,
-            name: supplier.suppName,
-            priority: masterExists ? masterExists.priority : null,
-            status: masterExists ? masterExists.status : null, // Default
-          }
-        });
+        //   return {
+        //     supplier_code: supplier,
+        //     code: supplier.suppCode,
+        //     name: supplier.suppName,
+        //     priority: masterExists ? masterExists.priority : null,
+        //     status: masterExists ? masterExists.status : null, // Default
+        //   }
+        // });
         
         // Set Object master optional info
-        this.data_master_opt_info = this.dataMasterOptionInfoCode.map(info => {
-          const have_master = product.all_product_detail;
-          const masterExists = have_master.find(item => item.optionalCode === info.optionalCode);
+        // this.data_master_opt_info = this.dataMasterOptionInfoCode.map(info => {
+        //   const have_master = product.all_product_detail;
+        //   const masterExists = have_master.find(item => item.optionalCode === info.optionalCode);
 
-          return {
-            opt_info: info,
-            code: info.optionalCode,
-            name: info.optionalName,
-            select_opt_info: masterExists ? masterExists : null,
-          }
-        });
+        //   return {
+        //     opt_info: info,
+        //     code: info.optionalCode,
+        //     name: info.optionalName,
+        //     select_opt_info: masterExists ? masterExists : null,
+        //   }
+        // });
 
         $('#modalViewProduct').modal('show');
       },

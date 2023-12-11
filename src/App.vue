@@ -45,7 +45,6 @@ Object.entries(componentPage).forEach((path,i) => {
 export default {
   data(){
     const API_URL = import.meta.env.VITE_API_URL;
-    const API_ERP_PROD = "https://ipos-tpsmtg.com:8087";
     const API_ERP = import.meta.env.VITE_API_ERP;
     const APP_SSO_URL = import.meta.env.VITE_APP_SSO_URL;
     const APP_SSO_TOKEN_STATUS = import.meta.env.VITE_APP_SSO_TOKEN_STATUS;
@@ -58,7 +57,6 @@ export default {
       API_ERP: API_ERP,
       APP_SSO_URL: APP_SSO_URL,
       APP_SSO_TOKEN_STATUS: APP_SSO_TOKEN_STATUS,
-      API_ERP_PROD: API_ERP_PROD,
       dataAuthToken: null,
       selectedStoreAccess: JSON.parse(localStorage.getItem(local_storage.access_store)),
 
@@ -119,7 +117,7 @@ export default {
     filterStokProduct(){
       return (product) => {
         if (this.selectedStoreAccess) {
-          return product.all_inventory_stok.find(stok => stok.whs_code === this.selectedStoreAccess.store_outlet.whsCode);
+          return product.all_inventory_stok.find(stok => stok.whsCode === this.selectedStoreAccess.store_outlet.whsCode);
         }
       }
     },
@@ -181,21 +179,12 @@ export default {
       // this.hideLoading();
     },
 
-    checkUserRegistered: async function(uuid, isOnline = false){
+    checkUserRegistered: async function(uuid){
       try{
-        let checkUserAxios; 
-        
-        if(isOnline){
-          checkUserAxios = await axios({
-            method: 'get',
-            url: this.$root.API_ERP + '/pos/checkUser/' + uuid,
-          });
-        }else{
-          checkUserAxios = await axios({
-            method: 'get',
-            url: this.$root.API_URL + '/auth/check-user/' + uuid,
-          });
-        }
+        const checkUserAxios = await axios({
+          method: 'get',
+          url: this.$root.API_ERP + '/pos/checkUser/' + uuid,
+        });
 
         if(checkUserAxios.data.status == 200){
           return checkUserAxios.data.data;

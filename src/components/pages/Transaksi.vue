@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  <div class="alert alert-info d-flex align-items-center" role="alert">
+  <!-- <div class="alert alert-info d-flex align-items-center" role="alert">
     <div class="w-sm-15">
       <div class="bg-info me-3 icon-item">
         <span class="fas fa-info-circle text-white fs-3"></span>
@@ -29,7 +29,7 @@
         <button class="btn btn-outline-primary btn-sm mt-2" type="button">Transfer Sekarang</button>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <div class="row g-3 mb-3">
     <div class="col-sm-6 col-md-3">
@@ -104,14 +104,13 @@
           </select>
         </div>
       </div>
-      <div class="table-scrollable-wrapper mb-2" style="min-height: 2vh; max-height: 42vh;">
+      <div class="table-scrollable-wrapper mb-2" style="min-height: 49vh; max-height: 49vh;">
         <table class="table table-scrollable">
           <thead>
             <tr class="p-0">
               <th class="py-1 bg-white">#</th>
               <th class="py-1 bg-white">ID Transaksi</th>
               <th class="py-1 bg-white">Nomor Bon</th>
-              <th class="py-1 bg-white">Transfer Data</th>
               <th class="py-1 bg-white">Sales By</th>
               <th class="py-1 bg-white">Pembayaran</th>
               <th class="py-1 bg-white">Total Jual</th>
@@ -127,11 +126,6 @@
               <td>{{ index + 1 }}</td>
               <td>{{ trans.ducNum }}</td>
               <td>{{ trans.bonStruk }}</td>
-              <td>
-                <span class="badge rounded-pill" :class="trans.confirm_transfer ? 'badge-subtle-success' : 'badge-subtle-secondary'">
-                  {{ trans.confirm_transfer ? 'Transfered' : 'Not-Transfer' }}
-                </span>
-              </td>
               <td>{{ trans.sales_type.nama_sales }}</td>
               <td><img :src="'src/assets/img/po-img/' + trans.payment_type.image" height="20" alt=""></td>
               <td class="text-warning">Rp {{ $root.formatPrice(trans.paymentAmount) }}</td>
@@ -282,7 +276,8 @@
                       <tr v-for="(data, index) in selectedTrView.all_data_tr_d1">
                         <td class="align-middle">{{ index + 1 }}</td>
                         <td class="align-middle text-center">
-                          <img class="img-product rounded-2" :src="'src/assets/img/product/' + data.product.image" alt="">
+                          <img v-if="data.product.image == null || data.product.image.trim() == ''" class="img-product rounded-2" src="@/assets/img/product/no_image.jpg" alt="@/assets/img/product/no_image.jpg">
+                          <img v-else class="img-product rounded-2" :src="'src/assets/img/product/' + data.product.image" alt="@/assets/img/product/no_image.jpg">
                         </td>
                         <td class="align-middle">
                           <h6 class="mb-0 text-nowrap">{{ data.product.itemName }}</h6>
@@ -348,8 +343,8 @@
                 </h5>
               </div> -->
               <div v-if="selectedTrView" class="text-end px-3 pb-2">
-                <button class="btn btn-secondary btn-sm me-2">Struk by Email <span class="fas fa-print"></span></button>
-                <button class="btn btn-secondary btn-sm me-2">Struk Printed <span class="fas fa-print"></span></button>
+                <button class="btn btn-secondary btn-sm me-2">Struk by Email <span class="fas fa-envelope-open-text"></span></button>
+                <button class="btn btn-secondary btn-sm me-2">Struk by Print <span class="fas fa-print"></span></button>
                 <button class="btn btn-primary btn-sm" data-bs-dismiss="modal">Selesai</button>
               </div>
             </div>
@@ -407,7 +402,7 @@
           const check_uuid = localStorage.getItem(this.local_storage.is_dynamic);
           const getAllDataTr = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/transaksi/getTrByUserLogin/' + check_uuid,
+            url: this.$root.API_ERP + '/pos/app/transaksi/getTrByUserLogin/' + check_uuid,
             params: {
               page: page,
               per_page: this.perPageTr,

@@ -149,7 +149,7 @@
         </table>
       </div>
 
-      <div v-if="totalPageProduct > 1" class="d-flex justify-content-end">
+      <!-- <div v-if="totalPageProduct > 1" class="d-flex justify-content-end">
         <nav aria-label="Page navigation example">
           <ul class="pagination pagination-sm">
             <li class="page-item" :class="{ 'disabled': currentPageProduct === 1 }">
@@ -167,6 +167,38 @@
                 <span aria-hidden="true">&raquo;</span>
               </a>
             </li>
+          </ul>
+        </nav>
+      </div> -->
+      
+      <div v-if="totalPageProduct > 1" class="d-flex justify-content-end">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination pagination-sm">
+
+            <li v-if="displayedPages[0] > 1">
+              <a class="page-link" href="javascript:void(0)" @click="loadAllProduct(1)">First</a>
+            </li>
+
+            <li class="page-item" :class="{ 'disabled': currentPageProduct === 1 }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="loadAllProduct(currentPageProduct - 1)">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+
+            <li v-for="pageNumber in displayedPages" :key="pageNumber" class="page-item" :class="{ 'active': pageNumber === currentPageProduct }">
+              <a class="page-link" href="javascript:void(0)" @click="loadAllProduct(pageNumber)">{{ pageNumber }}</a>
+            </li>
+
+            <li class="page-item" :class="{ 'disabled': currentPageProduct === totalPageProduct }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="loadAllProduct(currentPageProduct + 1)">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+
+            <li v-if="displayedPages[displayedPages.length - 1] < totalPageProduct">
+              <a class="page-link" href="javascript:void(0)" @click="loadAllProduct(totalPageProduct)">Last</a>
+            </li>
+
           </ul>
         </nav>
       </div>
@@ -282,6 +314,8 @@
         accessStoreUser: [],
 
         dataAllProduct: [],
+        displayedPagesProduct: [],
+        totalDisplayedPagesProduct: 3,
         currentPageProduct: 1,
         perPageProduct: 10,
         totalPageProduct: 0,
@@ -307,14 +341,16 @@
 
     methods: {
       loadAllProduct: async function(page){
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
         this.$root.showLoading();
         try{
           const store = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/dashboard/getAllProduct',
+            url: this.$root.API_ERP + '/pos/app/dashboard/getAllProduct',
             params: {
               page: page,
               per_page: this.perPageProduct,
+              store_outlet: cacheStoreAccess.store_outlet
             },
           });
 
@@ -322,10 +358,25 @@
           this.currentPageProduct = response.current_page;
           this.totalPageProduct = response.last_page;
           this.dataAllProduct = response.data;
+
+          this.updateDisplayedPages();
         } catch (error) {
           console.log(error);
         }
         this.$root.hideLoading();
+      },
+
+      updateDisplayedPages() {
+        const halfDisplayedPages = Math.floor(this.totalDisplayedPagesProduct / 2);
+
+        let startPage = Math.max(1, this.currentPageProduct - halfDisplayedPages);
+        let endPage = Math.min(this.totalPageProduct, startPage + this.totalDisplayedPagesProduct - 1);
+
+        if (endPage - startPage + 1 < this.totalDisplayedPagesProduct) {
+          startPage = Math.max(1, endPage - this.totalDisplayedPagesProduct + 1);
+        }
+
+        this.displayedPages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
       },
 
       loadAllDatas: async function(){
