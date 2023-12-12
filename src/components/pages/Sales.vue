@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-lg-9">
       <div class="card overflow-hidden mb-3">
-        <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-5j.png); background-size: auto;"></div>
+        <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-5j.png'); background-size: auto;"></div>
         <div class="card-header position-relative pb-0">
           <div class="row align-items-center">
             <div class="col-md-3 mb-2 mb-md-0">
@@ -140,7 +140,7 @@
       </div>
       
       <div class="card overflow-hidden mb-3">
-        <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-4.png); background-size: auto;"></div>
+        <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
         <div class="row card-header position-relative align-items-center pb-2 pt-1">
           <div class="col-md-6 py-1">
             <div class="form-check form-check-inline m-0 me-2">
@@ -305,7 +305,7 @@
           </div>
 
           <div class="card mb-3" :class="{'border-red' : invalidMemberSelect}">
-            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-4.png);"></div>
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png');"></div>
             <div class="card-body position-relative p-2">
               <div class="d-flex justify-content-between mb-0">
                 <p class="mb-0 fs--1">No.Member</p>
@@ -372,6 +372,7 @@
                 <option v-if="memberOverview != null && memberOverview.tipe_konsumen.slug == master_code.tipeKonsumen.karyawan" :value="metodeBayarKaryawan.id">
                   {{ metodeBayarKaryawan.nama }}
                 </option>
+                <option v-if="memberOverview != null" :value="metodeBayarRedeemPoint.id">{{ metodeBayarRedeemPoint.nama }}</option>
                 <optgroup label="Transfer Bank">
                   <option v-for="metode in dataMetodeBayarTF" :value="metode.id">{{ metode.nama }}</option>
                 </optgroup>
@@ -408,7 +409,7 @@
       <div class="modal-content position-relative border-0">
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: auto;"></div>
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-5i.png'); background-position: left; background-size: auto;"></div>
             <div class="card-body position-relative p-0">
               <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
                 <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -473,7 +474,7 @@
       <div class="modal-content position-relative border-0">
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-5i.png'); background-position: left; background-size: cover;"></div>
             <div class="card-body position-relative p-0">
               <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
                 <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -603,7 +604,7 @@
       <div class="modal-content position-relative border-0">
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-position: left; background-size: auto;"></div>
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-5i.png'); background-position: left; background-size: auto;"></div>
             <div class="card-body position-relative p-0">
               <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
                 <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -659,7 +660,7 @@
       <div class="modal-content border-0">
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1-left.png); background-position: left; background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1-left.png'); background-position: left; background-size: cover;"></div>
             <div class="card-body position-relative p-0">
               <div class="rounded-top-3 py-3 text-center">
                 <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
@@ -681,7 +682,7 @@
                 </div>
     
                 <div class="mb-3">
-                  <label class="form-label mb-0">Ringkasan Produk</label>
+                  <label class="form-label mb-0">Ringkasan Produk:</label>
                   <hr class="m-0">
                   <div class="scrollable-customize" style="max-height: 150px;">
                     <div v-for="data in dataProductInList" :id="data.product.itemCode" class="d-flex justify-content-between fs--1 mb-1">
@@ -692,21 +693,21 @@
                   <hr class="mb-1 mt-0">
                   <div class="d-flex justify-content-between fs--1 mb-0">
                     <p class="mb-0 text-dark"><strong>Total</strong></p>
-                    <span class="text-dark fs-0"><strong>Rp {{ $root.formatPrice(totalPriceRingkasanProduct) }}</strong></span>
+                    <span class="text-dark"><strong>Rp {{ $root.formatPrice(totalPriceRingkasanProduct) }}</strong></span>
                   </div>
                   <hr class="m-0 mt-1">
                 </div>
     
-                <span class="text-dark">Billing Detail:</span>
-                <div class="form-check form-switch mb-1 mt-1">
+                <label class="form-label mb-0">Billing Detail:</label>
+                <!-- <div class="form-check form-switch mb-1 mt-1">
                   <input v-model="checkboxMemberPotonganPoint" @change="changeCheckboxMemberPotonganPoint()" class="form-check-input" id="flexSwitchCheckDefault" type="checkbox" />
                   <label class="form-check-label mb-0" for="flexSwitchCheckDefault">
                     Gunakan Potongan Point ({{ memberOverview ? $root.formatPrice(memberOverview.point) : '' }} pt)
                   </label>
                 </div>
-                <hr class="m-0">
+                <hr class="m-0"> -->
                 
-                <table class="table fs--1 mb-3">
+                <table class="table fs--1 mb-2">
                   <tbody>
                     <tr v-if="totalHematDiskon > 0" class="border-bottom">
                       <th class="ps-0 py-1" style="font-weight: normal;">Hemat Diskon </th>
@@ -743,7 +744,7 @@
                     </tr>
                     <tr class="border-bottom">
                       <th class="ps-0 py-1" style="font-weight: normal;">Total Bayar </th>
-                      <th class="pe-0 fs-1 py-0 text-end text-warning">Rp {{ $root.formatPrice(calculateTotalBayarPrice) }}</th>
+                      <th class="pe-0 fs-0 py-0 text-end text-warning">Rp {{ $root.formatPrice(calculateTotalBayarPrice) }}</th>
                     </tr>
                   </tbody>
                 </table>
@@ -763,17 +764,23 @@
                     </div>
                   </div>
                 </div> -->
-                <div class="d-flex align-items-center justify-content-between rounded-3 bg-body-tertiary ps-2 py-1 py-0">
+                <label class="form-label mb-0">Payment Detail:</label>
+                <div class="d-flex align-items-center justify-content-between rounded-3 bg-body-tertiary ps-2 py-1 px-2">
                   <div class="w-35">
-                    <img class="img-icon-po2" :src="'src/assets/img/po-img/' + selectedMetodeBayar.image" />
+                    <img class="img-icon-po2" :src="'assets/img/po-img/' + selectedMetodeBayar.image" />
                   </div>
-                  <div class="w-40 me-2 text-end">
-                    <input v-if="selectedMetodeBayar.kode != master_code.metodeBayar.cash && selectedMetodeBayar.kode != master_code.metodeBayar.karyawan" v-model="modelInputSelectedMetodeBayar" id="inputSelectedMetodeBayar" @input="modelInputSelectedMetodeBayar = onChangeCheckNumberVal($event)" class="form-control form-control-sm" type="text" placeholder="4 digit nomor" />
-                    <i v-if="selectedMetodeBayar.kode == master_code.metodeBayar.cash" class="fs--1">Pembayaran Cash</i>
-                    <i v-if="selectedMetodeBayar.kode == master_code.metodeBayar.karyawan" class="fs--1">Karyawan</i>
+                  <div v-if="selectedMetodeBayar.kode == master_code.metodeBayar.redeem" class="w-60 text-end">
+                    <label class="form-label fw-normal mb-0">Member Point: <strong class="text-dark">Rp {{ $root.formatPrice(memberOverview.point) }}</strong></label>
                   </div>
-                  <div class="w-25">
-                    <input class="form-control form-control-sm text-end" id="inputSelectedNominalMetode" @input="onChangeCheckVal($event)" type="text" :value="$root.formatPrice(calculateTotalBayarPrice)" disabled />
+                  <div v-else class="w-60 d-flex">
+                    <div class="w-50 me-2 text-end">
+                      <input v-if="selectedMetodeBayar.kode != master_code.metodeBayar.cash && selectedMetodeBayar.kode != master_code.metodeBayar.karyawan" v-model="modelInputSelectedMetodeBayar" id="inputSelectedMetodeBayar" @input="modelInputSelectedMetodeBayar = onChangeCheckNumberVal($event)" class="form-control form-control-sm" type="text" placeholder="4 digit nomor" />
+                      <i v-if="selectedMetodeBayar.kode == master_code.metodeBayar.cash" class="fs--1">Pembayaran Cash</i>
+                      <i v-if="selectedMetodeBayar.kode == master_code.metodeBayar.karyawan" class="fs--1">Karyawan</i>
+                    </div>
+                    <div class="w-50">
+                      <input class="form-control form-control-sm text-end" id="inputSelectedNominalMetode" @input="onChangeCheckVal($event)" type="text" :value="$root.formatPrice(calculateTotalBayarPrice)" disabled />
+                    </div>
                   </div>
                 </div>
                 
@@ -783,7 +790,7 @@
                     <a href="javascript:void(0)" class="text-secondary me-1" v-on:click="removeMoreMetodeBayar(metode, index)">
                       <span class="fas fa-window-close fs--1"></span>
                     </a>
-                    <img class="img-icon-po1" :src="'src/assets/img/po-img/' + metode.image" />
+                    <img class="img-icon-po1" :src="'assets/img/po-img/' + metode.image" />
                   </div>
                   <div class="w-40 me-2 text-end">
                     <input v-if="metode.kode != 'cash' && metode.kode != 'karyawan'" v-model="modelInputMoreMetodeBayar[index]" class="form-control form-control-sm" :id="'inputMoreMetodeBayar_' + index" @input="modelInputMoreMetodeBayar[index] = onChangeCheckNumberVal($event)" type="text" :placeholder="metode.kode == 'ewal' ? 'Nomor telepon' : '4 digit nomor' " />
@@ -982,7 +989,7 @@
       <div class="modal-content position-relative border-0">
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-4i.png); background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4i.png'); background-size: cover;"></div>
             <div class="card-body position-relative p-0">
               <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
                 <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -1081,7 +1088,7 @@
             <div class="row">
               <div v-for="promo in dataActiveMasterPromo" class="col-md-6">
                 <div class="card cursor-pointer" @click="clickPromoConfirmationPromo(promo)">
-                  <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/discount-i.png);"></div>
+                  <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/discount-i.png');"></div>
                   <div class="card-header position-relative">
                     <strong>
                       {{ promo.nama_promo.toUpperCase() }}
@@ -1256,7 +1263,7 @@
           </div>
           <div v-if="productSelectBatch != null" class="px-4 pb-4">
             <div v-if="productSelectBatch.product.all_inventory_batch.length > 0" class="card cursor-pointer mt-3" v-for="batch in productSelectBatch.product.all_inventory_batch" @click="addProductToList(productSelectBatch.product, batch, productSelectBatch.qty)">
-              <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-4.png); background-size: auto;"></div>
+              <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
               <div class="card-header position-relative py-2 px-3">
                 <div class="row align-items-center">
                   <div class="col-md-4">
@@ -1355,6 +1362,7 @@
         dataAllMetodeBayar: [],
         metodeBayarCash: {},
         metodeBayarKaryawan: {},
+        metodeBayarRedeemPoint: {},
         dataMetodeBayarTF: [],
         dataMetodeBayarEWal: [],
         dataMetodeBayarCC: [],
@@ -1561,9 +1569,22 @@
           this.dataAllKodeResellers = allData.getAllKodeReseller; //All Kode Reseller
           this.dataAllMetodeBayar = allData.getAllMetodeBayar; //All Metode Bayar
           this.dataAllMasterSalesBy = allData.getAllMasterSalesBy; //All Master Sales By
-          this.metodeBayarCash = this.dataAllMetodeBayar.find((m) => m.kode == this.master_code.metodeBayar.cash); // Metode Bayar Cash
-          this.metodeBayarKaryawan = this.dataAllMetodeBayar.find((m) => m.kode == this.master_code.metodeBayar.karyawan); // Metode Bayar Karyawan
-          allData.getAllMetodeBayar.forEach(metode => {
+          // this.metodeBayarCash = this.dataAllMetodeBayar.find((m) => m.kode == this.master_code.metodeBayar.cash); // Metode Bayar Cash
+          // this.metodeBayarKaryawan = this.dataAllMetodeBayar.find((m) => m.kode == this.master_code.metodeBayar.karyawan); // Metode Bayar Karyawan
+          allData.getAllMetodeBayar.some(metode => {
+            if(metode.kode == this.master_code.metodeBayar.cash){
+              this.metodeBayarCash = metode;
+              return false;
+            }
+            if(metode.kode == this.master_code.metodeBayar.karyawan){
+              this.metodeBayarKaryawan = metode;
+              return false;
+            }
+            if(metode.kode == this.master_code.metodeBayar.redeem){
+              this.metodeBayarRedeemPoint = metode;
+              return false;
+            }
+
             if(metode.kode === this.master_code.metodeBayar.tf){
               this.dataMetodeBayarTF.push(metode);
             }
@@ -2479,6 +2500,7 @@
       },
 
       validationBeforeContinueBtnBilling: function(){
+
         if(this.dataProductInList.length < 1){
           this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
           return false;
@@ -2494,7 +2516,24 @@
           this.$root.showAlertFunction('warning', 'Validasi Transaksi', 'Silahkan pilih metode pembayaran!');
           this.invalidMetodePembayaran = true;
           return false;
+        }else{
+          this.invalidMemberSelect = false;
+          const findMetodeBayar = this.dataAllMetodeBayar.find((metode) => metode.id === this.selectMethodPayment);
+          if(findMetodeBayar.kode == this.master_code.metodeBayar.redeem){
+            if(this.memberOverview != null){
+              if(parseInt(this.memberOverview.point) < parseInt(this.totalBayarPrice)){
+                this.$root.showAlertFunction('warning', 'Transaksi Invalid', 'Point member tidak cukup!');
+                this.invalidMemberSelect = true;
+                return false;
+              }
+            }else{
+                this.$root.showAlertFunction('warning', 'Transaksi Invalid', 'Metode bayar redeem memperlukan member!');
+                this.invalidMemberSelect = true;
+                return false;
+            }
+          }
         }
+
       },
 
       btnSearchSubmitProduct: function(){
@@ -2623,7 +2662,7 @@
       openModalCheckoutConfirm: function(){
         this.invalidSelectSalesBsc = false;
 
-        if(this.selectedMetodeBayar.kode != this.master_code.metodeBayar.cash && this.selectedMetodeBayar.kode != this.master_code.metodeBayar.karyawan){
+        if(this.selectedMetodeBayar.kode != this.master_code.metodeBayar.cash && this.selectedMetodeBayar.kode != this.master_code.metodeBayar.karyawan && this.selectedMetodeBayar.kode != this.master_code.metodeBayar.redeem){
           var inputSelectedMetodeBayar = $("#inputSelectedMetodeBayar");
           var inputSelectedMetodeBayarVal = inputSelectedMetodeBayar.val().trim();
 
@@ -2648,35 +2687,35 @@
           const activeStore = this.$root.selectedStoreAccess;
 
           const dataTr = {
-              user_login: user_login,
-              
-              storeCode: this.$root.selectedStoreAccess.store_code,
-              memberId: this.memberOverview ? this.memberOverview.member_id : null,
-              salesBy: this.selectSalesBy,
+            user_login: user_login,
+            
+            storeCode: this.$root.selectedStoreAccess.store_code,
+            memberId: this.memberOverview ? this.memberOverview.member_id : null,
+            salesBy: this.selectSalesBy,
 
-              totalQty: this.totalPcsItemOrder > 0 ? parseInt(this.totalPcsItemOrder) : null,
+            totalQty: this.totalPcsItemOrder > 0 ? parseInt(this.totalPcsItemOrder) : null,
 
-              subTotalAmount: this.totalPriceRingkasanProduct > 0 ? parseInt(this.totalPriceRingkasanProduct) : null,
-              totalDicountAmount: this.totalHematDiskon > 0 ? parseInt(this.totalHematDiskon) : null,
-              afterTotalDicountAmount: this.totalBayarPrice > 0 ? parseInt(this.totalBayarPrice) : null,
-              extraDiscountAmount: this.totalDiskonPercentReseller > 0 ? parseInt(this.totalDiskonPercentReseller) : null,
-              
-              amountDiskonPoint: this.checkboxMemberPotonganPoint ? parseInt(this.memberOverview.point) : null,
-              gelarPembalian: this.getCheckGelarPembelian,
+            subTotalAmount: this.totalPriceRingkasanProduct > 0 ? parseInt(this.totalPriceRingkasanProduct) : null,
+            totalDicountAmount: this.totalHematDiskon > 0 ? parseInt(this.totalHematDiskon) : null,
+            afterTotalDicountAmount: this.totalBayarPrice > 0 ? parseInt(this.totalBayarPrice) : null,
+            extraDiscountAmount: this.totalDiskonPercentReseller > 0 ? parseInt(this.totalDiskonPercentReseller) : null,
+            
+            amountDiskonPoint: this.checkboxMemberPotonganPoint ? parseInt(this.memberOverview.point) : null,
+            gelarPembalian: this.getCheckGelarPembelian,
 
-              paymentAmount: this.calculateTotalBayarPrice > 0 ? parseInt(this.calculateTotalBayarPrice) : null,
+            paymentAmount: this.calculateTotalBayarPrice > 0 ? parseInt(this.calculateTotalBayarPrice) : null,
 
-              description: this.keteranganTransaksi.trim() != '' ? this.keteranganTransaksi : null,
+            description: this.keteranganTransaksi.trim() != '' ? this.keteranganTransaksi : null,
 
-              paymentMethodCode: this.selectedMetodeBayar.slug,
-              uniquePayment: this.modelInputSelectedMetodeBayar.trim() != '' ? this.modelInputSelectedMetodeBayar : null,
+            paymentMethodCode: this.selectedMetodeBayar.slug,
+            uniquePayment: this.modelInputSelectedMetodeBayar.trim() != '' ? this.modelInputSelectedMetodeBayar : null,
 
-              cashValue: this.inputNominalMethodCash ? parseInt(this.$root.formatCurrencyRemoveSeparator(this.inputNominalMethodCash)) : null,
-              returnCashValue: this.totalKembalianMetodeCash > 0 ? parseInt(this.totalKembalianMetodeCash) : null,
+            cashValue: this.inputNominalMethodCash ? parseInt(this.$root.formatCurrencyRemoveSeparator(this.inputNominalMethodCash)) : null,
+            returnCashValue: this.totalKembalianMetodeCash > 0 ? parseInt(this.totalKembalianMetodeCash) : null,
 
-              products: this.dataProductInList,
-              activeStore: activeStore,
-              isTicket: this.allTicketInOrder.length > 0 ? this.allTicketInOrder : null,
+            products: this.dataProductInList,
+            activeStore: activeStore,
+            isTicket: this.allTicketInOrder.length > 0 ? this.allTicketInOrder : null,
           }
           
           const storeTr = await axios({
@@ -2697,7 +2736,12 @@
               findInvtory.onHand -= data.qty;
             });
 
-            this.generatePdfCheckout(dataStoreTr);
+            if(this.selectedMetodeBayar.kode == this.master_code.metodeBayar.redeem){
+              this.generatePdfRedeem(dataStoreTr);
+            }else{
+              this.generatePdfCheckout(dataStoreTr);
+            }
+
             this.dataProductInList = [];
             this.allTicketInOrder = [];
             this.memberOverview = null;
@@ -2841,7 +2885,6 @@
                 }
               },
               {
-                // content: this.getDateTimeForStruk(),
                 content: this.memberOverview ? this.memberOverview.nama.toUpperCase() : '-',
                 styles: {
                   halign: 'right',
@@ -3278,6 +3321,321 @@
         // const iframe = this.$refs["pdf_struk_transaksi"];
         // iframe.src = pdfDataUri;
 
+        const newWindow = window.open();
+        if (newWindow) {
+          const iframe = document.createElement('iframe');
+          iframe.src = pdfDataUri;
+          iframe.style.width = '100%';
+          iframe.style.height = '100%';
+          iframe.style.border = 'none';
+          newWindow.document.body.style.margin = '0';
+          newWindow.document.body.appendChild(iframe);
+        } else {
+          alert('Pop-up windows are blocked. Please enable pop-ups for this site.');
+        }
+      },
+
+      generatePdfRedeem: function(dataTr = null){
+        const docStruk = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: [72, 297],
+        });
+        const sizeFont = 6;
+        const callPadding = [0, 0, 0, 0];
+        const callPaddingProduct = [0.5, 0, 0.5, 0];
+        const marginPaper = [0, 1, 0, 1];
+        const startLine = 1;
+        const endLine = 71;
+        const plusHeightLine = 3;
+
+        const storeActive = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+        const storeDetail = storeActive.store_outlet;
+
+        // Nama Toko dan Alamat dibagian atas
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: `MARTHA TILAAR SHOP ${storeDetail.storeName.toUpperCase()}`,
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: [1, 0, 2, 0],
+                }
+              }
+            ],
+
+
+            [
+              {
+                content: storeDetail.address.toUpperCase(),
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+            [
+              {
+                content: 'No Unit: ' + storeDetail.level,
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+            [
+              {
+                content: 'No telp: ' + storeDetail.phone,
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+          ],
+          margin: marginPaper,
+          // startY: imageHeight + 3,
+          theme: 'plain',
+        });
+
+        const startY1 = docStruk.autoTable.previous.finalY;
+        const lineY1 = startY1 + plusHeightLine;
+        docStruk.setDrawColor(0);
+        docStruk.setLineWidth(0);
+        docStruk.line(startLine, lineY1, endLine, lineY1);
+
+        // Bon Redeem dan Waktu Transaksi
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: `No Bon: ${dataTr.bonStruk}`,
+                styles: {
+                  halign: 'left',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+              {
+                content: `Waktu: ${this.getDateTimeForStruk(dataTr.docDate)}`,
+                styles: {
+                  halign: 'right',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+            ],
+          ],
+          margin: marginPaper,
+          // startY: imageHeight + 3,
+          theme: 'plain',
+        });
+
+        const startY2 = docStruk.autoTable.previous.finalY;
+        const lineY2 = startY2 + plusHeightLine;
+        docStruk.setDrawColor(0);
+        docStruk.setLineWidth(0);
+        docStruk.line(startLine, lineY2, endLine, lineY2);
+
+        const bodyRinkasanProduct = [
+          [
+            {
+              content: 'Ringkasan Produk:',
+              colSpan: 4,
+              styles: {
+                halign: 'left',
+                fontSize: sizeFont,
+                cellPadding: [0, 2, 0, 0],
+              }
+            }
+          ]
+        ];
+
+        this.dataProductInList.forEach(data => {
+          const product = data.product;
+          const obj = [
+            {
+              content: product.itemNameShort,
+              styles: {
+                halign: 'left',
+                fontSize: sizeFont,
+                cellPadding: [0.5, 1.5, 0.5, 0],
+              }
+            },
+            {
+              content: data.qty,
+              styles: {
+                halign: 'center',
+                fontSize: sizeFont,
+                cellPadding: callPaddingProduct,
+              }
+            },
+            {
+              content: this.$root.formatPrice(this.$root.filterPriceProduct(product).price),
+              styles: {
+                halign: 'left',
+                fontSize: sizeFont,
+                cellPadding: [0.5, 0, 0.5, 1],
+              }
+            },
+            {
+              content: this.$root.formatPrice(this.$root.filterPriceProduct(product).price * data.qty),
+              styles: {
+                halign: 'right',
+                fontSize: sizeFont,
+                cellPadding: [0.5, 0, 0.5, 0.5],
+              }
+            }
+          ];
+
+          bodyRinkasanProduct.push(obj);
+        });
+
+        // Ringkasan product
+        autoTable(docStruk, {
+          head: bodyRinkasanProduct,
+          margin: marginPaper,
+          theme: 'plain',
+        });
+
+        const startY3 = docStruk.autoTable.previous.finalY;
+        const lineY3 = startY3 + plusHeightLine;
+        docStruk.setDrawColor(0);
+        docStruk.setLineWidth(0);
+        docStruk.line(startLine, lineY3, endLine, lineY3);
+        
+        // Kasir, Member, dan Billing Detail
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: 'Nama Kasir : ',
+                styles: {
+                  halign: 'left',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+              {
+                content: this.$root.dataAuthToken.nama_lengkap.toUpperCase(),
+                styles: {
+                  halign: 'right',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+            ],
+            [
+              {
+                content: 'Nama Member : ',
+                styles: {
+                  halign: 'left',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+              {
+                content: this.memberOverview ? this.memberOverview.nama.toUpperCase() : '-',
+                styles: {
+                  halign: 'right',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+            ],
+            [
+              {
+                content: 'Point Awal : ',
+                styles: {
+                  halign: 'left',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+              {
+                content: this.memberOverview ? `Rp ${this.$root.formatPrice(this.memberOverview.point)}` : '-',
+                styles: {
+                  halign: 'right',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+            ],
+            [
+              {
+                content: 'Point Setelah Redeem : ',
+                styles: {
+                  halign: 'left',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+              {
+                content: this.memberOverview ? `Rp ${this.$root.formatPrice(parseInt(this.memberOverview.point) - parseInt(this.calculateTotalBayarPrice))}` : '-',
+                styles: {
+                  halign: 'right',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+            ],
+          ],
+          margin: marginPaper,
+          // startY: imageHeight + 3,
+          theme: 'plain',
+        });
+
+        const startY4 = docStruk.autoTable.previous.finalY;
+        const lineY4 = startY4 + plusHeightLine;
+        docStruk.setDrawColor(0);
+        docStruk.setLineWidth(0);
+        docStruk.line(startLine, lineY4, endLine, lineY4);
+
+        // Alamat pusat bagian bawah
+        autoTable(docStruk, {
+          body: [
+            [
+              {
+                content: 'PT. Tara Parama Semesta'.toUpperCase(),
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+            ],
+            [
+              {
+                content: 'Jl. Pulo Kambing 2 No. 1 Pulogadung Jaktim'.toUpperCase(),
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+            [
+              {
+                content: 'www.marthatilaarshop.com',
+                styles: {
+                  halign: 'center',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+          ],
+          margin: marginPaper,
+          // startY: imageHeight + 3,
+          theme: 'plain',
+        });
+        
+        const pdfDataUri = docStruk.output('datauristring');
         const newWindow = window.open();
         if (newWindow) {
           const iframe = document.createElement('iframe');

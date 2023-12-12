@@ -13,7 +13,7 @@
   </div>
   
   <div class="card shadow-none border mb-3">
-    <div class="bg-holder bg-card d-none d-md-block" style="background-image:url(src/assets/img/illustration/reports-bg.png);"></div><!--/.bg-holder-->
+    <div class="bg-holder bg-card d-none d-md-block" style="background-image:url('assets/img/illustration/reports-bg.png');"></div><!--/.bg-holder-->
     <div class="card-header z-1">
       <div class="row flex-between-center gx-0">
         <div class="col-lg-auto d-flex align-items-center"><img class="img-fluid" src="@/assets/img/illustration/reports-greeting.png" alt="">
@@ -38,7 +38,7 @@
   </div>
   
   <div class="card">
-    <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1-left.png); background-position: left; background-size: auto;"></div>
+    <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1-left.png'); background-position: left; background-size: auto;"></div>
     <div class="card-body pb-0 position-relative">
       <h5>Penerimaan Barang</h5>
       <div class="table-scrollable-wrapper mb-2" style="min-height: 2vh; max-height: 80vh;">
@@ -91,7 +91,7 @@
         </div>
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1i.png);background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1i.png');background-size: cover;"></div>
             <div class="card-body p-0 position-relative">
               <div class="py-3 ps-4 pe-6">
                 <h5 class="mb-1" id="modalExampleDemoLabel">Form Peneriaman Barang</h5>

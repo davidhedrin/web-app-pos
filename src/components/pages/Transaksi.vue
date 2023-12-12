@@ -85,7 +85,7 @@
   </div>
 
   <div class="card">
-    <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1-left.png); background-position: left; background-size: auto;"></div>
+    <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1-left.png'); background-position: left; background-size: auto;"></div>
     <div class="card-body pb-0 position-relative">
       <div class="row align-items-center">
         <div class="col-md-3 mb-3">
@@ -127,7 +127,7 @@
               <td>{{ trans.ducNum }}</td>
               <td>{{ trans.bonStruk }}</td>
               <td>{{ trans.sales_type.nama_sales }}</td>
-              <td><img :src="'src/assets/img/po-img/' + trans.payment_type.image" height="20" alt=""></td>
+              <td><img :src="'assets/img/po-img/' + trans.payment_type.image" height="20" alt=""></td>
               <td class="text-warning">Rp {{ $root.formatPrice(trans.paymentAmount) }}</td>
               <td>{{ formatDateTime(trans.docDate) }}</td>
               <td>
@@ -173,7 +173,7 @@
       <div class="modal-content position-relative">
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1i.png); background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1i.png'); background-size: cover;"></div>
             <div class="card-body position-relative p-2">
               <div v-if="selectedTrView" class="mb-3 mt-2">
                 <div class="row align-items-center text-center mx-0">
@@ -239,7 +239,7 @@
                           <tr>
                             <th class="text-end">Metode Bayar:</th>
                             <td class="p-0 text-sm-end">
-                              <img :src="'src/assets/img/po-img/' + selectedTrView.payment_type.image" height="18" alt="">
+                              <img :src="'assets/img/po-img/' + selectedTrView.payment_type.image" height="18" alt="">
                             </td>
                           </tr>
                           <tr v-if="selectedTrView.uniquePayment" class="align-middle">
@@ -276,8 +276,8 @@
                       <tr v-for="(data, index) in selectedTrView.all_data_tr_d1">
                         <td class="align-middle">{{ index + 1 }}</td>
                         <td class="align-middle text-center">
-                          <img v-if="data.product.image == null || data.product.image.trim() == ''" class="img-product rounded-2" src="@/assets/img/product/no_image.jpg" alt="@/assets/img/product/no_image.jpg">
-                          <img v-else class="img-product rounded-2" :src="'src/assets/img/product/' + data.product.image" alt="@/assets/img/product/no_image.jpg">
+                          <img v-if="data.product.imageUrl == null || data.product.imageUrl.trim() == ''" class="img-product rounded-2" src="@/assets/img/product/no_image.jpg">
+                          <img v-else class="img-product rounded-2" :src="data.product.imageUrl">
                         </td>
                         <td class="align-middle">
                           <h6 class="mb-0 text-nowrap">{{ data.product.itemName }}</h6>

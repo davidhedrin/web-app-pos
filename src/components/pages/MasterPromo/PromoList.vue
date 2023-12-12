@@ -53,7 +53,7 @@
   <div class="row">
     <div v-for="promo in dataAllMasterPromo" class="col-lg-4 mb-3">
       <div class="card">
-        <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/discount-i.png); background-size: cover;"></div>
+        <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/discount-i.png'); background-size: cover;"></div>
         <div class="card-header d-flex justify-content-between position-relative">
           <div>
             <!-- <h6><span class="badge rounded-pill mb-0" :class="'bg-'+promo.master_kode_promo.badge">{{ promo.master_kode_promo.nama_promo }}</span></h6> -->
@@ -129,7 +129,7 @@
         </div>
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1i.png); background-position: left; background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1i.png'); background-position: left; background-size: cover;"></div>
             <div class="card-body position-relative">
               <div class="rounded-top-3 mb-2">
                 <h5 class="mb-1">Detail Promo</h5>

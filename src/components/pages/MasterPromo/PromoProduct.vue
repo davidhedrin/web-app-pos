@@ -57,7 +57,7 @@
   </div>
   
   <div class="card">
-    <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-size: cover;"></div>
+    <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url('assets/img/illustration/corner-5i.png'); background-size: cover;"></div>
     <div v-if="dataAllPromoProduct.length > 0" class="card-body position-relative px-0">
       <div v-if="isListOrGrid" class="table-scrollable-wrapper" style="max-height: 66vh; min-height: 66vh;">
         <table class="table table-scrollable table-hover">
@@ -106,7 +106,7 @@
               <div class="overflow-hidden">
                 <div class="position-relative rounded-top overflow-hidden">
                   <div class="d-block">
-                    <img v-if="master.for_product.image != null && master.for_product.image.trim() != ''" class="img-fluid rounded-top" :src="'src/assets/img/product/' + master.for_product.image" style="width: 100%; height: 120px;" alt="No Image">
+                    <img v-if="master.for_product.imageUrl != null && master.for_product.imageUrl.trim() != ''" class="img-fluid rounded-top" :src="master.for_product.imageUrl" style="width: 100%; height: 120px;" alt="No Image">
                     <img class="img-fluid rounded-top" src="@/assets/img/product/no_image.jpg" style="width: 100%; height: 120px;" alt="No Image">
                   </div>
                   <span class="badge rounded-pill position-absolute mt-2 me-2 z-2 top-0 end-0" :class="'bg-' + master.master_promo_product.master_kode_promo_product.badge">

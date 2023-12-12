@@ -1,6 +1,6 @@
 <template>
   <div class="card shadow-none border mb-3">
-    <div class="bg-holder bg-card d-none d-md-block" style="background-image:url(src/assets/img/illustration/reports-bg.png);"></div><!--/.bg-holder-->
+    <div class="bg-holder bg-card d-none d-md-block" style="background-image:url('assets/img/illustration/reports-bg.png');"></div><!--/.bg-holder-->
     <div class="card-header z-1">
       <div class="row flex-between-center gx-0">
         <div class="col-lg-auto d-flex align-items-center">
@@ -47,7 +47,7 @@
   <div class="card bg-transparent-50 mb-3 overflow-hidden">
     <div class="card-header position-relative">
       <div class="bg-holder d-none d-md-block bg-card z-1"
-        style="background-image:url(src/assets/img/ecommerce-bg.png);background-size:230px;background-position:right bottom;z-index:-1;">
+        style="background-image:url('assets/img/ecommerce-bg.png');background-size:230px;background-position:right bottom;z-index:-1;">
       </div><!--/.bg-holder-->
       <div class="position-relative z-2">
         <div>

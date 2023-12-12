@@ -1,6 +1,6 @@
 <template>
   <div class="card shadow-none border mb-3">
-    <div class="bg-holder bg-card d-none d-md-block" style="background-image:url(src/assets/img/illustration/reports-bg.png);"></div><!--/.bg-holder-->
+    <div class="bg-holder bg-card d-none d-md-block" style="background-image:url('assets/img/illustration/reports-bg.png');"></div><!--/.bg-holder-->
     <div class="card-header z-1">
       <div class="row flex-between-center gx-0">
         <div class="col-lg-auto d-flex align-items-center"><img class="img-fluid" src="@/assets/img/illustration/reports-greeting.png" alt="">
@@ -24,7 +24,7 @@
     </div>
   </div>
   <div class="card mb-3">
-    <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5j.png); background-size: cover; background-position: bottom;"></div>
+    <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url('assets/img/illustration/corner-5j.png'); background-size: cover; background-position: bottom;"></div>
     <div class="card-body position-relative px-5">
       <div class="row">
         <div class="col-md-9">
@@ -134,7 +134,7 @@
         </div>
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-4-left.png); background-position: left; background-size: cover;"></div>
+            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url('assets/img/illustration/corner-4-left.png'); background-position: left; background-size: cover;"></div>
             <div class="card-body position-relative p-0">
               <div class="rounded-top-3 py-3 ps-4 pe-6">
                 <h5 class="mb-1">Edit Data Profile</h5>

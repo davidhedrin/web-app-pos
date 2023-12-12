@@ -8,7 +8,7 @@
           <div class="row g-0 h-100">
             <div class="col-md-6 text-center bg-card-gradient">
               <div class="position-relative p-4 pt-md-6" data-bs-theme="light">
-                <div class="bg-holder bg-auth-card-shape" style="background-image: url(src/assets/img/auth/half-circle.png);"></div>
+                <div class="bg-holder bg-auth-card-shape" style="background-image: url('assets/img/auth/half-circle.png');"></div>
                 <div class="z-1 position-relative">
                   <a class="link-light pb-5 font-sans-serif fs-4 d-inline-block fw-bolder" href="javascript:void(0)">
                     <img src="@/assets/img/mtsiconland-white.png" alt="" width="300"/>

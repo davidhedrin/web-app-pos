@@ -51,7 +51,7 @@
   </div>
 
   <div class="card">
-    <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-4.png);"></div>
+    <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url('assets/img/illustration/corner-4.png');"></div>
     <div class="card-body position-relative pb-0">
       <div class="table-scrollable-wrapper mb-2" style="max-height: 64vh; min-height: 64vh;">
         <table class="table table-scrollable table-sm">
@@ -71,8 +71,8 @@
             <tr v-for="(product, index) in allDataProduct">
               <td class="tr-middle">{{ index + 1 }}</td>
               <td class="tr-middle">
-                <img v-if="product.image == null || product.image.trim() == ''" class="img-product rounded-2" src="@/assets/img/product/no_image.jpg" alt="">
-                <img v-else class="img-product rounded-2" :src="'src/assets/img/product/' + product.image" alt="">
+                <img v-if="product.imageUrl == null || product.imageUrl.trim() == ''" class="img-product rounded-2" src="@/assets/img/product/no_image.jpg" alt="">
+                <img v-else class="img-product rounded-2" :src="product.imageUrl" alt="">
               </td>
               <td class="tr-middle">{{ product.itemCode }}</td>
               <td class="tr-middle">{{ product.itemName }}</td>
@@ -158,7 +158,7 @@
             <h5 class="mb-0">Detail Product </h5>
           </div>
           <div class="card">
-            <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-4i.png); background-size: cover;"></div>
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4i.png'); background-size: cover;"></div>
             <div class="card-body position-relative">
               <div class="scrollable-customize mb-0" style="min-height: 200px; max-height: 650px;">
                 <div v-if="productShowDetail">

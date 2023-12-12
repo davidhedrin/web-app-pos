@@ -69,6 +69,7 @@ export const master_code = {
     tf: 'tf',
     ewal: 'ewal',
     cc: 'cc',
+    redeem: 'redeem',
   },
 
   kodeReseller: {

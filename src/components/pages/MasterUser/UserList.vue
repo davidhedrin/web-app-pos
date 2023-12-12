@@ -36,7 +36,7 @@
 
   
   <div class="card">
-    <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-5i.png); background-size: cover;"></div>
+    <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url('assets/img/illustration/corner-5i.png'); background-size: cover;"></div>
     <div class="card-body position-relative pb-0">
       <div  class="table-scrollable-wrapper" style="max-height: 67vh; min-height: 67vh;">
         <table class="table table-scrollable">
@@ -149,7 +149,7 @@
         </div>
         <div class="modal-body p-0">
           <div class="card">
-            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url(src/assets/img/illustration/corner-4-left.png); background-position: left; background-size: cover;"></div>
+            <div class="bg-holder d-none d-lg-block bg-card" style="background-image:url('assets/img/illustration/corner-4-left.png'); background-position: left; background-size: cover;"></div>
             <div class="card-body position-relative p-0">
               <div class="rounded-top-3 py-3 ps-4 pe-6">
                 <h5 class="mb-1">Edit Data User</h5>

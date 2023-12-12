@@ -46,7 +46,7 @@
     </div>
   </div>
   <div v-else class="card">
-    <div class="bg-holder bg-card" style="background-image:url(src/assets/img/illustration/corner-1-left.png); background-position: left; background-size: cover;"></div>
+    <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1-left.png'); background-position: left; background-size: cover;"></div>
     <div class="card-body pb-0 position-relative">
       <h5>Penarikan Data</h5>
       <div class="table-scrollable-wrapper mb-2" style="min-height: 2vh; max-height: 62vh;">
