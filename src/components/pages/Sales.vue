@@ -192,7 +192,7 @@
           </div>
         </div>
         <div class="card-body position-relative p-0">
-          <div class="scrollable-customize mb-3" style="max-height: 46vh;">
+          <div class="scrollable-customize mb-3" style="min-height: 46vh; max-height: 46vh;">
             <div v-if="$root.selectedStoreAccess === null || filteredProducts.length < 1" class="text-center py-5">
               <div class="mt-5">
                 <img src="@/assets/img/mtsiconland.png" width="200" alt="" />
@@ -274,7 +274,7 @@
                 </div>
               </div>
 
-              <div v-if="totalPageProduct > 1" class="row mt-2 px-3 justify-content-end">
+              <div v-if="totalPageProduct > 1 && filteredProducts.length > 0" class="row mt-2 px-3 justify-content-end">
                 <div v-if="isLoadAllDataProduct" class="col-md-10 d-grid gap-2 p-0">
                   <button class="btn btn-outline-primary me-1 mb-1" type="button" @click="fatchDataProduct(currentPageProduct + 1)">
                     Selanjutnya <span class="fas fa-sort-amount-down-alt"></span>
@@ -765,7 +765,7 @@
                   </div>
                 </div> -->
                 <label class="form-label mb-0">Payment Detail:</label>
-                <div class="d-flex align-items-center justify-content-between rounded-3 bg-body-tertiary ps-2 py-1 px-2">
+                <div v-if="selectedMetodeBayar != null" class="d-flex align-items-center justify-content-between rounded-3 bg-body-tertiary ps-2 py-1 px-2">
                   <div class="w-35">
                     <img class="img-icon-po2" :src="'assets/img/po-img/' + selectedMetodeBayar.image" />
                   </div>
@@ -1367,7 +1367,7 @@
         dataMetodeBayarEWal: [],
         dataMetodeBayarCC: [],
         dataMoreMetodeBayar: [],
-        selectedMetodeBayar: {},
+        selectedMetodeBayar: null,
         modelInputSelectedMetodeBayar: '',
         modelInputMoreMetodeBayar:[],
         validasiMetodePembayaran: [],
@@ -2100,7 +2100,7 @@
       // Logic Metode Bayar
       onChangeSelectedMetodeBayar: function(){
         this.validasiMetodePembayaran = [];
-        this.selectedMetodeBayar = {};
+        this.selectedMetodeBayar = null;
         this.invalidMetodePembayaran = false;
         this.inputNominalMethodCash = null;
       },
@@ -2546,13 +2546,16 @@
             return filterValidate;
           });
 
-          this.allProductFindSearchBtn = checkAllProduct;
-          if(checkAllProduct.length > 1){
-            $('#modalSearchFoundProductMore').modal('show');
-          }else{
-            this.validateModalBatchProduct(checkAllProduct[0]);
+          if(checkAllProduct.length > 0) {
+            this.allProductFindSearchBtn = checkAllProduct;
+            if(checkAllProduct.length > 1){
+              $('#modalSearchFoundProductMore').modal('show');
+            }else{
+              console.log(checkAllProduct[0]);
+              this.validateModalBatchProduct(checkAllProduct[0]);
+            }
+            this.inputSearchProduct = '';
           }
-          this.inputSearchProduct = '';
         }
       },
       
@@ -2690,7 +2693,7 @@
             user_login: user_login,
             
             storeCode: this.$root.selectedStoreAccess.store_code,
-            memberId: this.memberOverview ? this.memberOverview.member_id : null,
+            memberId: this.memberOverview != null ? this.memberOverview : null,
             salesBy: this.selectSalesBy,
 
             totalQty: this.totalPcsItemOrder > 0 ? parseInt(this.totalPcsItemOrder) : null,
@@ -2700,14 +2703,14 @@
             afterTotalDicountAmount: this.totalBayarPrice > 0 ? parseInt(this.totalBayarPrice) : null,
             extraDiscountAmount: this.totalDiskonPercentReseller > 0 ? parseInt(this.totalDiskonPercentReseller) : null,
             
-            amountDiskonPoint: this.checkboxMemberPotonganPoint ? parseInt(this.memberOverview.point) : null,
+            amountDiskonPoint: this.selectedMetodeBayar.kode == this.master_code.metodeBayar.redeem ? parseInt(this.memberOverview.point) : null,
             gelarPembalian: this.getCheckGelarPembelian,
 
             paymentAmount: this.calculateTotalBayarPrice > 0 ? parseInt(this.calculateTotalBayarPrice) : null,
 
             description: this.keteranganTransaksi.trim() != '' ? this.keteranganTransaksi : null,
 
-            paymentMethodCode: this.selectedMetodeBayar.slug,
+            paymentMethodCode: this.selectedMetodeBayar != null ? this.selectedMetodeBayar : null,
             uniquePayment: this.modelInputSelectedMetodeBayar.trim() != '' ? this.modelInputSelectedMetodeBayar : null,
 
             cashValue: this.inputNominalMethodCash ? parseInt(this.$root.formatCurrencyRemoveSeparator(this.inputNominalMethodCash)) : null,
@@ -2716,6 +2719,7 @@
             products: this.dataProductInList,
             activeStore: activeStore,
             isTicket: this.allTicketInOrder.length > 0 ? this.allTicketInOrder : null,
+            objTypeCode: this.selectedMetodeBayar.kode == this.master_code.metodeBayar.redeem ? parseInt(this.master_coll.masterObjType.salesredeem) : parseInt(this.master_coll.masterObjType.salestoko),
           }
           
           const storeTr = await axios({
@@ -2736,9 +2740,16 @@
               findInvtory.onHand -= data.qty;
             });
 
+            if(this.memberOverview != null){
+              await this.fatchDataMember(this.currentPageMember);
+            }
+
+            const findMember = this.dataAllMembers.find((m) => m.member_id === this.memberOverview.member_id);
             if(this.selectedMetodeBayar.kode == this.master_code.metodeBayar.redeem){
               this.generatePdfRedeem(dataStoreTr);
+              // findMember.point = parseInt(findMember.point) - parseInt(this.calculateTotalBayarPrice);
             }else{
+              this.memberOverview = findMember;
               this.generatePdfCheckout(dataStoreTr);
             }
 
@@ -3508,6 +3519,33 @@
         docStruk.setDrawColor(0);
         docStruk.setLineWidth(0);
         docStruk.line(startLine, lineY3, endLine, lineY3);
+        
+        // Total Ringkasan Product
+        const textTotalBayarProduct = `Total Bayar Produk: ${this.totalPcsItemOrder} pcs`;
+        autoTable(docStruk, {
+          head: [
+            [
+              {
+                content: textTotalBayarProduct,
+                styles: {
+                  halign: 'left',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              },
+              {
+                content: `Rp ${this.$root.formatPrice(this.totalPriceRingkasanProduct)}`,
+                styles: {
+                  halign: 'right',
+                  fontSize: sizeFont,
+                  cellPadding: callPadding,
+                }
+              }
+            ],
+          ],
+          margin: marginPaper,
+          theme: 'plain',
+        });
         
         // Kasir, Member, dan Billing Detail
         autoTable(docStruk, {

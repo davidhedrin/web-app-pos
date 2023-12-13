@@ -117,7 +117,12 @@ export const master_coll = {
     first: '1',
     secound: '2',
     three: '3',
-  }
+  },
+
+  masterObjType: {
+    salestoko: 401,
+    salesredeem: 402,
+  },
 }
 
 export const local_storage = {
