@@ -100,21 +100,21 @@
         </template>
         <template #body>
           <div style="width: 90vw">
-            <div class="table-responsive">
+            <!-- <div class="table-responsive">
               <table
                 class="table table-borderless"
                 style="background-color: #f5f7fa"
               >
                 <tbody>
                   <tr>
-                    <td class="text-left" width="10">docNum</td>
+                    <td class="text-left" width="10">Doc Number</td>
                     <td class="text-left" width="1">:</td>
                     <td class="text-success text-left">
                       <strong>
                         {{ dataTr301.docNum == "" ? "-" : dataTr301.docNum }}
                       </strong>
                     </td>
-                    <td class="text-left" width="10">docStatus</td>
+                    <td class="text-left" width="10">Doc Status</td>
                     <td class="text-left">:</td>
                     <td class="text-success text-left">
                       <strong>
@@ -127,7 +127,7 @@
                         }}</strong
                       >
                     </td>
-                    <td class="text-left" width="10">reffNo</td>
+                    <td class="text-left" width="10">Reff Number</td>
                     <td class="text-left" width="1">:</td>
                     <td class="text-success text-left">
                       <template v-if="idRincian == ''">
@@ -144,7 +144,7 @@
                         }}
                       </strong>
                     </td>
-                    <td class="text-left" width="10">docDate</td>
+                    <td class="text-left" width="10">Doc Date</td>
                     <td class="text-left" width="1">:</td>
                     <td class="text-success text-left">
                       <strong>
@@ -158,7 +158,7 @@
                   </tr>
 
                   <tr>
-                    <td class="text-left">storeCode</td>
+                    <td class="text-left">Store Code</td>
                     <td class="text-left">:</td>
                     <td class="text-success text-left">
                       <strong>
@@ -169,7 +169,7 @@
                         }}
                       </strong>
                     </td>
-                    <td class="text-left">storeName</td>
+                    <td class="text-left">Store Name</td>
                     <td class="text-left">:</td>
                     <td class="text-success text-left">
                       <strong
@@ -197,7 +197,7 @@
                   </tr>
 
                   <tr>
-                    <td class="text-left">whsCode</td>
+                    <td class="text-left">Warehouse Code</td>
                     <td class="text-left">:</td>
                     <td class="text-success text-left">
                       <template v-if="idRincian != ''">
@@ -210,7 +210,7 @@
                         ></v-select>
                       </template>
                     </td>
-                    <td class="text-left">priceCode</td>
+                    <td class="text-left">Price Code</td>
                     <td class="text-left">:</td>
                     <td class="text-success text-left">
                       <template v-if="idRincian != ''">
@@ -224,7 +224,7 @@
                       </template>
                     </td>
 
-                    <td class="text-left">discCode</td>
+                    <td class="text-left">Discout Code</td>
                     <td class="text-left">:</td>
                     <td class="text-success text-left">
                       <template v-if="idRincian != ''">
@@ -243,7 +243,7 @@
                   </tr>
 
                   <tr>
-                    <td class="text-left">comments</td>
+                    <td class="text-left">Comments</td>
                     <td class="text-left">:</td>
                     <td class="text-success text-left" colspan="4">
                       <template v-if="idRincian != ''">
@@ -268,15 +268,143 @@
                   </tr>
                 </tbody>
               </table>
+            </div> -->
+            
+            <div class="card">
+              <div class="card-header">
+                <div class="row align-items-start">
+                  <div class="col-md-3 text-center mb-2">
+                    <span class="fs--1"><u>Doc Number</u></span>
+                    <h5>
+                      {{ dataTr301.docNum == undefined || dataTr301.docNum == "" ? "-" : dataTr301.docNum }}
+                    </h5>
+                  </div>
+                  <div class="col-md-3 text-center mb-2">
+                    <span class="fs--1"><u>Doc Status</u></span>
+                    <h5>
+                      {{
+                        dataTr301.docStatus == undefined
+                          ? "-"
+                          : dataTr301.docStatus == "O"
+                          ? "Open"
+                          : "Close"
+                      }}
+                    </h5>
+                  </div>
+                  <div class="col-md-3 text-center mb-2">
+                    <span class="fs--1"><u>Reff Number</u></span>
+                    <div>
+                      <button class="btn btn-sm btn-primary" type="button" @click="clickReffNo()">
+                        Browse
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-3 text-center mb-2">
+                    <span class="fs--1"><u>Doc Date</u></span>
+                    <h5>
+                      {{
+                        dataTr301.docDate == undefined
+                          ? "-"
+                          : dataTr301.docDate
+                      }}
+                    </h5>
+                  </div>
+                  <div class="col-md-3 text-center mb-2">
+                    <span class="fs--1"><u>Store Code</u></span>
+                    <h5>
+                      {{
+                        dataTr301.storeCode == undefined
+                          ? "-"
+                          : dataTr301.storeCode
+                      }}
+                    </h5>
+                  </div>
+                  <div class="col-md-3 text-center mb-2">
+                    <span class="fs--1"><u>Store Name</u></span>
+                    <h5>
+                      {{
+                        dataTr301.storeName == undefined
+                          ? "-"
+                          : dataTr301.storeName
+                      }}
+                    </h5>
+                  </div>
+                  <div class="col-md-3 text-center mb-2">
+                    <span class="fs--1"><u>Reference</u></span>
+                    <h5>
+                      {{
+                        dataTr301.reference == undefined
+                          ? "-"
+                          : dataTr301.reference
+                      }}
+                        </h5>
+                  </div>
+                  <div class="col-md-3 text-center mb-2">
+                    <span class="fs--1"><u>Warehouse Code</u></span>
+                    <h5>
+                      <template v-if="idRincian != ''">
+                        <v-select
+                          :options="getCboWhsCodeInventoryOptions"
+                          v-model="tmp_getCboWhsCodeInventoryOptions"
+                          @update:modelValue="mySelectEvent2()"
+                          :clearable="false"
+                          :disabled="dataTr301.docStatus == 'C'"
+                        ></v-select>
+                      </template>
+                      <h5 v-else>-</h5>
+                    </h5>
+                  </div>
+                  <div class="col-md-3 text-center mb-2">
+                    <span class="fs--1"><u>Price Code</u></span>
+                    <h5>
+                      <template v-if="idRincian != ''">
+                        <v-select
+                          :options="getCboPriceCodeInventoryOptions"
+                          v-model="tmp_getCboPriceCodeInventoryOptions"
+                          @update:modelValue="mySelectEvent22()"
+                          :clearable="false"
+                          :disabled="dataTr301.docStatus == 'C'"
+                        ></v-select>
+                      </template>
+                      <h5 v-else>-</h5>
+                    </h5>
+                  </div>
+                  <div class="col-md-3 text-center mb-2">
+                    <span class="fs--1"><u>Discount Code</u></span>
+                    <h5>
+                      <template v-if="idRincian != ''">
+                        <v-select
+                          :options="getCboDiscCodeInventoryOptions"
+                          v-model="tmp_getCboDiscCodeInventoryOptions"
+                          @update:modelValue="mySelectEvent222()"
+                          :clearable="false"
+                          :disabled="dataTr301.docStatus == 'C'"
+                        ></v-select>
+                      </template>
+                      <h5 v-else>-</h5>
+                    </h5>
+                  </div>
+                  <div class="col-md-3 text-center mb-2">
+                    <span class="fs--1"><u>Comments</u></span>
+                    <h5>
+                      <template v-if="idRincian != ''">
+                        <textarea
+                          class="form-control"
+                          id="w3review"
+                          name="w3review"
+                          rows="5"
+                          cols="60"
+                          v-model="dataTr301.comments"
+                          placeholder="Kosongkan jika tidak ada selisih penerimaan"
+                          :disabled="dataTr301.docStatus == 'C'"
+                        ></textarea>
+                      </template>
+                      <h5 v-else>-</h5>
+                    </h5>
+                  </div>
+                </div>
+              </div>
             </div>
-            <!-- <pre>{{ idRincian }} rincian DN</pre>
-            <pre>{{ idRincianUpdate }} rincian TR</pre>
-            <pre>{{ dataRincianHeaderID }} </pre>
-            <pre>{{ dataTr301 }} </pre>
-            <pre>{{ var_penerimaan_DN }}</pre>
-            <pre>{{ var_penerimaan_Actual }}</pre>
-            <pre>{{ data_CboWhs }}</pre>
-            <pre>{{ dataRincianHeaderIDTR }}</pre> -->
 
             <br />
             <br />
