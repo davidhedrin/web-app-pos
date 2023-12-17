@@ -57,9 +57,21 @@
                   </a>
                 </div>
                 <div class="col-4">
-                  <a @click="validateGoto(pages.receiptitem)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
-                    <div class="avatar"> <span class="fas fa-boxes" style="font-size: 30px;"></span></div>
-                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Goods Receipt</p>
+                  <a @click="validateGoto(pages.receiptitemv2)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                    <div class="avatar"> <span class="fas fa-dolly" style="font-size: 30px;"></span></div>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Penerimaan</p>
+                  </a>
+                </div>
+                <div class="col-4">
+                  <a @click="validateGoto(pages.transin)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                    <div class="avatar"> <span class="fas fa-file-download text-success" style="font-size: 30px;"></span></div>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Trans In</p>
+                  </a>
+                </div>
+                <div class="col-4">
+                  <a @click="validateGoto(pages.transout)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                    <div class="avatar"> <span class="fas fa-file-upload text-danger" style="font-size: 30px;"></span></div>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Trans Out</p>
                   </a>
                 </div>
               </div>
@@ -71,7 +83,7 @@
                 </div>
                 <div class="col-4">
                   <a @click="validateGoto(pages.productlist)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
-                    <div class="avatar"> <span class="fas fa-dolly" style="font-size: 30px;"></span></div>
+                    <div class="avatar"> <span class="fas fa-boxes" style="font-size: 30px;"></span></div>
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">All Product</p>
                   </a>
                 </div>

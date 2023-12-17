@@ -88,21 +88,28 @@
     <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1-left.png'); background-position: left; background-size: auto;"></div>
     <div class="card-body pb-0 position-relative">
       <div class="row align-items-center">
-        <div class="col-md-3 mb-3">
+        <div class="col-md-6 mb-3">
           <h4>Daftar transaksi</h4>
         </div>
-        <div class="col-md-6 mb-3 d-flex align-items-center">
-          <input v-model="dateRangeStart" type="datetime-local" class="form-control">
-          <span class="fw-semi-bold px-2">s/d</span>
-          <input v-model="dateRangeEnd" type="datetime-local" class="form-control">
+        <div class="col-md-6 mb-3">
+          <form @submit.prevent="fatchDataTransaction(1, dateRangeStart, dateRangeEnd)" class="d-flex align-items-center">
+            <input v-model="dateRangeStart" type="datetime-local" class="form-control">
+            <span class="fw-semi-bold px-2">s/d</span>
+            <input v-model="dateRangeEnd" type="datetime-local" class="form-control">
+            <div class="ms-3">
+              <button class="btn btn-primary" type="submit">
+                <span class="fas fa-search"></span>
+              </button>
+            </div>
+          </form>
         </div>
-        <div class="col-md-3 mb-3">
+        <!-- <div class="col-md-3 mb-3">
           <select class="form-select">
             <option value="" selected>Pilih Tipe</option>
             <option value="">By Method</option>
             <option value="">By Member</option>
           </select>
-        </div>
+        </div> -->
       </div>
       <div class="table-scrollable-wrapper mb-2" style="min-height: 49vh; max-height: 49vh;">
         <table class="table table-scrollable">
@@ -365,7 +372,7 @@
         local_storage: this.$root.local_storage,
         dataAllTransaction: [],
         currentPageTr: 1,
-        perPageTr: 5,
+        perPageTr: 10,
         totalPageTr: 0,
 
         dateRangeStart: null,
@@ -396,7 +403,7 @@
         this.$root.hideLoading();
       },
 
-      fatchDataTransaction: async function(page){
+      fatchDataTransaction: async function(page, startDate = new Date(), endDate = new Date()){
         this.$root.showLoading();
         try{
           const check_uuid = localStorage.getItem(this.local_storage.is_dynamic);
@@ -406,6 +413,8 @@
             params: {
               page: page,
               per_page: this.perPageTr,
+              date_start: startDate,
+              date_end: endDate,
             },
           });
 
@@ -413,6 +422,8 @@
           this.currentPageTr = response.current_page;
           this.totalPageTr = response.last_page;
           this.dataAllTransaction = response.data;
+
+          console.log(response.data);
         } catch (error) {
           console.log(error);
         }

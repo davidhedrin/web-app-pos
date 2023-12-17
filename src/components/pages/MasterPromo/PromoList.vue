@@ -269,9 +269,9 @@
                     <div class="col-md-4">
                       <span class="fs--2"><u>event promo product:</u></span>
                       <p class="mb-0">
-                        <span class="badge rounded-pill" :class="`bg-${detailDataPromo.promo_product.kode_promo_product.badge}`">
+                        <span class="badge rounded-pill" :class="`bg-${detailDataPromo.promo_product.master_kode_promo_product.badge}`">
                           <strong>
-                            {{ detailDataPromo.promo_product.kode_promo_product.nama_promo ?? '-' }}
+                            {{ detailDataPromo.promo_product.master_kode_promo_product.nama_promo ?? '-' }}
                           </strong>
                         </span>
                       </p>
@@ -442,7 +442,6 @@
       },
 
       openModalDetailPromo: function(promo){
-        console.log(promo);
         promo.selectedSingleGwpProduct = promo.detail_promo.length > 0 ? this.dataAllProduct.find((p) => p.itemCode == promo.detail_promo[0].itemCode) : null;
         promo.selectedMultiGwpProduct = this.dataAllProduct.filter((p) => {
           return promo.detail_promo.some(detail => detail.itemCode === p.itemCode);

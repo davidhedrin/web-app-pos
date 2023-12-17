@@ -141,7 +141,10 @@ export const pages = {
   sales:  'Sales',
   transaksi: 'Transaksi',
   receiptitem: 'ReceiptItem',
+  receiptitemv2: 'ReceiptItemV2',
   syncdata: 'SyncData',
+  transin: 'TransIn',
+  transout: 'TransOut',
 
   // Master
   productlist: 'ProductList',

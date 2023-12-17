@@ -55,7 +55,7 @@
             {{ dataUserLogin ? 'Good Morning,' : '...' }}
             <span class="typed-text fw-bold ms-1">{{ dataUserLogin && dataUserLogin.nama_lengkap + '!' }}</span>
           </h3>
-          <p>Here’s what happening with your store today </p>
+          <p>Here's what happening with your store today </p>
         </div>
         <div class="d-flex py-1">
           <div class="pe-3">
@@ -76,7 +76,7 @@
             <div class="col">
               <div class="d-flex">
                 <div class="fas fa-circle mt-1 fs--2"></div>
-                <p class="fs--1 ps-2 mb-0"><strong>5 products</strong> didn’t publish to your Facebook page
+                <p class="fs--1 ps-2 mb-0"><strong>5 products</strong> didn't publish to your Facebook page
                 </p>
               </div>
             </div>
@@ -109,15 +109,29 @@
         Daftar Product, <span class="typed-text fw-bold ms-1">{{ $root.selectedStoreAccess ? $root.selectedStoreAccess.storeName : '' }}</span>
       </h5>
       <div class="row align-items-center">
-        <div class="col-md-9">
+        <div class="col-md-6">
           <span v-if="$root.selectedStoreAccess" class="fs--1">
             Alamat: {{ $root.selectedStoreAccess.store_outlet.address }}
           </span>
         </div>
         <div class="col-md-3">
-          <form @submit.prevent="">
+          <!-- selectedWhsCode != null && fatchDataProduct(currentPageProduct) -->
+          <v-select 
+          v-model="selectedWhsCode" 
+          :options="allDataMasterWhs"
+          label="whsName"
+          value="whsCode"
+          placeholder="Pilih warehouse"
+          >
+            <template v-slot:option="option">
+              {{ option.whsName }} ({{ option.whsCode }})
+            </template>
+          </v-select>
+        </div>
+        <div class="col-md-3">
+          <form @submit.prevent="fatchDataProduct(1)">
             <div class="input-group">
-              <input class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
+              <input v-model="inputSearchProduct" @input="inputSearchProduct.trim() == '' && fatchDataProduct(currentPageProduct)" class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
               <button class="btn btn-primary card-link" type="submit" style="z-index: 1"><span class="fas fa-search"></span></button>
             </div>
           </form>
@@ -142,7 +156,7 @@
               <td class="text-nowrap">
                 {{ product.itemName }}
               </td>
-              <td class="text-nowrap text-success fw-semi-bold">{{ $root.filterStokProduct(product).onHand }}</td>
+              <td class="text-nowrap text-success fw-semi-bold">{{ product.all_inventory_stok[0].onHand }}</td>
               <td class="text-nowrap">Rp {{ $root.formatPrice($root.filterPriceProduct(product).price) }}</td>
             </tr>
           </tbody>
@@ -153,17 +167,17 @@
         <nav aria-label="Page navigation example">
           <ul class="pagination pagination-sm">
             <li class="page-item" :class="{ 'disabled': currentPageProduct === 1 }">
-              <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="loadAllProduct(currentPageProduct - 1)">
+              <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchDataProduct(currentPageProduct - 1)">
                 <span aria-hidden="true">&laquo;</span>
               </a>
             </li>
   
             <li v-for="pageNumber in totalPageProduct" :key="pageNumber" class="page-item"  :class="{ 'active': pageNumber === currentPageProduct }">
-              <a class="page-link" href="javascript:void(0)" @click="loadAllProduct(pageNumber)">{{ pageNumber }}</a>
+              <a class="page-link" href="javascript:void(0)" @click="fatchDataProduct(pageNumber)">{{ pageNumber }}</a>
             </li>
   
             <li class="page-item" :class="{ 'disabled': currentPageProduct === totalPageProduct }">
-              <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="loadAllProduct(currentPageProduct + 1)">
+              <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchDataProduct(currentPageProduct + 1)">
                 <span aria-hidden="true">&raquo;</span>
               </a>
             </li>
@@ -176,27 +190,27 @@
           <ul class="pagination pagination-sm">
 
             <li v-if="displayedPages[0] > 1">
-              <a class="page-link" href="javascript:void(0)" @click="loadAllProduct(1)">First</a>
+              <a class="page-link" href="javascript:void(0)" @click="fatchDataProduct(1)">First</a>
             </li>
 
             <li class="page-item" :class="{ 'disabled': currentPageProduct === 1 }">
-              <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="loadAllProduct(currentPageProduct - 1)">
+              <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchDataProduct(currentPageProduct - 1)">
                 <span aria-hidden="true">&laquo;</span>
               </a>
             </li>
 
             <li v-for="pageNumber in displayedPages" :key="pageNumber" class="page-item" :class="{ 'active': pageNumber === currentPageProduct }">
-              <a class="page-link" href="javascript:void(0)" @click="loadAllProduct(pageNumber)">{{ pageNumber }}</a>
+              <a class="page-link" href="javascript:void(0)" @click="fatchDataProduct(pageNumber)">{{ pageNumber }}</a>
             </li>
 
             <li class="page-item" :class="{ 'disabled': currentPageProduct === totalPageProduct }">
-              <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="loadAllProduct(currentPageProduct + 1)">
+              <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchDataProduct(currentPageProduct + 1)">
                 <span aria-hidden="true">&raquo;</span>
               </a>
             </li>
 
             <li v-if="displayedPages[displayedPages.length - 1] < totalPageProduct">
-              <a class="page-link" href="javascript:void(0)" @click="loadAllProduct(totalPageProduct)">Last</a>
+              <a class="page-link" href="javascript:void(0)" @click="fatchDataProduct(totalPageProduct)">Last</a>
             </li>
 
           </ul>
@@ -312,6 +326,7 @@
         dateNow: null,
         dataUserLogin: null,
         accessStoreUser: [],
+        allDataMasterWhs: [],
 
         dataAllProduct: [],
         displayedPagesProduct: [],
@@ -319,6 +334,9 @@
         currentPageProduct: 1,
         perPageProduct: 10,
         totalPageProduct: 0,
+        inputSearchProduct: '',
+
+        selectedWhsCode: null,
 
         selectedStoreOutlet: this.$root.selectedStoreAccess,
         currentActiveStoreOutlet: localStorage.getItem(JSON.stringify(this.$root.local_storage.access_store)),
@@ -340,7 +358,49 @@
     },
 
     methods: {
-      loadAllProduct: async function(page){
+      loadAllDatas: async function(){
+        try{
+          const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+          let check_uuid = localStorage.getItem(this.local_storage.is_dynamic);
+
+          const getUserLogo = await this.$root.checkUserRegistered(check_uuid);
+          if(getUserLogo){
+            this.dataUserLogin = getUserLogo;
+            this.accessStoreUser = getUserLogo.access_store_outlet;
+            
+            if(cacheStoreAccess == null){
+              if(getUserLogo.access_store_outlet && getUserLogo.access_store_outlet.length > 1) {
+                $('#modalSelectAccessStoreDashboard').modal('show');
+              }else{
+                const firstUserStoreAccess = getUserLogo.access_store_outlet[0];
+                firstUserStoreAccess.storeName = firstUserStoreAccess.store_outlet.storeName;
+
+                this.$root.selectedStoreAccess = firstUserStoreAccess;
+                this.selectedStoreOutlet = firstUserStoreAccess;
+                await this.fatchDataProduct(this.currentPageProduct);
+              }
+            }else{
+              this.selectedStoreOutlet = cacheStoreAccess;
+              await this.fatchDataProduct(this.currentPageProduct);
+            }
+          }else{
+            this.$root.clearSessionLocalStorege();
+          }
+
+          const loadData = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/app/dashboard',
+          });
+          
+          const resLoadData = loadData.data;
+          this.allDataMasterWhs = resLoadData.allDataWhs;
+        } catch (error) {
+          console.log(error);
+        }
+        this.$root.hideLoading();
+      },
+
+      fatchDataProduct: async function(page){
         const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
         this.$root.showLoading();
         try{
@@ -350,7 +410,9 @@
             params: {
               page: page,
               per_page: this.perPageProduct,
-              store_outlet: cacheStoreAccess.store_outlet
+              store_outlet: cacheStoreAccess.store_outlet,
+              search: this.inputSearchProduct.trim(),
+              whs_code: this.selectedWhsCode != null ? this.selectedWhsCode.whsCode : cacheStoreAccess.store_outlet.whsCode,
             },
           });
 
@@ -358,7 +420,7 @@
           this.currentPageProduct = response.current_page;
           this.totalPageProduct = response.last_page;
           this.dataAllProduct = response.data;
-
+          
           this.updateDisplayedPages();
         } catch (error) {
           console.log(error);
@@ -379,38 +441,8 @@
         this.displayedPages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
       },
 
-      loadAllDatas: async function(){
-        try{
-          const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
-          let check_uuid = localStorage.getItem(this.local_storage.is_dynamic);
-
-          const getUserLogo = await this.$root.checkUserRegistered(check_uuid);
-          if(getUserLogo){
-            this.dataUserLogin = getUserLogo;
-            this.accessStoreUser = getUserLogo.access_store_outlet;
-            
-            if(cacheStoreAccess == null){
-              if(getUserLogo.access_store_outlet && getUserLogo.access_store_outlet.length > 1) {
-                $('#modalSelectAccessStoreDashboard').modal('show');
-              }else{
-                const firstUserStoreAccess = getUserLogo.access_store_outlet[0];
-                firstUserStoreAccess.storeName = firstUserStoreAccess.store_outlet.storeName;
-
-                this.$root.selectedStoreAccess = firstUserStoreAccess;
-                this.selectedStoreOutlet = firstUserStoreAccess;
-                await this.loadAllProduct(this.currentPageProduct);
-              }
-            }else{
-              this.selectedStoreOutlet = cacheStoreAccess;
-              await this.loadAllProduct(this.currentPageProduct);
-            }
-          }else{
-            this.$root.clearSessionLocalStorege();
-          }
-        } catch (error) {
-          console.log(error);
-        }
-        this.$root.hideLoading();
+      updateSelectedWhsCode: function(){
+        console.log(this.selectedWhsCode);
       },
 
       selesaiSelectStoreAccessBtn: async function(){
@@ -425,7 +457,7 @@
         this.currentActiveStoreOutlet = this.selectedStoreOutlet;
         localStorage.setItem(this.local_storage.access_store, JSON.stringify(this.selectedStoreOutlet));
 
-        await this.loadAllProduct(this.currentPageProduct);
+        await this.fatchDataProduct(this.currentPageProduct);
         this.$root.hideLoading();
       },
 

@@ -24,6 +24,8 @@
 import axios from "axios";
 import { markRaw } from 'vue';
 import { master_code, master_coll, local_storage, pages } from '@/components/scripts/collections.js';
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
+import dbFirebase from "@/firebase/init.js";
 
 // Layouts
 import NavbarLayout from '@/components/layouts/Navbar.vue';
@@ -44,16 +46,14 @@ Object.entries(componentPage).forEach((path,i) => {
 
 export default {
   data(){
-    const API_URL = import.meta.env.VITE_API_URL;
-    const API_ERP = import.meta.env.VITE_API_ERP;
+    // const API_ERP = import.meta.env.VITE_API_ERP;
+    const API_ERP = 'http://localhost:8085';
     const APP_SSO_URL = import.meta.env.VITE_APP_SSO_URL;
     const APP_SSO_TOKEN_STATUS = import.meta.env.VITE_APP_SSO_TOKEN_STATUS;
-    // const API_ERP = "https://ipos-tpsmtg.com:8087";
     // const APP_SSO_URL = 'http://178.1.7.230:8072?t=sso&app_id=019e4e2609fc2c0eb334a1901797f856';
     // const APP_SSO_TOKEN_STATUS = 'http://178.1.7.230:8071';
 
     return {
-      API_URL: API_URL,
       API_ERP: API_ERP,
       APP_SSO_URL: APP_SSO_URL,
       APP_SSO_TOKEN_STATUS: APP_SSO_TOKEN_STATUS,
@@ -90,6 +90,18 @@ export default {
         pages.promoproduct,
         pages.userlist,
       ],
+
+      docFirebase: doc,
+      getDocFirebase: getDoc,
+      onSnapshotFirebase: onSnapshot,
+      updateDocFirebase: updateDoc,
+      dbFirebase: dbFirebase,
+      flagFirebaseNotif: false,
+      notif_crm: {
+        crm_user: "crm_user",
+        crm_supervisor: "crm_supervisor",
+        crm_manager: "crm_manager",
+      },
     }
   },
 
@@ -103,8 +115,9 @@ export default {
     await this.checkSessionAuthSSO();
   },
 
-  // async mounted(){
-  // },
+  created() {
+    this.getNotifFirebase();
+  },
 
   computed: {
     filterPriceProduct(){
@@ -131,6 +144,41 @@ export default {
   },
   
   methods: {
+    async getNotifFirebase() {
+      onSnapshot(doc(dbFirebase, "notif_crm", "crm_user"), (snap) => {
+        if (this.flagFirebaseNotif == false) {
+          this.flagFirebaseNotif = true;
+          return false;
+        }
+
+        this.header_pesan = snap.data().header;
+        this.body_pesan = snap.data().body;
+        this.updated_at_pesan = snap.data().updated_at;
+        
+        this.$root.showAlertFunction('info', this.header_pesan, this.body_pesan);
+      });
+    },
+
+    async sendNotifFirebase(header, body) {
+      var mythis = this;
+      console.log("update");
+      const fireBaseTime = new Date();
+      Object.keys(mythis.$root.notif_crm).forEach(async function (key) {
+        await mythis.$root.updateDocFirebase(
+          mythis.$root.docFirebase(
+            mythis.$root.dbFirebase,
+            "notif_crm",
+            mythis.$root.notif_crm[key]
+          ),
+          {
+            header: header,
+            body: body,
+            updated_at: fireBaseTime,
+          }
+        );
+      });
+    },
+
     goto: async function(comp){
       const current_page = sessionStorage.getItem(this.local_storage.current_page);
       if(comp != current_page){

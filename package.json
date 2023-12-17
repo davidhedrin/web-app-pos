@@ -14,10 +14,15 @@
   "dependencies": {
     "@types/vue-select": "^3.16.6",
     "axios": "^1.5.1",
+    "firebase": "^10.7.1",
+    "gridjs": "^6.0.6",
+    "jquery": "^3.7.1",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.7.0",
+    "sweetalert2": "^11.10.1",
     "vue": "^3.3.4",
-    "vue-select": "^4.0.0-beta.6"
+    "vue-select": "^4.0.0-beta.6",
+    "vue3-toastify": "^0.1.14"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.3.3",

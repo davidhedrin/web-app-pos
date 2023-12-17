@@ -215,7 +215,7 @@
         try{
           const getAllConfig = await axios({
             method: 'get',
-            url: this.$root.API_URL + '/sync-data/allConfData',
+            url: this.$root.API_ERP + '/sync-data/allConfData',
             params: {
               page: page,
               per_page: this.perPageConfig,
@@ -244,7 +244,7 @@
             const resData = getData.data;
             const storeData = await axios({
               method: 'post',
-              url: this.$root.API_URL + '/sync-data/storeAllConfig',
+              url: this.$root.API_ERP + '/sync-data/storeAllConfig',
               data: {
                 allMaster: resData,
               }
@@ -290,7 +290,7 @@
 
                   const storeData = await axios({
                     method: 'post',
-                    url: this.$root.API_URL + '/sync-data/insertDataPenarikan',
+                    url: this.$root.API_ERP + '/sync-data/insertDataPenarikan',
                     data: {
                       obj_penarikan: this.selectedDownloadDataSingle,
                       count_truncate: count,

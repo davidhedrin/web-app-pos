@@ -405,7 +405,7 @@
         try{
           const store = await axios({
             method: 'put',
-            url: this.$root.API_URL + '/master-user/approve-user',
+            url: this.$root.API_ERP + '/master-user/approve-user',
             data: {
               for_user: this.userForApprove,
               role_code: this.idRoleForApprove,
@@ -438,7 +438,7 @@
         try{
           const store = await axios({
             method: 'put',
-            url: this.$root.API_URL + '/master-user/udpate-status',
+            url: this.$root.API_ERP + '/master-user/udpate-status',
             data: {
               id_user: this.idUserForApprove,
               flag_active: !this.setStatusUserUpdate

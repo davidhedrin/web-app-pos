@@ -22,7 +22,7 @@
             <h4 class="mb-0 text-primary fw-bold"><span class="text-info fw-medium">Penerimaan Barang</span></h4>
           </div>
         </div>
-        <div class="col-lg-auto pt-3 pt-lg-0">
+        <div class="col-lg-auto pt-3 pt-lg-0 d-flex align-items-end">
           <form class="row flex-lg-column flex-xxl-row gx-3 gy-2 align-items-center align-items-lg-start align-items-xxl-center">
             <div class="col-auto">
               <h6 class="text-700 mb-0">Terakhir Penerimaan: </h6>
@@ -32,6 +32,11 @@
               <span class="fas fa-calendar-alt text-primary position-absolute top-50 translate-middle-y ms-2"></span>
             </div>
           </form>
+          <div class="ms-3">
+            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalFormNewRequest">
+              New
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -45,18 +50,17 @@
         <table class="table table-scrollable">
           <thead>
             <tr class="p-0">
-              <th class="py-1 bg-white">Nomor DO</th>
-              <th class="py-1 bg-white">Tanggal DO</th>
-              <th class="py-1 bg-white">Status DO</th>
-              <th class="py-1 bg-white">Kode Pelanggan</th>
+              <th class="py-1 bg-white">Doc Status</th>
+              <th class="py-1 bg-white">Doc Number</th>
+              <th class="py-1 bg-white">Doc Reff</th>
               <th class="py-1 bg-white">Kode Toko</th>
-              <th class="py-1 bg-white">Nomor PO</th>
-              <th class="py-1 bg-white">Total Item</th>
+              <th class="py-1 bg-white">Tanggal Doc</th>
               <th class="py-1 bg-white">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="paging in allDataPaging" :id="paging.id">
+            
+            <!-- <tr v-for="paging in allDataPaging" :id="paging.id">
               <td>{{ paging.docNum }}</td>
               <td>{{ paging.docDate1 }}</td>
               <td>
@@ -76,9 +80,117 @@
                   <span class="far fa-edit text-warning"> </span>
                 </button>
               </td>
-            </tr>
+            </tr> -->
           </tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalFormNewRequest" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width: 95%;">
+      <div class="modal-content position-relative">
+        <div class="position-absolute top-0 end-0 mt-2 me-2 z-1">
+          <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="card">
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1i.png');background-size: cover;"></div>
+            <div class="card-body p-0 position-relative">
+              <div class="py-3 ps-4 pe-6">
+                <h5 class="mb-1" id="modalExampleDemoLabel">Browse Data From DN</h5>
+              </div>
+              <div class="p-4 pt-0 pb-3">
+                <div class="row align-items-center justify-content-center">
+                  <div class="col-sm-6 col-md-3 mb-3 text-center">
+                    <img src="@/assets/img/mtsiconland.png" alt="invoice" style="width: 100%;">
+                  </div>
+                  <div class="col-md-9">
+                    <div class="card mb-4">
+                      <div class="card-header">
+                        <div class="row align-items-center">
+                          <div class="col-md-3 text-center mb-2">
+                            <span class="fs--1"><u>Doc Number</u></span>
+                            <h5>-</h5>
+                          </div>
+                          <div class="col-md-3 text-center mb-2">
+                            <span class="fs--1"><u>Doc Status</u></span>
+                            <h5>-</h5>
+                          </div>
+                          <div class="col-md-3 text-center mb-2">
+                            <span class="fs--1"><u>Reff Number</u></span>
+                            <h5>-</h5>
+                          </div>
+                          <div class="col-md-3 text-center mb-2">
+                            <span class="fs--1"><u>Doc Date</u></span>
+                            <h5>-</h5>
+                          </div>
+                          <div class="col-md-3 text-center mb-2">
+                            <span class="fs--1"><u>Store Code</u></span>
+                            <h5>-</h5>
+                          </div>
+                          <div class="col-md-3 text-center mb-2">
+                            <span class="fs--1"><u>Store Name</u></span>
+                            <h5>-</h5>
+                          </div>
+                          <div class="col-md-3 text-center mb-2">
+                            <span class="fs--1"><u>Warehouse Code</u></span>
+                            <h5>-</h5>
+                          </div>
+                          <div class="col-md-3 text-center mb-2">
+                            <span class="fs--1"><u>Price Code</u></span>
+                            <h5>-</h5>
+                          </div>
+                          <div class="col-md-3 text-center mb-2">
+                            <span class="fs--1"><u>Discount Code</u></span>
+                            <h5>-</h5>
+                          </div>
+                          <div class="col-md-3 text-center mb-2">
+                            <span class="fs--1"><u>Comments</u></span>
+                            <h5>-</h5>
+                          </div>
+                          <div class="col-md-3 text-center mb-2">
+                            <span class="fs--1"><u>Reference</u></span>
+                            <div>
+                              <button class="btn btn-sm btn-primary" type="button" @click="openModalBrowseReference()">
+                                Browse
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="modalFormBrowseReference" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="min-width: 30%;">
+      <div class="modal-content position-relative">
+        <div class="position-absolute top-0 end-0 mt-2 me-2 z-1">
+          <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="card">
+            <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1i.png');background-size: cover;"></div>
+            <div class="card-body p-0 position-relative">
+              <div class="py-3 ps-4 pe-6">
+                <h5 class="mb-1" id="modalExampleDemoLabel">Form Request Barang</h5>
+              </div>
+              <div class="p-4 pt-0 pb-3">
+                <button class="btn btn-primary" type="button" @click="getFlagUpdate()">
+                  Get Data
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -289,113 +401,13 @@
         try{
           const storeActive = JSON.parse(localStorage.getItem(this.local_storage.access_store));
           const storeDetail = storeActive.store_outlet;
-
-          const getDataItem = await axios({
-            method: 'get',
-            url: this.$root.API_ERP + `/wms/paging?offset=0&limit=1000&storecode=${storeDetail.store_code}`
-          });
-          const response = getDataItem.data;
-          const resData = response.results;
-          this.allDataPaging = resData;
-
-          const getData = await axios({
-            method: 'get',
-            url: this.$root.API_ERP + '/pos/app/recipt-item',
-          });
-          const resGetData = getData.data;
-          this.getAllMasterWarehouse = resGetData.getAllMasterWarehouse;
+          
+          
         } catch (error) {
           console.log(error);
         }
         this.$root.hideLoading();
       },
-
-      // openModalFormPeneriamaan: async function(id){
-      //   this.$root.showLoading();
-
-      //   try{
-      //     const getData = await axios({
-      //       method: 'get',
-      //       url: this.$root.API_ERP + `/wms/getRincianheaderID/${id}`,
-      //     });
-
-      //     console.log(getData);
-      //   } catch (error) {
-      //     console.log(error);
-      //   }
-
-      //   this.$root.hideLoading();
-      //   $('#modalFormPenerimaanBarang').modal('show');
-      // }
-
-      showModalDetailPenerimaan: function(paging){
-        this.dataShowFormPenerimaan = null;
-        this.isBtnGetOrSave = true;
-        this.dataDetailPenerimaan = [];
-
-        this.dataShowFormPenerimaan = paging;
-        $('#modalFormPenerimaanBarang').modal('show');
-      },
-
-      getDataDetailPenerimaan: async function(id){
-        this.$root.showLoading();
-        try{
-          const getData = await axios({
-            method: 'get',
-            url: this.$root.API_ERP + `/wms/pagingRincian/${id}?limit=1000&offset=0`,
-          });
-
-          const resData = getData.data.results;
-          const modifdata = resData.map(item => ({ 
-            ...item, 
-            is_edit: false, 
-            qtyEditable: item.openQty1,
-          }));
-          this.dataDetailPenerimaan = modifdata;
-          this.isBtnGetOrSave = false;
-          this.$root.showAlertFunction('success', 'Data Ditemukan!', 'Data item berhasil ditemukan!.');
-        } catch (error) {
-          console.log(error);
-        }
-        this.$root.hideLoading();
-      },
-
-      editActionDetailPenerimaan: function(detail){
-        if(detail.qtyEditable > detail.openQty1){
-          detail.qtyEditable = detail.openQty1;
-          $('#modalIncorectVariant').modal('show');
-        }
-
-        detail.is_edit = !detail.is_edit;
-        const hasTrueIsEdit = this.dataDetailPenerimaan.some(item => item.is_edit === true);
-        this.isDisabledSaveData = hasTrueIsEdit;
-      },
-
-      saveDataPenerimaan: async function(id){
-        let objDn = {};
-        let objAct = {};
-        let objVariant = {};
-
-        this.dataDetailPenerimaan.forEach(detail => {
-          let newKey = detail.id + "XXYYZZ" + detail.itemCode;
-          objDn[newKey] = parseInt(detail.openQty1);
-          objAct[newKey] = parseInt(detail.openQty1);
-          objVariant[newKey] = parseInt(detail.openQty1) - parseInt(detail.qtyEditable);
-        });
-
-        const dataPost = {
-          var_penerimaan_DN: objDn,
-          var_penerimaan_Actual: objAct,
-          docEntry: id,
-          userId: this.$root.dataAuthToken.user_uuid,
-        };
-
-        // const getData = await axios({
-        //   method: 'post',
-        //   url: this.$root.API_ERP + `/wms/savePenerimaanBarang/${id}`,
-        //   data: dataPost
-        // });
-      }
     }
   }
 </script>
