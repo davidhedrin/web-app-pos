@@ -610,7 +610,7 @@ export default {
     },
     getTableRincianUpdate() {
       this.grid3.updateConfig({
-        language: idID,
+        // language: idID,
         fixedHeader: true,
         height: 500,
         pagination: {
@@ -647,42 +647,42 @@ export default {
           {
             id: "docEntry",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>docEntry</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Doc Entry</b></div>'
             ),
           },
 
           {
             id: "bpItem",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>bpItem</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>BP Item</b></div>'
             ),
           },
 
           {
             id: "itemCode",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>itemCode</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Item Code</b></div>'
             ),
           },
 
           {
             id: "itemName",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>itemName</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Item Name</b></div>'
             ),
           },
 
           {
             id: "batchNo",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>batchNo</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Batch Number</b></div>'
             ),
           },
 
           {
             id: "expiredDate",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>expiredDate</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Expired Date</b></div>'
             ),
           },
           {
@@ -694,7 +694,7 @@ export default {
           {
             id: "actualQty",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>actualQty</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Actual Qty</b></div>'
             ),
             // formatter: (_, row) =>
             //   html(
@@ -704,13 +704,13 @@ export default {
           {
             id: "variant",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>variant</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Variant</b></div>'
             ),
           },
           {
             id: "updatedAt",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>updatedAt</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Updated At</b></div>'
             ),
           },
         ],

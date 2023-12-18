@@ -62,7 +62,7 @@
                 </div>
                 
                 <div class="g-2"><!-- @click="executeLoginSSO" -->
-                  <button @click="executeLoginSSO" class="btn btn-outline-google-plus d-block w-100">
+                  <button class="btn btn-outline-google-plus d-block w-100">
                     Login SSO
                   </button>
                 </div>
