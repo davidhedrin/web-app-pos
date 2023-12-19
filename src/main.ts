@@ -5,6 +5,10 @@ import App from './App.vue';
 import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
+import "@/assets/css/custom-datepicker.css";
+
 // // Import CSS files
 // import './assets/css/fonts.css';
 // import './assets/vendor/css/simplebar.min.css';
@@ -23,5 +27,7 @@ import "vue-select/dist/vue-select.css";
 // import './assets/js/theme.js';
 
 const app = createApp(App);
+
+app.component("VueDatePicker", VueDatePicker);
 app.component("v-select", vSelect);
 app.mount('#app');

@@ -74,6 +74,12 @@
                     <p class="mb-0 fw-medium text-800 text-truncate fs--2">Trans Out</p>
                   </a>
                 </div>
+                <div class="col-4">
+                  <a @click="validateGoto(pages.kartustok)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                    <div class="avatar"> <span class="fas fa-list" style="font-size: 30px;"></span></div>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Kartu Stok</p>
+                  </a>
+                </div>
               </div>
 
               <div v-if="$root.dataAuthToken.role && $root.dataAuthToken.role.id == '1'" class="row gx-0 gy-0">

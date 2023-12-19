@@ -145,6 +145,7 @@ export const pages = {
   syncdata: 'SyncData',
   transin: 'TransIn',
   transout: 'TransOut',
+  kartustok: 'KartuStok',
 
   // Master
   productlist: 'ProductList',

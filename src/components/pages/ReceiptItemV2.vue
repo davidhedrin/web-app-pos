@@ -293,11 +293,16 @@
                   </div>
                   <div class="col-md-3 text-center mb-2">
                     <span class="fs--1"><u>Reff Number</u></span>
-                    <div>
+                    <div v-if="idRincian == ''">
                       <button class="btn btn-sm btn-primary" type="button" @click="clickReffNo()">
                         Browse
                       </button>
                     </div>
+                    <h5 v-else>
+                      {{
+                        dataTr301.reffNo == undefined ? "-" : dataTr301.reffNo
+                      }}
+                    </h5>
                   </div>
                   <div class="col-md-3 text-center mb-2">
                     <span class="fs--1"><u>Doc Date</u></span>
