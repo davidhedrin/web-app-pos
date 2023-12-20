@@ -481,8 +481,6 @@
 </template>
 
 <script>
-import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
-
 import Pages from "@/components/template/Pages.vue";
 import FormInput from "@/components/forms/FormInput.vue";
 import Button from "@/components/forms/FormButton.vue";
@@ -523,21 +521,21 @@ export default {
       master_code: this.$root.master_code,
       master_coll: this.$root.master_coll,
       local_storage: this.$root.local_storage,
-
-      title: "Goods Receipt",
+        
+      title: "Penerimaan Barang",
       showModal: false,
-      showmodal_zindex: "z-index:1000",
+      showmodal_zindex: "z-index:1030",
       grid2: new Grid(),
       dataTr301: {},
 
       showModal11: false,
-      showmodal11_zindex: "z-index:1001",
+      showmodal11_zindex: "z-index:1031",
       grid11: new Grid(),
 
       flagGetHeaderDN: false,
 
       showModal2: false,
-      showmodal2_zindex: "z-index:1001;",
+      showmodal2_zindex: "z-index:1031;",
 
       grid3: new Grid(),
       idRincian: "",
@@ -570,9 +568,6 @@ export default {
       dataRincianHeaderIDTR: {},
       flagUpdate: false,
       dataTr301_comments: "",
-
-      x_nomor_baris: 0,
-      x_count: 0,
     };
   },
   mounted() {
@@ -584,105 +579,47 @@ export default {
   },
   methods: {
     ///////////////////////////////////////////////////
-    async getTableRincianDataUpdate(id) {
-      this.$root.showLoading();
+    getTableRincianDataUpdate(id) {
       var mythis = this;
-
-      var nn = 0;
-      var count = 1;
-      var limitx = 100;
-      var offsetx = 0;
-      while (count > 0) {
-        offsetx = limitx * nn;
-
-        const reqData = await axios({
-          method: "get",
-          url:
-            this.$root.API_ERP +
+      axios
+        .get(
+          this.$root.API_ERP +
             "/wms/pagingRincianPenerimaanBarangUpdate/" +
             this.idRincianUpdate +
-            "?limit=100&offset=" +
-            offsetx,
+            "?limit=1000&offset=0"
+        )
+        .then((res) => {
+          console.log(res);
+          mythis.status_save_PenerimaanBarang =
+            res.data.status_save_PenerimaanBarang;
+          mythis.total_bpitem_null = res.data.total_bpitem_null;
+          mythis.confirm_approve = res.data.confirm_approve;
+          //console.log(res.data.results);
+          Object.keys(res.data.results).forEach(function (key) {
+            mythis.var_penerimaan_DN[
+              res.data.results[key].id +
+                "XXYYZZ" +
+                res.data.results[key].itemCode
+            ] = res.data.results[key].baseQty1;
+
+            mythis.var_penerimaan_Actual[
+              res.data.results[key].id +
+                "XXYYZZ" +
+                res.data.results[key].itemCode
+            ] =
+              res.data.results[key].openQty_save == null
+                ? res.data.results[key].openQty1
+                : res.data.results[key].openQty_save;
+          });
         });
-
-        const resData = reqData.data;
-        mythis.x_nomor_baris = parseInt(resData.nomorBaris);
-        mythis.x_count = parseInt(resData.count);
-        mythis.status_save_PenerimaanBarang =
-          resData.status_save_PenerimaanBarang;
-        mythis.total_bpitem_null = resData.total_bpitem_null;
-        mythis.confirm_approve = resData.confirm_approve;
-
-        Object.keys(resData.results).forEach(function (key) {
-          mythis.var_penerimaan_DN[
-            resData.results[key].id + "XXYYZZ" + resData.results[key].itemCode
-          ] = resData.results[key].baseQty1;
-
-          mythis.var_penerimaan_Actual[
-            resData.results[key].id + "XXYYZZ" + resData.results[key].itemCode
-          ] =
-            resData.results[key].openQty_save == null
-              ? resData.results[key].openQty1
-              : resData.results[key].openQty_save;
-        });
-
-        // axios
-        //   .get(
-        //     this.$root.API_ERP +
-        //       "/wms/pagingRincianPenerimaanBarangUpdate/" +
-        //       this.idRincianUpdate +
-        //       "?limit=100&offset=" +
-        //       offsetx
-        //   )
-        //   .then((res) => {
-        //     console.log(res);
-
-        //     mythis.x_nomor_baris = parseInt(res.data.nomorBaris);
-        //     mythis.x_count = parseInt(res.data.count);
-
-        //     mythis.status_save_PenerimaanBarang =
-        //       res.data.status_save_PenerimaanBarang;
-        //     mythis.total_bpitem_null = res.data.total_bpitem_null;
-        //     mythis.confirm_approve = res.data.confirm_approve;
-        //     //console.log(res.data.results);
-        //     Object.keys(res.data.results).forEach(function (key) {
-        //       mythis.var_penerimaan_DN[
-        //         res.data.results[key].id +
-        //           "XXYYZZ" +
-        //           res.data.results[key].itemCode
-        //       ] = res.data.results[key].baseQty1;
-
-        //       mythis.var_penerimaan_Actual[
-        //         res.data.results[key].id +
-        //           "XXYYZZ" +
-        //           res.data.results[key].itemCode
-        //       ] =
-        //         res.data.results[key].openQty_save == null
-        //           ? res.data.results[key].openQty1
-        //           : res.data.results[key].openQty_save;
-        //     });
-        //   });
-
-        nn = nn + 1;
-        //console.log("MASUKK A");
-        // console.log("aaa " + mythis.x_count + "<" + mythis.x_nomor_baris);
-        if (mythis.x_count < mythis.x_nomor_baris) {
-          count = 0;
-          //console.log("MASUKK B");
-        }
-        if (nn >= 30) {
-          count = 0;
-        }
-      }
-      this.$root.hideLoading();
     },
     getTableRincianUpdate() {
       this.grid3.updateConfig({
-        //language: idID,
+        // language: idID,
         fixedHeader: true,
         height: 500,
         pagination: {
-          limit: 50,
+          limit: 1000,
           server: {
             url: (prev, page, limit) =>
               `${prev}${prev.includes("?") ? "&" : "?"}limit=${limit}&offset=${
@@ -712,12 +649,12 @@ export default {
               '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>No</b></div>'
             ),
           },
-          // {
-          //   id: "docEntry",
-          //   name: html(
-          //     '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Doc Entry</b></div>'
-          //   ),
-          // },
+          {
+            id: "docEntry",
+            name: html(
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Doc Entry</b></div>'
+            ),
+          },
 
           {
             id: "bpItem",
@@ -743,7 +680,7 @@ export default {
           {
             id: "batchNo",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Batch No</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Batch Number</b></div>'
             ),
           },
 
@@ -756,7 +693,7 @@ export default {
           {
             id: "openQty",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>DO Qty</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>DN Qty</b></div>'
             ),
           },
           {
@@ -778,7 +715,7 @@ export default {
           {
             id: "updatedAt",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Updated Date</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Updated At</b></div>'
             ),
           },
         ],
@@ -812,7 +749,7 @@ export default {
               card.id,
               card.itemCode1,
               (data.nomorBaris += 1),
-              //card.docEntry,
+              card.docEntry,
               card.bpItem1,
 
               card.itemCode1 == null
@@ -924,10 +861,10 @@ export default {
         });
     },
     ///////////////////////////////////////////////////
-    async getFlagUpdate() {
+    getFlagUpdate() {
       this.getTableRincianUpdate();
 
-      await this.getTableRincianDataUpdate();
+      this.getTableRincianDataUpdate();
       this.flagGetData = false;
       this.flagUpdate = false;
       this.flagSave = 0;
@@ -962,7 +899,6 @@ export default {
       this.var_penerimaan_Actual = {};
       this.data_CboWhs = "";
       this.dataRincianHeaderIDTR = {};
-      this.dataRincianHeaderIDTR.docStatus = "X";
       this.total_bpitem_null = null;
 
       this.flagSave = 0;
@@ -1042,7 +978,7 @@ export default {
         //mythis.$root.loader = true;
       });
 
-      $(document).on("click", "#viewDeliveryNote", async function () {
+      $(document).on("click", "#viewDeliveryNote", function () {
         let id = $(this).data("id");
         //alert(id);
         mythis.idRincian = id;
@@ -1051,7 +987,7 @@ export default {
         mythis.getTableRincian();
         mythis.getRincianHeaderID(id);
 
-        await mythis.getTableRincianData();
+        mythis.getTableRincianData();
         mythis.getRincianHeaderIDTR();
         mythis.flagGetData = false;
 
@@ -1098,7 +1034,7 @@ export default {
     getTable() {
       var mythis = this;
       this.grid2.updateConfig({
-        //language: idID,
+        language: idID,
         fixedHeader: true,
         height: "10",
         pagination: {
@@ -1151,14 +1087,14 @@ export default {
           {
             id: "storeCode",
             name: html(
-              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Store Code</b></div>'
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Kode Toko</b></div>'
             ),
           },
 
           {
             id: "docDate",
             name: html(
-              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Doc Date</b></div>'
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Tanggal Doc</b></div>'
             ),
           },
         ],
@@ -1234,7 +1170,7 @@ export default {
 
     getpagingPenerimaanBarangV2fromDN() {
       this.grid11.updateConfig({
-        //language: idID,
+        language: idID,
         fixedHeader: true,
         height: "10",
         pagination: {
@@ -1375,11 +1311,11 @@ export default {
 
     getTableRincian() {
       this.grid3.updateConfig({
-        //language: idID,
+        language: idID,
         fixedHeader: true,
         height: 500,
         pagination: {
-          limit: 50,
+          limit: 1000,
           server: {
             url: (prev, page, limit) =>
               `${prev}${prev.includes("?") ? "&" : "?"}limit=${limit}&offset=${
@@ -1409,12 +1345,12 @@ export default {
               '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>No</b></div>'
             ),
           },
-          // {
-          //   id: "docEntry",
-          //   name: html(
-          //     '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Doc Entry</b></div>'
-          //   ),
-          // },
+          {
+            id: "docEntry",
+            name: html(
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>docEntry</b></div>'
+            ),
+          },
 
           {
             id: "bpItem",
@@ -1426,40 +1362,40 @@ export default {
           {
             id: "itemCode",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Item Code</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>itemCode</b></div>'
             ),
           },
 
           {
             id: "itemName",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Item Name</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>itemName</b></div>'
             ),
           },
 
           {
             id: "batchNo",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Batch No</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>batchNo</b></div>'
             ),
           },
 
           {
             id: "expiredDate",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Expired Date</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>expiredDate</b></div>'
             ),
           },
           {
             id: "openQty",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>DO Qty</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>DN Qty</b></div>'
             ),
           },
           {
             id: "actualQty",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Actual Qty</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>actualQty</b></div>'
             ),
             // formatter: (_, row) =>
             //   html(
@@ -1469,13 +1405,13 @@ export default {
           {
             id: "variant",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Variant</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>variant</b></div>'
             ),
           },
           {
             id: "updatedAt",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Updated Date</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>updatedAt</b></div>'
             ),
           },
         ],
@@ -1509,7 +1445,7 @@ export default {
               card.id,
               card.itemCode1,
               (data.nomorBaris += 1),
-              //card.docEntry,
+              card.docEntry,
               card.bpItem1,
 
               card.itemCode1 == null
@@ -1804,12 +1740,12 @@ export default {
               //toast.success("Data telah berhasil di approve");
               Swal.fire(
                 "Update Success!",
-                "Penerimaan Barang telah dikonfirmasi sesuai",
+                "Penerimaan Barang terlah dikonfirmasi sesuai",
                 "success"
               );
               mythis.$root.loader = false;
-              mythis.close2();
               mythis.close();
+              mythis.close2();
               mythis.refreshTable();
             })
             .catch(function (error) {
@@ -1930,111 +1866,48 @@ export default {
         });
     },
 
-    async getTableRincianData(id) {
-      this.$root.showLoading();
+    getTableRincianData(id) {
       var mythis = this;
-
-      var nn = 0;
-      var count = 1;
-      var limitx = 100;
-      var offsetx = 0;
-      while (count > 0) {
-        //////////////////////////////////////////////////////
-        offsetx = limitx * nn;
-
-        const reqData = await axios({
-          method: "get",
-          url:
-            this.$root.API_ERP +
+      axios
+        .get(
+          this.$root.API_ERP +
             "/wms/pagingRincianPenerimaanBarang/" +
             this.idRincian +
-            "?limit=100&offset=" +
-            offsetx,
+            "?limit=1000&offset=0"
+        )
+        .then((res) => {
+          console.log(res);
+          mythis.status_save_PenerimaanBarang =
+            res.data.status_save_PenerimaanBarang;
+          mythis.total_bpitem_null = res.data.total_bpitem_null;
+          mythis.confirm_approve = res.data.confirm_approve;
+          //console.log(res.data.results);
+          Object.keys(res.data.results).forEach(function (key) {
+            mythis.var_penerimaan_DN[
+              res.data.results[key].id +
+                "XXYYZZ" +
+                res.data.results[key].itemCode
+            ] = res.data.results[key].openQty1;
+
+            mythis.var_penerimaan_Actual[
+              res.data.results[key].id +
+                "XXYYZZ" +
+                res.data.results[key].itemCode
+            ] =
+              res.data.results[key].openQty_save == null
+                ? res.data.results[key].openQty1
+                : res.data.results[key].openQty_save;
+          });
         });
-
-        const resData = reqData.data;
-        mythis.x_nomor_baris = parseInt(resData.nomorBaris);
-        mythis.x_count = parseInt(resData.count);
-
-        mythis.status_save_PenerimaanBarang =
-          resData.status_save_PenerimaanBarang;
-        mythis.total_bpitem_null = resData.total_bpitem_null;
-        mythis.confirm_approve = resData.confirm_approve;
-
-        Object.keys(resData.results).forEach(function (key) {
-          mythis.var_penerimaan_DN[
-            resData.results[key].id + "XXYYZZ" + resData.results[key].itemCode
-          ] = resData.results[key].openQty1;
-
-          mythis.var_penerimaan_Actual[
-            resData.results[key].id + "XXYYZZ" + resData.results[key].itemCode
-          ] =
-            resData.results[key].openQty_save == null
-              ? resData.results[key].openQty1
-              : resData.results[key].openQty_save;
-        });
-
-        // axios
-        //   .get(
-        //     this.$root.API_ERP +
-        //       "/wms/pagingRincianPenerimaanBarang/" +
-        //       this.idRincian +
-        //       "?limit=100&offset=" +
-        //       offsetx
-        //   )
-        //   .then((res) => {
-        //     //console.log(res);
-        //     console.log(res.data.count + "<" + res.data.nomorBaris);
-
-        //     mythis.x_nomor_baris = parseInt(res.data.nomorBaris);
-        //     mythis.x_count = parseInt(res.data.count);
-
-        //     mythis.status_save_PenerimaanBarang =
-        //       res.data.status_save_PenerimaanBarang;
-        //     mythis.total_bpitem_null = res.data.total_bpitem_null;
-        //     mythis.confirm_approve = res.data.confirm_approve;
-        //     //console.log(res.data.results);
-        //     Object.keys(res.data.results).forEach(function (key) {
-        //       mythis.var_penerimaan_DN[
-        //         res.data.results[key].id +
-        //           "XXYYZZ" +
-        //           res.data.results[key].itemCode
-        //       ] = res.data.results[key].openQty1;
-
-        //       mythis.var_penerimaan_Actual[
-        //         res.data.results[key].id +
-        //           "XXYYZZ" +
-        //           res.data.results[key].itemCode
-        //       ] =
-        //         res.data.results[key].openQty_save == null
-        //           ? res.data.results[key].openQty1
-        //           : res.data.results[key].openQty_save;
-        //     });
-        //   });
-
-        nn = nn + 1;
-        //console.log("MASUKK");
-        //console.log("aaa " + mythis.x_count + "<" + mythis.x_nomor_baris);
-        if (mythis.x_count < mythis.x_nomor_baris) {
-          count = 0;
-          //console.log("MASUKK");
-        }
-        if (nn >= 30) {
-          count = 0;
-        }
-        //////////////////////////////////////////////////////
-      }
-
-      this.$root.hideLoading();
     },
 
-    async getDataRincian() {
+    getDataRincian() {
       this.flagGetData = false;
 
       this.getCboWhsCodeInventory();
       this.getRincianHeaderIDTR();
       this.getTableRincian();
-      await this.getTableRincianData();
+      this.getTableRincianData();
     },
 
     //////////////////////////////////

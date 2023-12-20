@@ -2731,7 +2731,6 @@
       },
 
       checkConfirmationPayment: async function(){
-        console.log(this.dataProductInList);
         if(this.validationBeforeContinueBtnBilling() == false){
           return false;
         }
@@ -2811,11 +2810,6 @@
           }
         }
 
-        this.selectedActivePromo = promo;
-        $('#modalShowActivePromoDiskon').modal('hide');
-        this.$root.showAlertFunction('success', 'Promo Berhasil!', 'Selamat!! Promo telah berhasil dipasangkan.');
-        this.confirmationPayment();
-
         // const filterProductNoPromo = this.dataProductInList.filter((product) => !product.is_promo_product);
         var totalPriceNonPromo = 0;
         this.dataProductInList.forEach((product) => {
@@ -2838,7 +2832,16 @@
           const calculateDiscount = totalPriceNonPromo * (promo.percent/100);
           this.totalDiscountPromo = calculateDiscount;
           this.calculateTotalBayarPrice = this.calculateTotalBayarPrice - calculateDiscount;
+        }else{
+            this.$root.showAlertFunction('warning', 'Promo Gagal!', 'Promo berlaku untuk product reguler');
+            this.$root.hideLoading();
+            return false;
         }
+        
+        this.selectedActivePromo = promo;
+        $('#modalShowActivePromoDiskon').modal('hide');
+        this.$root.showAlertFunction('success', 'Promo Berhasil!', 'Selamat!! Promo telah berhasil dipasangkan.');
+        this.confirmationPayment();
       },
 
       confirmationPayment: function(){
@@ -2946,6 +2949,9 @@
             cashValue: this.inputNominalMethodCash ? parseInt(this.$root.formatCurrencyRemoveSeparator(this.inputNominalMethodCash)) : null,
             returnCashValue: this.totalKembalianMetodeCash > 0 ? parseInt(this.totalKembalianMetodeCash) : null,
 
+            discountPromo: this.selectedActivePromo != null ? this.selectedActivePromo : null,
+            discountPromoValue : this.selectedActivePromo != null ? parseInt(this.totalDiscountPromo) : null,
+
             products: this.dataProductListForStruk,
             activeStore: activeStore,
             isTicket: this.allTicketInOrder.length > 0 ? this.allTicketInOrder : null,
@@ -2957,25 +2963,32 @@
             url: this.$root.API_ERP + '/pos/app/sales/storeNewTransaction',
             data: dataTr,
           });
+
+          console.log(storeTr.data);
+          return false;
       
           if(storeTr.status == 201 || storeTr.status == 200){
             const dataStoreTr = storeTr.data.data;
             
-            // this.dataProductInList.forEach(data => {
-            //   const product = data.product;
-            //   let findInvtory;
-            //   if(data.is_promo_product){
-            //     const promoDetail = data.is_promo_product;
-            //     const findRowProduct = this.dataProductInList.find((p) => p.promo_product_id == promoDetail.promo_product_id && p.id === promoDetail.id);
-            //     findInvtory = findRowProduct.for_product.all_inventory_stok[0];
-            //   }else{
-            //     // productInList = this.dataProductInList.find((p) => !p.is_promo_product && p.itemCode === product.itemCode);
-            //     findInvtory = product.all_inventory_stok.find((w) => w.storeCode === activeStore.store_outlet.storeCode && w.whsCode === activeStore.store_outlet.whsCode);
-            //   }
-
-            //   const intOnHand = parseInt(findInvtory.onHand);
-            //   findInvtory.onHand -= data.qty;
-            // });
+            try{
+              this.dataProductInList.forEach(data => {
+                const product = data.product;
+                let findInvtory;
+                if(data.is_promo_product){
+                  const promoDetail = data.is_promo_product;
+                  const findRowProduct = this.dataAllProducts.find((p) => p.promo_product_id == promoDetail.promo_product_id && p.id === promoDetail.id);
+                  findInvtory = findRowProduct.for_product.all_inventory_stok[0];
+                }else{
+                  const productInList = this.dataAllProducts.find((p) => !p.is_promo_product && p.itemCode === product.itemCode);
+                  findInvtory = productInList.all_inventory_stok.find((w) => w.storeCode === activeStore.store_outlet.storeCode && w.whsCode === activeStore.store_outlet.whsCode);
+                }
+  
+                const intOnHand = parseInt(findInvtory.onHand);
+                findInvtory.onHand -= data.qty;
+              });
+            }catch(e){
+              console.log(e);
+            }
 
             if(this.memberOverview != null){
               await this.fatchDataMember(this.currentPageMember);
@@ -3012,7 +3025,7 @@
             $('#modalConfirmPay').modal('hide');
             $('#modalTransactionFinishSuccess').modal('show');
 
-            window.location.reload();
+            // window.location.reload();
           }else{
             this.$root.showAlertFunction('warning', 'Traksaksi Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           }

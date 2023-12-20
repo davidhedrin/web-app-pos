@@ -1,11 +1,105 @@
 <template>
-  <Pages :title="title">
+  <div class="d-flex align-items-center mb-3 mt-1">
+    <span class="badge rounded me-3 ms-1 badge-subtle-primary">
+      <span class="fas fa-list fs-2 text-primary"></span>
+    </span>
+    <div class="col">
+      <h5 class="mb-0 text-primary position-relative">
+        <span class="bg-200 dark__bg-1100 pe-3 fs-2">Stock Card</span>
+        <span class="border position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
+      </h5>
+      <p class="mb-0 fs--1"><a href="javascript:void(0)" class="text-dark">Martha Tilaar Shop</a> / Stock Card</p>
+    </div>
+  </div>
+
+  <div class="card shadow-none border mb-3">
+    <div class="bg-holder bg-card d-none d-md-block" style="background-image:url('assets/img/illustration/reports-bg.png');"></div><!--/.bg-holder-->
+    <div class="card-header z-1">
+      <div class="row flex-between-center gx-0 mb-3">
+        <div class="col-lg-auto d-flex align-items-center"><img class="img-fluid" src="@/assets/img/illustration/reports-greeting.png" alt="">
+          <div class="ms-x1">
+            <h6 class="mb-1 text-primary">Martha Tilaar Shop</h6>
+            <h4 class="mb-0 text-primary fw-bold"><span class="text-info fw-medium">Stock Card</span></h4>
+          </div>
+        </div>
+        <!-- <div class="col-lg-auto pt-3 pt-lg-0 d-flex align-items-end">
+          <form class="row flex-lg-column flex-xxl-row gx-3 gy-2 align-items-center align-items-lg-start align-items-xxl-center">
+            <div class="col-auto">
+              <h6 class="text-700 mb-0">Terakhir Penerimaan: </h6>
+            </div>
+            <div class="col-md-auto position-relative">
+              <input :value="dateNow" class="form-control datetimepicker ps-4 flatpickr-input" type="text" readonly="readonly">
+              <span class="fas fa-calendar-alt text-primary position-absolute top-50 translate-middle-y ms-2"></span>
+            </div>
+          </form>
+          <div class="ms-3">
+            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalFormNewRequest">
+              New
+            </button>
+          </div>
+        </div> -->
+      </div>
+
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <div class="form-group">
+            <label class="m-0">Store Code</label>
+            <v-select
+              disabled
+              :class="errorField.storeCode ? 'input-error' : ''"
+              :options="storeCodeOptions"
+              v-model="tmp_storeCode"
+              @update:modelValue="mySelectEvent()"
+              :clearable="false"
+            ></v-select>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="form-group">
+            <label class="m-0">WHS Code</label>
+            <v-select
+              :class="errorField.whsCode ? 'input-error' : ''"
+              :options="whsCodeOptions"
+              v-model="tmp_whsCode"
+              @update:modelValue="mySelectEvent2()"
+              :clearable="false"
+            ></v-select>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="m-0">Item Code</label>
+          <v-select
+            :class="errorField.itemCode ? 'input-error' : ''"
+            :options="itemCodeOptions"
+            v-model="tmp_itemCode"
+            @update:modelValue="mySelectEvent3()"
+            :clearable="false"
+          ></v-select>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="m-0">Cut Off Date</label>
+          <!-- <input class="form-control bg-transparent border-secondary-subtle" v-model="todo.tglCutOff" type="date"> -->
+          <VueDatePicker
+            v-model="todo.tglCutOff"
+            :enableTimePicker="false"
+            :format="format"
+          />
+        </div>
+        
+        <div class="col-md-12">
+          <button class="btn btn-primary" type="button" @click="getKartuStok">
+            Stock Card Check <span class="fas fa-search"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Pages>
     <div class="container-fluid">
-      <div class="mb-2">
+      <!-- <div class="mb-2">
         <div class="row">
           <div class="col-md-12">
-            <!--------------------------------------------->
-            <!-- <pre>{{ todo }}</pre> -->
             <div class="form-group">
               <div class="row">
                 <div class="col-md-2">
@@ -46,7 +140,6 @@
                   <label for="">Cut Off Date</label>
                 </div>
                 <div class="col-md-6">
-                  <!-- <input class="form-control bg-transparent border-secondary-subtle" v-model="todo.tglCutOff" type="date"> -->
                   <VueDatePicker
                     v-model="todo.tglCutOff"
                     :enableTimePicker="false"
@@ -72,7 +165,6 @@
                 </div>
               </div>
             </div>
-            <!--------------------------------------------->
 
             <div class="form-group">
               <div class="row">
@@ -86,7 +178,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
       <hr />
       <!------------------------>
       <div class="block-content">
@@ -204,6 +296,10 @@ export default {
     };
 
     return {
+      master_code: this.$root.master_code,
+      master_coll: this.$root.master_coll,
+      local_storage: this.$root.local_storage,
+
       format: format,
       title: "Stock Card",
       showModal: false,
@@ -212,6 +308,7 @@ export default {
       acuanEdit: null,
       startDate: "2023",
 
+      allMasterStoreOption: [],
       storeCodeOptions: [],
       tmp_storeCode: [],
       yearx: "",
@@ -308,13 +405,18 @@ export default {
       this.todo.storeCode = this.tmp_storeCode.code;
     },
     getCbostoreCode() {
+      const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
       var mythis = this;
       mythis.$root.loader = true;
       axios
         .get(this.$root.API_ERP + "/wms/getCbostoreCode")
         .then((res) => {
-          mythis.storeCodeOptions = res.data.data;
-          //console.log(res.data.data);
+          mythis.allMasterStoreOption = res.data.data;
+
+          const findCurrentStore = res.data.data.filter((store) => store.code == cacheStoreAccess.store_code);
+          mythis.storeCodeOptions = findCurrentStore;
+          
+          this.tmp_storeCode = findCurrentStore;
           mythis.$root.loader = false;
         });
     },
