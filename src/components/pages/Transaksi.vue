@@ -372,7 +372,7 @@
         local_storage: this.$root.local_storage,
         dataAllTransaction: [],
         currentPageTr: 1,
-        perPageTr: 10,
+        perPageTr: 7,
         totalPageTr: 0,
 
         dateRangeStart: null,

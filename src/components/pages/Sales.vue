@@ -225,7 +225,7 @@
             </select> -->
           </div>
           <div class="col-md-3 px-1 py-2">
-            <form @submit.prevent="false;">
+            <form @submit.prevent="btnSearchSubmitProduct()">
               <div class="input-group">
                 <input v-model="inputSearchProduct" class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
                 <button class="btn btn-primary card-link" type="submit" style="z-index: 1"><span class="fas fa-search"></span></button>
