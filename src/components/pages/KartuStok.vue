@@ -348,30 +348,34 @@ export default {
   methods: {
     getKartuStok() {
       if (this.todo.storeCode == "" || this.todo.storeCode == undefined) {
-        toast.error("Silakan pilih Store terlebih dahulu", {
-          theme: "colored",
-        });
+        // toast.error("Silakan pilih Store terlebih dahulu", {
+        //   theme: "colored",
+        // });
+        this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Silakan pilih Store terlebih dahulu.');
         return false;
       }
 
       if (this.todo.whsCode == "" || this.todo.whsCode == undefined) {
-        toast.error("Silakan pilih Gudang terlebih dahulu", {
-          theme: "colored",
-        });
+        // toast.error("Silakan pilih Gudang terlebih dahulu", {
+        //   theme: "colored",
+        // });
+        this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Silakan pilih Gudang terlebih dahulu.');
         return false;
       }
 
       if (this.todo.tglCutOff == "" || this.todo.tglCutOff == undefined) {
-        toast.error("Silakan pilih Tanggal Cut Off terlebih dahulu", {
-          theme: "colored",
-        });
+        // toast.error("Silakan pilih Tanggal Cut Off terlebih dahulu", {
+        //   theme: "colored",
+        // });
+        this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Silakan pilih Tanggal Cut Off terlebih dahulu.');
         return false;
       }
 
       if (this.todo.itemCode == "" || this.todo.itemCode == undefined) {
-        toast.error("Silakan pilih itemCode terlebih dahulu", {
-          theme: "colored",
-        });
+        // toast.error("Silakan pilih itemCode terlebih dahulu", {
+        //   theme: "colored",
+        // });
+        this.$root.showAlertFunction('warning', 'Pencarian Gagal!', 'Silakan pilih itemCode terlebih dahulu.');
         return false;
       }
 
@@ -720,7 +724,8 @@ export default {
                 });
                 //membuat jika error jadi true
                 Object.keys(mythis.errorList).forEach(function (key) {
-                  toast.error(mythis.errorList[key], { theme: "colored" });
+                  // toast.error(mythis.errorList[key], { theme: "colored" });
+                  mythis.$root.showAlertFunction('warning', 'Opss..!', mythis.errorList[key]);
 
                   const myArray = key.split(".");
                   mythis.errorField[myArray[1]] = true;
@@ -778,7 +783,8 @@ export default {
                 });
                 //membuat jika error jadi true
                 Object.keys(mythis.errorList).forEach(function (key) {
-                  toast.error(mythis.errorList[key], { theme: "colored" });
+                  // toast.error(mythis.errorList[key], { theme: "colored" });
+                  mythis.$root.showAlertFunction('warning', 'Opss..!', mythis.errorList[key]);
 
                   const myArray = key.split(".");
                   mythis.errorField[myArray[1]] = true;

@@ -225,9 +225,9 @@
             </select> -->
           </div>
           <div class="col-md-3 px-1 py-2">
-            <form @submit.prevent="findSubmitDataProduct(1)">
+            <form @submit.prevent="false;">
               <div class="input-group">
-                <input v-model="inputSearchProduct" @input="fatchDataProduct(currentPageProduct)" class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
+                <input v-model="inputSearchProduct" class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
                 <button class="btn btn-primary card-link" type="submit" style="z-index: 1"><span class="fas fa-search"></span></button>
               </div>
             </form>
@@ -322,23 +322,13 @@
                   </div>
                 </div>
               </div>
-
-              <div v-if="totalPageProduct > 1 && filteredProducts.length > 0" class="row mt-2 px-3 justify-content-end">
-                <div v-if="isLoadAllDataProduct" class="col-md-10 d-grid gap-2 p-0">
-                  <button class="btn btn-outline-primary me-1 mb-1" type="button" @click="fatchDataProductNext(currentPageProduct + 1)">
-                    Selanjutnya <span class="fas fa-sort-amount-down-alt"></span>
-                  </button>
-                </div>
-                <div class="col-md-2 d-grid gap-2 p-0">
+              
+              <div v-if="dataAllProducts.length > 0" class="row mt-2 px-3 justify-content-end">
+                <div class="col-md-12 d-grid gap-2 p-0">
                   <button class="btn btn-outline-warning me-1 mb-1" type="button" @click="fatchAllDataProduct()">
                     Semua <span class="fas fa-cloud-download-alt"></span>
                   </button>
                 </div>
-                <!-- <div class="col-md-2 d-grid gap-2 p-0">
-                  <button class="btn btn-outline-secondary me-1 mb-1" type="button" data-bs-toggle="modal" data-bs-target="#modalFindProductFree">
-                    Find Free <span class="fas fa-search-dollar"></span>
-                  </button>
-                </div> -->
               </div>
             </div>
           </div>
@@ -1523,8 +1513,13 @@
         allMasterPromoProduct: [],
         dataAllPromoProduct: [],
         currentPagePromoProduct: 1,
-        perPagePromoProduct: 12,
+        perPagePromoProduct: 10,
         totalPagePromoProduct: 0,
+        
+        dataFindSubmitDataProduct: [],
+        currentPageFindSubmitProduct: 1,
+        perPageFindSubmitProduct: 12,
+        totalPageFindSubmitProduct: 0,
 
         dataAllProductsPromo: [],
         dataProductInList: [],
@@ -1631,7 +1626,6 @@
 
         dataActiveMasterPromo: [],
         selectedActivePromo: null,
-        isLoadAllDataProduct: true,
       };
     },
 
@@ -1654,16 +1648,11 @@
           const checkProduct = product.promo_product_id ? product.for_product : product;
           // const brandProduct = checkProduct.all_product_detail.find((detail) => detail.optionalCode == this.master_code.productOptInfo.brand_code);
 
-          let filterExpression;
-          if(!this.isLoadAllDataProduct){
-            filterExpression = checkProduct.itemName.toLowerCase().includes(queryInput) || 
-            checkProduct.itemCode.toLowerCase().includes(queryInput) ||
-            checkProduct.barCode.toLowerCase().includes(queryInput);
-            if(valueSeletedBrand){
-              filterExpression = filterExpression;
-            }
-          }else{
-            filterExpression = checkProduct;
+          let filterExpression = checkProduct.itemName.toLowerCase().includes(queryInput) || 
+          checkProduct.itemCode.toLowerCase().includes(queryInput) ||
+          checkProduct.barCode.toLowerCase().includes(queryInput);
+          if(valueSeletedBrand){
+            filterExpression = filterExpression && brandProduct.optDtlCode.toLowerCase().includes(valueSeletedBrand);
           }
 
           if(hasTruecheckboxProducts){ // Filter jika ada checkbox promo yang true
@@ -1800,32 +1789,30 @@
       },
 
       fatchDataProduct: async function(page){
-        if(this.inputSearchProduct.trim() == '' && this.isLoadAllDataProduct){
-          const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
-          this.$root.showLoading();
-          try{
-            const getAllProduct = await axios({
-              method: 'get',
-              url: this.$root.API_ERP + '/pos/app/sales/getAllProduct',
-              params: {
-                page: page,
-                per_page: this.perPageProduct,
-                store_outlet: cacheStoreAccess.store_outlet
-              },
-            });
-            const response = getAllProduct.data;
-            this.currentPageProduct = response.current_page;
-            this.totalPageProduct = response.last_page;
-  
-            this.dataAllProducts = [];
-            await this.fatchAllDataPromoProduct();
-            var getDataProduct = response.data;
-            this.dataAllProducts = this.dataAllProducts.concat(getDataProduct);
-          }catch(e){
-            console.log(e);
-          }
-          this.$root.hideLoading();
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+        this.$root.showLoading();
+        try{
+          const getAllProduct = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/app/sales/getAllProduct',
+            params: {
+              page: page,
+              per_page: this.perPageProduct,
+              store_outlet: cacheStoreAccess.store_outlet
+            },
+          });
+          const response = getAllProduct.data;
+          this.currentPageProduct = response.current_page;
+          this.totalPageProduct = response.last_page;
+
+          this.dataAllProducts = [];
+          await this.fatchAllDataPromoProduct();
+          var getDataProduct = response.data;
+          this.dataAllProducts = this.dataAllProducts.concat(getDataProduct);
+        }catch(e){
+          console.log(e);
         }
+        this.$root.hideLoading();
       },
 
       fatchAllDataProduct: async function(){
@@ -1863,7 +1850,6 @@
                 console.log(e);
               }
             }
-            this.isLoadAllDataProduct = false;
           }else{
             this.$root.showAlertFunction('warning', 'Permintaan Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           }
@@ -1872,63 +1858,6 @@
           console.log(e);
         }
         $('#modalLoadingGetProduct').modal('hide');
-      },
-
-      findSubmitDataProduct: async function(page){
-        if(this.inputSearchProduct.trim() != ''){
-          const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
-          this.$root.showLoading();
-          try{
-            const getAllProduct = await axios({
-              method: 'get',
-              url: this.$root.API_ERP + '/pos/app/sales/getAllProduct',
-              params: {
-                page: page,
-                per_page: this.perPageProduct,
-                store_outlet: cacheStoreAccess.store_outlet,
-                search: this.inputSearchProduct.trim(),
-              },
-            });
-            const response = getAllProduct.data;
-            this.currentPageProduct = response.current_page;
-            this.totalPageProduct = response.last_page;
-  
-            var getDataProduct = response.data;
-            this.dataAllProducts = getDataProduct;
-          }catch(e){
-            console.log(e);
-          }
-          this.$root.hideLoading();
-        }
-      },
-
-      fatchDataProductNext: async function(page){
-        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
-        this.$root.showLoading();
-        try{
-          const getAllProduct = await axios({
-            method: 'get',
-            url: this.$root.API_ERP + '/pos/app/sales/getAllProduct',
-            params: {
-              page: page,
-              per_page: this.perPageProduct,
-              store_outlet: cacheStoreAccess.store_outlet
-            },
-          });
-          const response = getAllProduct.data;
-          this.currentPageProduct = response.current_page;
-          this.totalPageProduct = response.last_page;
-
-          var getDataProduct = response.data;
-          this.dataAllProducts = this.dataAllProducts.concat(getDataProduct);
-
-          if(response.current_page == response.last_page){
-            this.isLoadAllDataProduct = false;
-          }
-        }catch(e){
-          console.log(e);
-        }
-        this.$root.hideLoading();
       },
 
       fatchAllDataPromoProduct: async function(){
@@ -1949,28 +1878,20 @@
             const resDataPromo = resData.data;
             let responseAllDataPromoDetail = [];
             for (let i = 1; i <= resDataPromo.last_page; i++) {
-              const resAllDataPromoPerPage = resDataPromo.data;
-              for (const productDetail of resAllDataPromoPerPage) {
-                try{
-                  const getAllProductPromo = await axios({
-                    method: 'get',
-                    url: this.$root.API_ERP + '/pos/app/sales/getAllMasterPromoProductDetail',
-                    params: {
-                      store_outlet: cacheStoreAccess.store_outlet,
-                      promo_detail: {
-                        id: parseInt(productDetail.id),
-                        for_product_price: productDetail.for_product_price,
-                        for_product_whs: productDetail.for_product_whs,
-                        get_product_price: productDetail.get_product_price ?? null,
-                        get_product_whs: productDetail.get_product_whs ?? null,
-                      }
-                    },
-                  });
+              try{
+                const getAllProductPromo = await axios({
+                  method: 'get',
+                  url: this.$root.API_ERP + '/pos/app/sales/getAllMasterPromoProductDetail',
+                  params: {
+                    page: i,
+                    per_page: this.perPagePromoProduct,
+                    store_outlet: cacheStoreAccess.store_outlet,
+                  },
+                });
+                if(getAllProductPromo.status == 200){
                   const resDataAllProductPromo = getAllProductPromo.data;
-  
-                  if(resDataAllProductPromo.status == 200){
-                    const resDataProductPromo = resDataAllProductPromo.data;
 
+                  resDataAllProductPromo.forEach(resDataProductPromo => {
                     const masterPromoProduct = resDataProductPromo.master_promo_product;
                     const masterPromo = resDataProductPromo.master_promo_product.master_promo;
     
@@ -2005,16 +1926,16 @@
                     if(today >= startDate && today <= endDate){
                       responseAllDataPromoDetail.push(setObj);
                     }
-                  }
-                } catch(e){
-                  console.log(e);
+                  });
                 }
+              } catch(e){
+                console.log(e);
               }
             }
             
             this.dataAllProducts = this.dataAllProducts.concat(responseAllDataPromoDetail);
-            this.allMasterPromoProduct = this.allMasterPromoProduct.concat(responseAllDataPromoDetail);
             
+            // this.allMasterPromoProduct = this.allMasterPromoProduct.concat(responseAllDataPromoDetail);
             // for (let i in this.allMasterPromoProduct) {
             //   const masterPromo = this.allMasterPromoProduct[i].master_promo_product;
             //   const startDate = new Date(masterPromo.master_promo.start_date);
@@ -2809,6 +2730,7 @@
         this.totalDiskonPercentReseller = 0;
         this.totalDiscountPromo = 0;
 
+        this.calculateAmoutPrice();
         $('#modalBatalConfirm').modal('hide');
         $('#modalConfirmPay').modal('hide');
       },

@@ -1651,7 +1651,8 @@ export default {
         mythis.dataTr302.discCode == "" ||
         mythis.dataTr302.discCode == undefined
       ) {
-        toast.error("Silakan pilih kode diskon terlebih dahulu");
+        // toast.error("Silakan pilih kode diskon terlebih dahulu");
+        mythis.$root.showAlertFunction('warning', 'Gagal Melanjutkan!', 'Silakan pilih kode diskon terlebih dahulu.');
         return false;
       }
 
@@ -1660,7 +1661,8 @@ export default {
         mythis.dataTr302.whsCode == "" ||
         mythis.dataTr302.whsCode == undefined
       ) {
-        toast.error("Silakan pilih warehouse terlebih dahulu");
+        // toast.error("Silakan pilih warehouse terlebih dahulu");
+        mythis.$root.showAlertFunction('warning', 'Gagal Melanjutkan!', 'Silakan pilih warehouse terlebih dahulu.');
         return false;
       }
 
@@ -1669,7 +1671,8 @@ export default {
         mythis.dataTr302.priceCode == "" ||
         mythis.dataTr302.priceCode == undefined
       ) {
-        toast.error("Silakan pilih kode harga terlebih dahulu");
+        // toast.error("Silakan pilih kode harga terlebih dahulu");
+        mythis.$root.showAlertFunction('warning', 'Gagal Melanjutkan!', 'Silakan pilih kode harga terlebih dahulu.');
         return false;
       }
 
@@ -1729,7 +1732,8 @@ export default {
                     });
                     //membuat jika error jadi true
                     Object.keys(mythis.errorList).forEach(function (key) {
-                      toast.error(mythis.errorList[key], { theme: "colored" });
+                      // toast.error(mythis.errorList[key], { theme: "colored" });
+                      mythis.$root.showAlertFunction('warning', 'Gagal Melanjutkan!', mythis.errorList[key]);
 
                       const myArray = key.split(".");
                       mythis.errorField[myArray[1]] = true;
@@ -1803,7 +1807,8 @@ export default {
                     });
                     //membuat jika error jadi true
                     Object.keys(mythis.errorList).forEach(function (key) {
-                      toast.error(mythis.errorList[key], { theme: "colored" });
+                      // toast.error(mythis.errorList[key], { theme: "colored" });
+                      mythis.$root.showAlertFunction('warning', 'Gagal Melanjutkan!', mythis.errorList[key]);
 
                       const myArray = key.split(".");
                       mythis.errorField[myArray[1]] = true;
@@ -1838,7 +1843,8 @@ export default {
         .then((res) => {
           //console.log(res);
 
-          toast.success("Data Qty berhasil diubah");
+          // toast.success("Data Qty berhasil diubah");
+          mythis.$root.showAlertFunction('success', 'Berhasil Mengubah!', 'Data Qty berhasil diubah');
           mythis.dataRincianDetailID = {};
           mythis.$root.loader = false;
           mythis.close();
@@ -1857,7 +1863,8 @@ export default {
                 });
                 //membuat jika error jadi true
                 Object.keys(mythis.errorList).forEach(function (key) {
-                  toast.error(mythis.errorList[key], { theme: "colored" });
+                  // toast.error(mythis.errorList[key], { theme: "colored" });
+                  mythis.$root.showAlertFunction('warning', 'Gagal Melanjutkan!', mythis.errorList[key]);
 
                   const myArray = key.split(".");
                   mythis.errorField[myArray[1]] = true;
