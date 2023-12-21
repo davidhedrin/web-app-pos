@@ -45,7 +45,6 @@
           <div class="form-group">
             <label class="m-0">Store Code</label>
             <v-select
-              disabled
               :class="errorField.storeCode ? 'input-error' : ''"
               :options="storeCodeOptions"
               v-model="tmp_storeCode"
@@ -308,7 +307,6 @@ export default {
       acuanEdit: null,
       startDate: "2023",
 
-      allMasterStoreOption: [],
       storeCodeOptions: [],
       tmp_storeCode: [],
       yearx: "",
@@ -338,8 +336,9 @@ export default {
     };
   },
   mounted() {
+    const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
     //this.getTable();
-    this.userid = "9999";
+    this.userid = cacheStoreAccess.user_uuid;
     //this.getBulan();
     this.getCbostoreCode();
     this.getCbowhsCode();
@@ -405,18 +404,17 @@ export default {
       this.todo.storeCode = this.tmp_storeCode.code;
     },
     getCbostoreCode() {
-      const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
       var mythis = this;
       mythis.$root.loader = true;
       axios
         .get(this.$root.API_ERP + "/wms/getCbostoreCode")
         .then((res) => {
-          mythis.allMasterStoreOption = res.data.data;
+          // const cacheStoreAccess = JSON.parse(localStorage.getItem(mythis.local_storage.access_store));
+          mythis.storeCodeOptions = res.data.data;
 
-          const findCurrentStore = res.data.data.filter((store) => store.code == cacheStoreAccess.store_code);
-          mythis.storeCodeOptions = findCurrentStore;
-          
-          this.tmp_storeCode = findCurrentStore;
+          // const findCurrentStore = res.data.data.filter((store) => store.code == cacheStoreAccess.store_code);
+          // mythis.tmp_storeCode = findCurrentStore;
+          //console.log(res.data.data);
           mythis.$root.loader = false;
         });
     },
@@ -455,6 +453,8 @@ export default {
       var tglCutOff = mythis.todo.tglCutOff;
       var itemCode = mythis.todo.itemCode;
 
+      console.log(tglCutOff);
+
       const months = {
         Jan: "01",
         Feb: "02",
@@ -474,6 +474,7 @@ export default {
       let day = new Intl.DateTimeFormat("en", { day: "2-digit" }).format(d);
       let month = new Intl.DateTimeFormat("en", { month: "short" }).format(d);
       let year = new Intl.DateTimeFormat("en", { year: "numeric" }).format(d);
+      console.log(`${day} ` + months[month] + ` ${year}`);
 
       var tanggal = `${year}` + "-" + months[month] + "-" + `${day}`;
 
