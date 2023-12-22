@@ -1890,7 +1890,6 @@
                 });
                 if(getAllProductPromo.status == 200){
                   const resDataAllProductPromo = getAllProductPromo.data;
-
                   resDataAllProductPromo.forEach(resDataProductPromo => {
                     const masterPromoProduct = resDataProductPromo.master_promo_product;
                     const masterPromo = resDataProductPromo.master_promo_product.master_promo;
@@ -2735,6 +2734,27 @@
         $('#modalConfirmPay').modal('hide');
       },
 
+      checkTotalPriceNonPromo: function(){
+        let result = 0;
+        this.dataProductInList.forEach((product) => {
+          if(!product.is_promo_product){
+            var getProduct = product.product;
+            let formatHarga;
+
+            if(this.$root.filterDiskonProduct(getProduct).discCode == this.master_code.diskon.tanpa_diskon_code){
+              formatHarga = parseInt(getProduct.all_product_price[0].price);
+            }else{
+              formatHarga = parseInt(getProduct.all_product_price[0].price  - (getProduct.all_product_price[0].price * (this.$root.filterDiskonProduct(getProduct).discount/100)));
+            }
+          
+            var calculatePrice = formatHarga * product.qty;
+            result += calculatePrice;
+          }
+        });
+
+        return result;
+      },
+
       // changeCheckboxMemberPotonganPoint(){
       //   const priceToPay = this.calculateTotalBayarPrice;
       //   const pointMember = this.memberOverview ? parseInt(this.memberOverview.point) : 0;
@@ -2778,13 +2798,14 @@
         let gelarTerpilih = this.dataAllGelars.find((gelar) => {
           const minimalNilai = parseFloat(gelar.minimal_nilai);
           const maksimalNilai = parseFloat(gelar.maksimal_nilai);
+          var totalPriceNonPromo = parseFloat(this.checkTotalPriceNonPromo());
 
           if (gelar.minimal_nilai !== null && gelar.maksimal_nilai !== null) {
-            return this.totalBayarPrice >= minimalNilai && this.totalBayarPrice <= maksimalNilai;
+            return totalPriceNonPromo >= minimalNilai && totalPriceNonPromo <= maksimalNilai;
           } else if (gelar.minimal_nilai !== null) {
-            return this.totalBayarPrice >= minimalNilai;
+            return totalPriceNonPromo >= minimalNilai;
           } else if (gelar.maksimal_nilai !== null) {
-            return this.totalBayarPrice <= maksimalNilai;
+            return totalPriceNonPromo <= maksimalNilai;
           }
 
           return false;
@@ -2839,7 +2860,7 @@
         const query = this.inputSearchProduct.trim();
         if(query != ''){
           const checkAllProduct = this.dataAllProducts.filter(product => {
-            const checkProduct = product.master_promo_id ? product.for_product : product;
+            const checkProduct = product.promo_product_id ? product.for_product : product;
             const filterValidate = checkProduct.barCode.includes(query);
             return filterValidate;
           });
@@ -2943,22 +2964,7 @@
         }
 
         // const filterProductNoPromo = this.dataProductInList.filter((product) => !product.is_promo_product);
-        var totalPriceNonPromo = 0;
-        this.dataProductInList.forEach((product) => {
-          if(!product.is_promo_product){
-            var getProduct = product.product;
-            let formatHarga;
-
-            if(this.$root.filterDiskonProduct(getProduct).discCode == this.master_code.diskon.tanpa_diskon_code){
-              formatHarga = parseInt(getProduct.all_product_price[0].price);
-            }else{
-              formatHarga = parseInt(getProduct.all_product_price[0].price  - (getProduct.all_product_price[0].price * (this.$root.filterDiskonProduct(getProduct).discount/100)));
-            }
-          
-            var calculatePrice = formatHarga * product.qty;
-            totalPriceNonPromo += calculatePrice;
-          }
-        });
+        var totalPriceNonPromo = this.checkTotalPriceNonPromo();
 
         if(totalPriceNonPromo > 0){
           const calculateDiscount = totalPriceNonPromo * (promo.percent/100);
@@ -3010,15 +3016,17 @@
         }
         
         // Check total belaja untuk reseller
-        var checkGelarPembelian = this.checkValidasiGelarMember();
-        if(checkGelarPembelian){
-          this.getCheckGelarPembelian = checkGelarPembelian;
-
-          if(checkGelarPembelian.slug === this.master_code.gelarBeli.silver){
-            const totalDiskon = this.totalBayarPrice * (checkGelarPembelian.amount/100)
-            this.totalDiskonPercentReseller = totalDiskon;
-
-            // this.calculateTotalBayarPrice = this.totalBayarPrice - totalDiskon;
+        if(this.selectedActivePromo == null){
+          var checkGelarPembelian = this.checkValidasiGelarMember();
+          if(checkGelarPembelian){
+            var totalPriceNonPromo = this.checkTotalPriceNonPromo();
+            if(totalPriceNonPromo > parseInt(checkGelarPembelian.minimal_nilai)){
+              this.getCheckGelarPembelian = checkGelarPembelian;
+              if(checkGelarPembelian.slug === this.master_code.gelarBeli.silver){
+                const totalDiskon = totalPriceNonPromo * (checkGelarPembelian.amount/100);
+                this.totalDiskonPercentReseller = totalDiskon;
+              }
+            }
           }
         }
 

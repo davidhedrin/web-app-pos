@@ -138,7 +138,7 @@
               <td class="text-warning">Rp {{ $root.formatPrice(trans.paymentAmount) }}</td>
               <td>{{ formatDateTime(trans.docDate) }}</td>
               <td>
-                <button class="btn btn-link p-0 me-1" type="button" @click="showDetailTransaction(trans)">
+                <button class="btn btn-link p-0 me-1" type="button" @click="getDataItemTransaction(trans)">
                   <span class="far fa-eye text-primary"></span>
                 </button>
                 <button class="btn btn-link p-0" type="button">
@@ -422,8 +422,27 @@
           this.currentPageTr = response.current_page;
           this.totalPageTr = response.last_page;
           this.dataAllTransaction = response.data;
+        } catch (error) {
+          console.log(error);
+        }
+        this.$root.hideLoading();
+      },
 
-          console.log(response.data);
+      getDataItemTransaction: async function(trans){
+        this.$root.showLoading();
+        try{
+          const reqData = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/app/transaksi/getDataItemTransaction/' + trans.id,
+          });
+
+          const resData = reqData.data;
+          if(reqData.status == 200){
+            trans.all_data_tr_d1 = resData.all_data_tr_d1;
+            trans.all_data_tr_d2 = resData.all_data_tr_d2;
+            trans.all_data_tr_d3 = resData.all_data_tr_d3;
+            this.showDetailTransaction(trans);
+          }
         } catch (error) {
           console.log(error);
         }
