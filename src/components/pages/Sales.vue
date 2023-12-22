@@ -47,40 +47,40 @@
               <div v-if="!dataProductInList || dataProductInList.length === 0"></div>
               <thead v-else>
                 <tr class="p-0">
-                  <td class="py-1 bg-white">#</td>
-                  <td class="py-1 bg-white">SKU</td>
-                  <td class="py-1 bg-white">Produk</td>
-                  <td class="py-1 bg-white">Harga</td>
-                  <td class="py-1 bg-white">Info</td>
-                  <td class="py-1 bg-white">Banyak</td>
-                  <td class="py-1 bg-white">Batch</td>
-                  <td class="py-1 bg-white">Exp.Date</td>
-                  <td class="text-end py-1 bg-white">
+                  <th class="py-1 bg-white">#</th>
+                  <th class="py-1 bg-white">SKU</th>
+                  <th class="py-1 bg-white">Produk</th>
+                  <th class="py-1 bg-white">Harga</th>
+                  <th class="py-1 bg-white">Info</th>
+                  <th class="py-1 bg-white">Banyak</th>
+                  <th class="py-1 bg-white">Batch</th>
+                  <th class="py-1 bg-white">Exp.Date</th>
+                  <th class="text-end py-1 bg-white">
                     <a href="javascript:void(0)" v-on:click="emptyProductList" class="p-0 ms-2 text-danger">
                       <span class="fas fa-trash-alt"></span>
                     </a>
-                  </td>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="!dataProductInList || dataProductInList.length === 0">
-                  <th class="text-center" style="border: none;" colspan="7">
+                  <td class="text-center" style="border: none;" colspan="7">
                     <img class="py-5" src="@/assets/img/mtsiconland.png" width="200" alt="" />
-                  </th>
+                  </td>
                 </tr>
                 <tr v-else class="align-middle" v-for="(data, index) in dataProductInList" :key="index">
                   <!-- No -->
-                  <th class="text-nowrap">
+                  <td class="text-nowrap set-text-bold">
                     {{ index+1 }}.
-                  </th>
+                  </td>
 
                   <!-- SKU -->
-                  <th class="text-nowrap">
+                  <td class="text-nowrap set-text-bold">
                     {{ data.product.itemCode }}
-                  </th>
+                  </td>
 
                   <!-- Product -->
-                  <th class="text-nowrap">
+                  <td class="text-nowrap set-text-bold">
                     <div class="d-flex align-items-center">
                       <div>
                         {{ data.product.itemName }}
@@ -89,10 +89,10 @@
                         {{ data.is_promo_product.master_promo_product.master_kode_promo_product.nama_promo }}
                       </span>
                     </div>
-                  </th>
+                  </td>
                   
                   <!-- Harga -->
-                  <th class="text-nowrap">
+                  <td class="text-nowrap set-text-bold">
                     Rp
                     <span v-if="data.is_promo_product">
                       <span v-if="data.is_promo_product.master_promo_product.tipe_promo == master_coll.tipePromo.bundle">
@@ -110,10 +110,10 @@
                         {{ $root.formatPrice($root.filterPriceProduct(data.product).price - ($root.filterPriceProduct(data.product).price * ($root.filterDiskonProduct(data.product).discount/100))) }}
                       </span>
                     </span>
-                  </th>
+                  </td>
 
                   <!-- Info -->
-                  <th>
+                  <td class="set-text-bold">
                     <span v-if="data.is_free_product" class="badge bg-danger rounded-pill p-1 fs--2">
                       FREE
                     </span>
@@ -127,31 +127,31 @@
                         -{{ $root.filterDiskonProduct(data.product).discount }}%
                       </span>
                     </span>
-                  </th>
+                  </td>
 
                   <!-- Banyak -->
-                  <th>
-                    <input class="form-control p-0 ps-2" type="number" min="1" :value="data.qty" style="width: 60px;" 
+                  <td>
+                    <input class="form-control p-0 ps-2 set-text-bold" type="number" min="1" :value="data.qty" style="width: 60px;" 
                     @input="incDecQtyInput($event, data, data.batch)"
                     @change="incDecQtyChange($event, data, data.batch)"
                     :disabled="data.is_ticket">
-                  </th>
+                  </td>
 
                   <!-- Batch -->
-                  <th>{{ data.batch.batchNo }}</th>
+                  <td class="set-text-bold">{{ data.batch.batchNo }}</td>
 
                   <!-- Exp.Date -->
-                  <th>{{ $root.formatDate(data.batch.expiredDate) }}</th>
+                  <td class="set-text-bold">{{ $root.formatDate(data.batch.expiredDate) }}</td>
 
                   <!-- Aksi -->
-                  <th class="text-end">
+                  <td class="text-end">
                     <a v-if="data.is_ticket" href="javascript:void(0)" class="p-0 ms-2 text-secondary" style="cursor: not-allowed;">
                       <span class="fas fa-window-close"></span>
                     </a>
                     <a v-else href="javascript:void(0)" @click="deleteProductById(data, data.batch)" class="p-0 ms-2 text-danger">
                       <span class="fas fa-window-close"></span>
                     </a>
-                  </th>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -248,6 +248,7 @@
               <h5 class="fs-0 mt-3">
                 Product Tidak Ditemukan!
               </h5>
+              Hubungi TPS jika tidak ditemukan tapi stok tersedia!
             </div>
             <div class="px-3">
               <div class="row px-3">
@@ -342,9 +343,12 @@
           <h5 class="card-title text-center mb-1">Member Overview</h5>
           
           <div class="text-center mb-2">
-            <button v-on:click="openModalFindOrRegis()" class="btn btn-outline-primary btn-sm me-1" type="button" data-bs-toggle="modal" data-bs-target="#modalFindMember">
+            <button @click="openModalFindOrRegis()" class="btn btn-outline-primary btn-sm me-1" type="button" data-bs-toggle="modal" data-bs-target="#modalFindMember">
               Find Member
               <span class="fas fa-search"></span>
+            </button>
+            <button @click="memberOverview = null" class="btn btn-outline-secondary btn-sm me-1" type="button">
+              <span class="fas fa-redo-alt"></span>
             </button>
           </div>
 
@@ -2107,6 +2111,10 @@
         this.allDataFindProductFree = [];
         this.calculatePcsItemOrderList();
         $('#modalFindProductFree').modal('hide');
+        // if(parseInt(batch.onHand) > 0){
+        // }else{
+        //   this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
+        // }
       },
       
       // Logic Product In Order List
@@ -2152,6 +2160,10 @@
               is_promo_product: product.promo_product_id ? product : null,
             };
             this.dataProductInList.push(productObj);
+            // if(parseInt(batch.onHand) > 0){
+            // }else{
+            //   this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
+            // }
           }
           
           this.qtyProductShowDetail = 1;
@@ -2646,6 +2658,10 @@
                     is_ticket: data,
                   };
                   this.dataProductInList.push(productObj);
+                  // if(parseInt(batch.onHand) > 0){
+                  // }else{
+                  //   this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
+                  // }
                 }
               });
   
@@ -2681,9 +2697,6 @@
           this.memberOverview = ticket.member ?? null;
         }
 
-        // ticket.products.forEach(product => {
-        //   this.dataProductInList.push(product);
-        // });
         this.dataProductInList = this.dataProductInList.concat(ticket.products);
         ticket.tiket_info.forEach(tiket => {
           this.allTicketInOrder.push(tiket);
@@ -4404,6 +4417,10 @@
   height: 22px;
   width: 90px;
   object-fit: contain;
+}
+
+.set-text-bold{
+  font-weight: bold !important;
 }
 
 .max-width-text-truncate{
