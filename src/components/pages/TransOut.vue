@@ -32,7 +32,7 @@
   </div>
 
   <Pages>
-    <div class="container-fluid">
+    <div>
       <!------------------------>
 
       <!-- <div style="text-align: right">
