@@ -189,7 +189,7 @@
         <nav aria-label="Page navigation example">
           <ul class="pagination pagination-sm">
 
-            <li v-if="displayedPages[0] > 1">
+            <li v-if="displayedPagesProduct[0] > 1">
               <a class="page-link" href="javascript:void(0)" @click="fatchDataProduct(1)">First</a>
             </li>
 
@@ -199,7 +199,7 @@
               </a>
             </li>
 
-            <li v-for="pageNumber in displayedPages" :key="pageNumber" class="page-item" :class="{ 'active': pageNumber === currentPageProduct }">
+            <li v-for="pageNumber in displayedPagesProduct" :key="pageNumber" class="page-item" :class="{ 'active': pageNumber === currentPageProduct }">
               <a class="page-link" href="javascript:void(0)" @click="fatchDataProduct(pageNumber)">{{ pageNumber }}</a>
             </li>
 
@@ -209,7 +209,7 @@
               </a>
             </li>
 
-            <li v-if="displayedPages[displayedPages.length - 1] < totalPageProduct">
+            <li v-if="displayedPagesProduct[displayedPagesProduct.length - 1] < totalPageProduct">
               <a class="page-link" href="javascript:void(0)" @click="fatchDataProduct(totalPageProduct)">Last</a>
             </li>
 
@@ -339,7 +339,7 @@
         selectedWhsCode: null,
 
         selectedStoreOutlet: this.$root.selectedStoreAccess,
-        currentActiveStoreOutlet: localStorage.getItem(JSON.stringify(this.$root.local_storage.access_store)),
+        currentActiveStoreOutlet: null,
       }
     },
 
@@ -354,6 +354,7 @@
 
     async beforeMount(){
       this.dateNow = this.$root.formatDateIdn(new Date());
+      this.currentActiveStoreOutlet = localStorage.getItem(JSON.stringify(this.local_storage.access_store));
       await this.loadAllDatas();
     },
 
@@ -438,7 +439,7 @@
           startPage = Math.max(1, endPage - this.totalDisplayedPagesProduct + 1);
         }
 
-        this.displayedPages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+        this.displayedPagesProduct = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
       },
 
       updateSelectedWhsCode: function(){

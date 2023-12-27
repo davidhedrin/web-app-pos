@@ -92,7 +92,7 @@
           <h4>Daftar transaksi</h4>
         </div>
         <div class="col-md-6 mb-3">
-          <form @submit.prevent="fatchDataTransaction(1, dateRangeStart, dateRangeEnd)" class="d-flex align-items-center">
+          <form @submit.prevent="fatchDataTransaction()" class="d-flex align-items-center">
             <input v-model="dateRangeStart" type="datetime-local" class="form-control">
             <span class="fw-semi-bold px-2">s/d</span>
             <input v-model="dateRangeEnd" type="datetime-local" class="form-control">
@@ -150,7 +150,7 @@
         </table>
       </div>
       
-      <div v-if="totalPageTr > 1" class="d-flex justify-content-end">
+      <!-- <div v-if="totalPageTr > 1" class="d-flex justify-content-end">
         <nav aria-label="Page navigation example">
           <ul class="pagination pagination-sm">
             <li class="page-item" :class="{ 'disabled': currentPageTr === 1 }">
@@ -170,10 +170,41 @@
             </li>
           </ul>
         </nav>
+      </div> -->
+
+      <div v-if="totalPageTr > 1" class="d-flex justify-content-end">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination pagination-sm">
+
+            <li v-if="displayedPagesTr[0] > 1">
+              <a class="page-link" href="javascript:void(0)" @click="fatchDataTransaction()">First</a>
+            </li>
+
+            <li class="page-item" :class="{ 'disabled': currentPageTr === 1 }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchDataTransaction(currentPageTr - 1)">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+
+            <li v-for="pageNumber in displayedPagesTr" :key="pageNumber" class="page-item" :class="{ 'active': pageNumber === currentPageTr }">
+              <a class="page-link" href="javascript:void(0)" @click="fatchDataTransaction(pageNumber)">{{ pageNumber }}</a>
+            </li>
+
+            <li class="page-item" :class="{ 'disabled': currentPageTr === totalPageTr }">
+              <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchDataTransaction(currentPageTr + 1)">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+
+            <li v-if="displayedPagesTr[displayedPagesTr.length - 1] < totalPageTr">
+              <a class="page-link" href="javascript:void(0)" @click="fatchDataTransaction(totalPageTr)">Last</a>
+            </li>
+
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
-
   
   <div class="modal fade" id="modalViewProduct" tabindex="0" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 1100px">
@@ -371,6 +402,8 @@
       return{
         local_storage: this.$root.local_storage,
         dataAllTransaction: [],
+        displayedPagesTr: [],
+        totalDisplayedPagesTr: 3,
         currentPageTr: 1,
         perPageTr: 7,
         totalPageTr: 0,
@@ -403,7 +436,7 @@
         this.$root.hideLoading();
       },
 
-      fatchDataTransaction: async function(page, startDate = new Date(), endDate = new Date()){
+      fatchDataTransaction: async function(page = 1, startDate = this.dateRangeStart, endDate = this.dateRangeEnd){
         this.$root.showLoading();
         try{
           const check_uuid = localStorage.getItem(this.local_storage.is_dynamic);
@@ -422,10 +455,25 @@
           this.currentPageTr = response.current_page;
           this.totalPageTr = response.last_page;
           this.dataAllTransaction = response.data;
+
+          this.updateDisplayedPagesTr();
         } catch (error) {
           console.log(error);
         }
         this.$root.hideLoading();
+      },
+      
+      updateDisplayedPagesTr() {
+        const halfDisplayedPages = Math.floor(this.totalDisplayedPagesTr / 2);
+
+        let startPage = Math.max(1, this.currentPageTr - halfDisplayedPages);
+        let endPage = Math.min(this.totalPageTr, startPage + this.totalDisplayedPagesTr - 1);
+
+        if (endPage - startPage + 1 < this.totalDisplayedPagesTr) {
+          startPage = Math.max(1, endPage - this.totalDisplayedPagesTr + 1);
+        }
+
+        this.displayedPagesTr = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
       },
 
       getDataItemTransaction: async function(trans){

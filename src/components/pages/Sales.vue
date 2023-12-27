@@ -148,7 +148,7 @@
                     <a v-if="data.is_ticket" href="javascript:void(0)" class="p-0 ms-2 text-secondary" style="cursor: not-allowed;">
                       <span class="fas fa-window-close"></span>
                     </a>
-                    <a v-else href="javascript:void(0)" @click="deleteProductById(data, data.batch)" class="p-0 ms-2 text-danger">
+                    <a v-else href="javascript:void(0)" @click="deleteProductById(data, data.batch, index)" class="p-0 ms-2 text-danger">
                       <span class="fas fa-window-close"></span>
                     </a>
                   </td>
@@ -162,11 +162,14 @@
       <div class="card overflow-hidden mb-3">
         <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: cover;"></div>
         <div class="row card-header position-relative align-items-center pb-2 pt-1 px-4">
-          <div class="col-md-5 px-1 py-1">
+          <div class="col-md-3 px-1 py-1">
             <div class="dropdown font-sans-serif">
               <button class="btn card-link dropdown-toggle dropdown-caret-none" type="button" id="filter_product_view" data-bs-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
                 <span class="fas fa-filter fs--1"></span>
-                <span class="d-none d-sm-inline-block ms-1 fs-0">Filter</span>
+                <span class="fs-0">Filter</span>
+                <!-- <span class="fs-0 notification-indicator notification-indicator-warning notification-indicator-fill">
+                  <span class="notification-indicator-number">1</span>
+                </span> -->
               </button>
               <div class="dropdown-menu dropdown-menu-end border py-2 ps-3" aria-labelledby="filter_product_view" style="">
                 <!-- <a class="dropdown-item" href="#!">Configure inbox</a> -->
@@ -232,11 +235,17 @@
               </div>
             </form>
           </div>
-          <div class="col-md-1 d-grid px-1 py-2">
+          <div class="col-md-3 d-flex justify-content-end px-1 py-2">
             <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalFindProductFree">
               Free
               <!-- <span class="fas fa-search-dollar"></span> -->
             </button>
+            
+            <div v-if="dataAllProducts.length > 0" class="ms-2">
+              <button class="btn btn-outline-warning" type="button" @click="fatchAllDataProduct()">
+                Semua <span class="fas fa-cloud-download-alt"></span>
+              </button>
+            </div>
           </div>
         </div>
         <div class="card-body position-relative p-0">
@@ -252,10 +261,10 @@
             </div>
             <div class="px-3">
               <div class="row px-3">
-                <div v-if="$root.selectedStoreAccess" class="mb-1 col-sm-6 col-md-2 p-1" v-for="product in filteredProducts" :key="product.sku">
+                <div v-if="$root.selectedStoreAccess" class="mb-1 col-sm-6 col-md-2 p-1" v-for="product in filteredProducts" :key="product.itemCode">
                   <div class="border rounded-1 h-100 d-flex flex-column justify-content-between">
                     <div class="overflow-hidden">
-                      <div class="position-relative rounded-top overflow-hidden" v-on:click="validateModalBatchProduct(product)" style="cursor: pointer;">
+                      <div class="position-relative rounded-top overflow-hidden cursor-pointer" @click="validateModalBatchProduct(product)">
                         <div class="d-block text-center">
                           <div v-if="product.promo_product_id">
                             <img v-if="product.for_product.imageUrl != null && product.for_product.imageUrl.trim() != ''" class="img-fluid rounded-top" :src="product.for_product.imageUrl" style="width: 100%; height: 110px;" alt="">
@@ -321,14 +330,6 @@
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              
-              <div v-if="dataAllProducts.length > 0" class="row mt-2 px-3 justify-content-end">
-                <div class="col-md-12 d-grid gap-2 p-0">
-                  <button class="btn btn-outline-warning me-1 mb-1" type="button" @click="fatchAllDataProduct()">
-                    Semua <span class="fas fa-cloud-download-alt"></span>
-                  </button>
                 </div>
               </div>
             </div>
@@ -797,8 +798,25 @@
                       <th class="pe-0 py-1 text-end text-dark">-Rp 5.000</th>
                     </tr> -->
                     <tr v-if="selectedActivePromo != null" class="border-bottom">
-                      <th class="ps-0 py-1" style="font-weight: normal;">{{ selectedActivePromo.nama_promo.toUpperCase() }} ({{ selectedActivePromo.percent }}%)</th>
+                      <th class="ps-0 py-1" style="font-weight: normal;">
+                        {{ selectedActivePromo.nama_promo.toUpperCase() }}
+                        ({{ selectedActivePromo.percent }}%)
+                      </th>
                       <th class="pe-0 py-1 text-end text-dark">-Rp {{ $root.formatPrice(totalDiscountPromo) }}</th>
+                    </tr>
+                    <tr v-if="selectedActivePromo != null && selectedActivePromo.percent_after_dic != null && selectedActivePromo.percent_after_dic > 0" class="border-bottom">
+                      <th class="ps-0 py-1" style="font-weight: normal;">
+                        After Diskon
+                        ({{ selectedActivePromo.percent_after_dic }}%)
+                      </th>
+                      <th class="pe-0 py-1 text-end text-dark">-Rp {{ $root.formatPrice(afterDiscountPromo) }}</th>
+                    </tr>
+                    <tr v-if="selectedActivePromo != null && selectedActivePromo.percent_additional != null && selectedActivePromo.percent_additional > 0" class="border-bottom">
+                      <th class="ps-0 py-1" style="font-weight: normal;">
+                        Diskon Additional
+                        ({{ selectedActivePromo.percent_additional }}%)
+                      </th>
+                      <th class="pe-0 py-1 text-end text-dark">-Rp {{ $root.formatPrice(discountPromoAdditional) }}</th>
                     </tr>
                     <tr class="border-bottom">
                       <th class="ps-0 py-1" style="font-weight: normal;">Total Bayar </th>
@@ -1134,17 +1152,28 @@
         </div>
         <div class="modal-body p-0">
           <div class="rounded-top-3 bg-body-tertiary py-3 ps-4 pe-6">
-            <h5 class="mb-1" id="staticBackdropLabel">Aktif Promo Diskon</h5>
+            <h5 class="mb-0" id="staticBackdropLabel">Aktif Promo Diskon</h5>
             <p class="fs--1 mb-0">
               <strong>
                 {{ dataActiveMasterPromo.length }} 
               </strong>
-              Promo aktif diperiode ini
+              Promo aktif ditemukan.
             </p>
           </div>
-          <div class="p-4">
-            <div class="row">
-              <div v-for="promo in dataActiveMasterPromo" class="col-md-6">
+          <div class="p-4 py-2">
+            <form @submit.prevent="fatchDataPromoDiskon()" class="mb-2">
+              <div class="input-group">
+                <input v-model="inputSearchKodePromo" @input="inputSearchKodePromo.trim() == '' && fatchDataPromoDiskon(currentPagePromoDiskon)" class="form-control search-input fuzzy-search" type="search" placeholder="Masukkan Kode Promo">
+                <button class="btn btn-primary card-link" type="submit" style="z-index: 1"><span class="fas fa-search"></span></button>
+              </div>
+            </form>
+
+            <div class="row" v-if="dataActiveMasterPromo.length > 0">
+              <div class="col-md-12">
+                <label class="form-label mb-0">List Promo Aktif:</label>
+                <hr class="m-0 mb-3">
+              </div>
+              <div v-for="promo in dataActiveMasterPromo" class="col-md-6 mb-3">
                 <div class="card cursor-pointer" @click="clickPromoConfirmationPromo(promo)">
                   <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/discount-i.png');"></div>
                   <div class="card-header position-relative">
@@ -1155,23 +1184,67 @@
                       Diskon {{ promo.percent }}%
                     </h3>
                     <u class="fs--1">Syarat & Ketentuan Berlaku:</u>
-                    <div class="fs--2">
-                      <span class="far fa-check-circle text-success"></span>
-                      Konsumen {{ promo.promo_member_for }}
-                    </div>
-                    <div class="fs--2">
-                      <span class="far fa-check-circle" :class="promo.min_buy && 'text-success'"></span>
-                      Minimal Pcs 
-                      <strong>{{ promo.min_buy ?? '-' }}</strong>
-                    </div>
-                    <div class="fs--2">
-                      <span class="far fa-check-circle" :class="promo.min_value && 'text-success'"></span>
-                      Minimal Value 
-                      <strong>Rp {{ promo.min_value ? $root.formatPrice(promo.min_value) : '-' }}</strong>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="fs--2">
+                          <span class="far fa-check-circle text-success"></span>
+                          Konsumen {{ promo.promo_member_for }}
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="fs--2">
+                          <span class="far fa-check-circle" :class="promo.min_buy && 'text-success'"></span>
+                          Minimal Pcs 
+                          <strong>{{ promo.min_buy ?? '-' }}</strong>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="fs--2">
+                          <span class="far fa-check-circle" :class="promo.min_value && 'text-success'"></span>
+                          Minimal Value 
+                          <strong>Rp {{ promo.min_value ? $root.formatPrice(promo.min_value) : '-' }}</strong>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div v-else class="text-center mt-3">
+              <label class="form-label fst-italic">Promo Tidak Ditemukan!</label>
+            </div>
+
+            <div v-if="totalPagePromoDiskon > 1" class="d-flex justify-content-end">
+              <nav aria-label="Page navigation example">
+                <ul class="pagination pagination-sm">
+
+                  <li v-if="displayedPagesPromoDiskon[0] > 1">
+                    <a class="page-link" href="javascript:void(0)" @click="fatchDataPromoDiskon()">First</a>
+                  </li>
+
+                  <li class="page-item" :class="{ 'disabled': currentPageTr === 1 }">
+                    <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchDataPromoDiskon(currentPageTr - 1)">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+
+                  <li v-for="pageNumber in displayedPagesPromoDiskon" :key="pageNumber" class="page-item" :class="{ 'active': pageNumber === currentPageTr }">
+                    <a class="page-link" href="javascript:void(0)" @click="fatchDataPromoDiskon(pageNumber)">{{ pageNumber }}</a>
+                  </li>
+
+                  <li class="page-item" :class="{ 'disabled': currentPageTr === totalPagePromoDiskon }">
+                    <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchDataPromoDiskon(currentPageTr + 1)">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+
+                  <li v-if="displayedPagesPromoDiskon[displayedPagesPromoDiskon.length - 1] < totalPagePromoDiskon">
+                    <a class="page-link" href="javascript:void(0)" @click="fatchDataPromoDiskon(totalPagePromoDiskon)">Last</a>
+                  </li>
+
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
@@ -1181,6 +1254,211 @@
             Lanjut tanpa promo
             <span class="far fa-arrow-alt-circle-right"></span>
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal GWP first (Single GWP) -->
+  <div class="modal fade" id="modalProductSingleGwp" tabindex="-1" role="dialog" aria-hidden="true" data-bs-keyboard="false" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 500px">
+      <div class="modal-content position-relative">
+        <div class="position-absolute top-0 end-0 mt-2 me-2 z-1">
+          <button @click="closeModalSelectActivePromo()" class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="rounded-top-3 py-3 ps-4 pe-6 bg-body-tertiary">
+            <h5 class="mb-0" id="modalExampleDemoLabel">Promo Gift With Purchese </h5>
+            <p class="fs--1 mb-0">Promo <strong class="text-success">{{ selectedActivePromo != null && selectedActivePromo.nama_promo.toUpperCase() }}</strong> dengan Gift With Purchese</p>
+          </div>
+          <div class="px-3">
+            <div v-if="productSingleGWP != null" class="card-header py-3 px-3">
+              <img v-if="productSingleGWP.imageUrl != null && productSingleGWP.imageUrl.trim() != ''" class="rounded-3 mb-2" :src="productSingleGWP.imageUrl" alt="" style="width: 100%; height: 155px; object-fit: cover;">
+              <img v-else class="img-fluid rounded" src="@/assets/img/product/no_image.jpg" style="width: 100%; height: 155px; object-fit: cover;" alt="" />
+              <span class="badge badge-subtle-secondary fs--1 fw-bold mb-1" style="font-weight: normal;">
+                {{ productSingleGWP.itemCode }}
+              </span>
+              <h5>{{ productSingleGWP.itemName }}</h5>
+              <del><strong>Rp {{ $root.formatPrice(productSingleGWP.all_product_price[0].price) }}</strong></del> -> 
+              <span class="badge rounded-pill bg-danger mb-2">FREE</span>
+
+              <div v-if="productSingleGWP.all_inventory_batch.length === 0" class="card mb-2">
+                <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
+                <div class="card-header py-2 px-3">
+                  <span><i>Product Batch Not Found!</i></span>
+                </div>
+              </div>
+              <div v-else class="mb-3">
+                <label class="fs--1 mb-0">Pilih batch product: </label>
+                <hr class="m-0 mb-2"/>
+                <div v-for="batch in productSingleGWP.all_inventory_batch" class="card cursor-pointer mb-2" @click="clickAddToListSingleGwpProduct(productSingleGWP, batch)">
+                  <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
+                  <div class="card-header py-2 px-3">
+                    <div class="row align-items-center">
+                      <div class="col-md-4">
+                        <span class="fs--2"><u>Batch Number:</u></span>
+                        <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
+                      </div>
+                      <div class="col-md-8 text-end fs--1">
+                        <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
+                        <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal select product fo free gwp -->
+  <div class="modal fade" id="modalSelectProductFreeGwp" tabindex="-1" role="dialog" aria-hidden="true" data-bs-keyboard="false" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content border-0">
+        <div class="position-absolute top-0 end-0 mt-3 me-3 z-1">
+          <button @click="closeModalSelectActivePromo()" class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="rounded-top-3 bg-body-tertiary py-3 ps-4 pe-6">
+            <h5 class="mb-0" id="staticBackdropLabel">Promo Gift With Purchese</h5>
+            <p v-if="selectedActivePromo != null" class="fs--1 mb-0">
+              Promo <strong class="text-success">{{ selectedActivePromo.nama_promo.toUpperCase() }}</strong>
+              <span v-if="selectedActivePromo.tipe_gwp == master_coll.tipe_gwp.secound">
+                Free Total Product Maksimal <strong class="text-danger">Rp {{ $root.formatPrice(selectedActivePromo.min_value_product) }}</strong>
+              </span>
+              <span v-if="selectedActivePromo.tipe_gwp == master_coll.tipe_gwp.three">
+                Pilih Product Maksimal <strong class="text-danger fs-0">{{ selectedActivePromo.mix_get_pcs_gwp }}</strong> Item<span v-if="selectedActivePromo.mix_get_pcs_gwp > 1">s</span>
+              </span>
+            </p>
+            <div>
+              <span v-for="(data, index) in selectedAllPromoMinValGwp" class="badge badge-subtle-primary fw-bold" style="font-weight: normal;">
+                {{ index + 1 }}. {{ data.product.itemCode }} - {{ data.product.itemNameShort }}
+                <span class="cursor-pointer" @click="deleteDataProductMinValGwp(data, index)">
+                  <span class="fas fa-window-close text-danger ms-1"></span>
+                </span>
+              </span>
+            </div>
+          </div>
+          <div class="p-3 py-2">
+            <form v-if="selectedActivePromo != null && selectedActivePromo.tipe_gwp == master_coll.tipe_gwp.secound" @submit.prevent="fatchDataProductMinValueGwp()" class="mb-2">
+              <div class="input-group">
+                <input v-model="inputSearchProductInMinValGwp" @input="inputSearchProductInMinValGwp.trim() == '' && fatchDataProductMinValueGwp(currentPageMinValGwp)" class="form-control search-input fuzzy-search" type="search" placeholder="Masukkan item code">
+                <button class="btn btn-primary card-link" type="submit" style="z-index: 1"><span class="fas fa-search"></span></button>
+              </div>
+            </form>
+
+            <div v-if="dataAllProductsMinValGwp.length > 0" class="scrollable-customize mb-3" style="min-height: 1vh; max-height: 67vh;">
+              <div class="row m-0">
+                <div v-for="product in dataAllProductsMinValGwp" class="col-md-6 p-2" :key="product.itemCode">
+                  <div class="card cursor-pointer" @click="validateModalBatchProductMinValGwp(product)">
+                    <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1.png'); background-size: cover;"></div>
+                    <div class="card-header position-relative d-flex">
+                      <div class="me-2">
+                        <img v-if="product.imageUrl != null && product.imageUrl.trim() != ''" class="img-fluid rounded-3" :src="product.imageUrl" style="width: 100%; height: 70px;" alt="">
+                        <img v-else class="img-fluid rounded-3" src="@/assets/img/product/no_image.jpg" style="width: 100%; height: 70px;" alt="">
+                      </div>
+                      <div>
+                        <span class="badge badge-subtle-secondary fw-bold mb-1" style="font-weight: normal;">{{ product.itemCode }}</span>
+                        <span v-if="product.isSelectedGwpMinVal == true" class="badge rounded-pill fw-medium badge-subtle-success ms-2">
+                          <span class="fas fa-check"></span> Dipilih
+                        </span>
+                        <h5 class="fs-0 mb-0">
+                          <div class="text-1100">
+                            <span class="d-inline-block text-truncate" style="max-width: 250px;">
+                              {{ product.itemName }}
+                            </span>
+                          </div>
+                        </h5>
+                        <strong class="fs-md-0 text-warning mb-0 text-center">
+                          Rp {{ $root.formatPrice($root.filterPriceProduct(product).price) }}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="text-center">
+              <label><i>Product Not Found!</i></label>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <button @click="closeModalSelectActivePromo()" class="btn btn-sm btn-secondary me-2" type="button" data-bs-dismiss="modal">Batal</button>
+                <button @click="btnContinueSelectMinValGwp()" class="btn btn-sm btn-primary" type="button">Lanjutkan</button>
+              </div>
+              
+              <nav v-if="totalPageMinValGwp > 1" aria-label="Page navigation example">
+                <ul class="pagination pagination-sm mb-0">
+
+                  <li v-if="displayedPagesMinValGwp[0] > 1">
+                    <a class="page-link" href="javascript:void(0)" @click="fatchDataProductMinValueGwp()">First</a>
+                  </li>
+
+                  <li class="page-item" :class="{ 'disabled': currentPageMinValGwp === 1 }">
+                    <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchDataProductMinValueGwp(currentPageMinValGwp - 1)">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+
+                  <li v-for="pageNumber in displayedPagesMinValGwp" :key="pageNumber" class="page-item" :class="{ 'active': pageNumber === currentPageMinValGwp }">
+                    <a class="page-link" href="javascript:void(0)" @click="fatchDataProductMinValueGwp(pageNumber)">{{ pageNumber }}</a>
+                  </li>
+
+                  <li class="page-item" :class="{ 'disabled': currentPageMinValGwp === totalPageMinValGwp }">
+                    <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchDataProductMinValueGwp(currentPageMinValGwp + 1)">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+
+                  <li v-if="displayedPagesMinValGwp[displayedPagesMinValGwp.length - 1] < totalPageMinValGwp">
+                    <a class="page-link" href="javascript:void(0)" @click="fatchDataProductMinValueGwp(totalPageMinValGwp)">Last</a>
+                  </li>
+
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal show batch product min val gwp -->
+  <div class="modal fade" id="modalShowBatchProductMinValGwp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 500px">
+      <div class="modal-content position-relative">
+        <div class="position-absolute top-0 end-0 mt-2 me-2 z-1">
+          <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="rounded-top-3 py-3 ps-4 pe-6 bg-body-tertiary">
+            <h5 class="mb-1" id="modalExampleDemoLabel">Batch product </h5>
+          </div>
+          <div v-if="productSelectBatchMinValGwp != null" class="px-4 pb-4">
+            <!-- For Regular Product -->
+            <div v-if="productSelectBatchMinValGwp.product.all_inventory_batch.length > 0" class="card cursor-pointer mt-3" v-for="batch in productSelectBatchMinValGwp.product.all_inventory_batch" @click="selectBatchProductMinValGwp(productSelectBatchMinValGwp.product, batch, productSelectBatchMinValGwp.qty)">
+              <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
+              <div class="card-header position-relative py-2 px-3">
+                <div class="row align-items-center">
+                  <div class="col-md-4">
+                    <span class="fs--2"><u>Batch Number:</u></span>
+                    <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
+                  </div>
+                  <div class="col-md-8 text-end fs--1">
+                    <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
+                    <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="text-center mt-3">
+              <span><i>Product Batch Not Found!</i></span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1287,7 +1565,7 @@
           <div class="rounded-top-3 py-3 ps-4 pe-6 bg-body-tertiary">
             <h5 class="mb-1" id="modalExampleDemoLabel">Find product free </h5>
           </div>
-          <div class="px-4 pb-4">
+          <div class="px-3 pt-3">
             <form @submit.prevent="inputSearchFreeProduct != '' && findDataProductFree()" class="mb-3">
               <div class="input-group">
                 <input v-model="inputSearchFreeProduct" @input="inputSearchFreeProduct == '' && (allDataFindProductFree = [])" class="form-control search-input fuzzy-search" type="search" placeholder="Masukkan item code product...">
@@ -1295,57 +1573,55 @@
               </div>
             </form>
 
-            <div v-if="allDataFindProductFree.length < 1" class="text-center">
+            <div v-if="allDataFindProductFree.length < 1" class="text-center pb-4">
               <span>
                 No Product Found!!
               </span>
             </div>
             <hr v-else />
-            <div v-for="product in allDataFindProductFree" class="card">
-              <div class="card-header py-2 px-3">
-                <img class="rounded-3 mb-2" :src="product.imageUrl" alt="" style="width: 100%; height: 155px; object-fit: cover;">
-                <span class="badge badge-subtle-secondary fs--1 fw-bold mb-1" style="font-weight: normal;">
-                  {{ product.itemCode }}
-                </span>
-                <h5>{{ product.itemName }}</h5>
-                <del><strong>Rp {{ $root.formatPrice(product.all_product_price[0].price) }}</strong></del> -> 
-                <span class="badge rounded-pill bg-danger mb-2">FREE</span>
+            <div v-for="product in allDataFindProductFree" class="py-2 px-3">
+              <img class="rounded-3 mb-2" :src="product.imageUrl" alt="" style="width: 100%; height: 155px; object-fit: cover;">
+              <span class="badge badge-subtle-secondary fs--1 fw-bold mb-1" style="font-weight: normal;">
+                {{ product.itemCode }}
+              </span>
+              <h5>{{ product.itemName }}</h5>
+              <del><strong>Rp {{ $root.formatPrice(product.all_product_price[0].price) }}</strong></del> -> 
+              <span class="badge rounded-pill bg-danger mb-2">FREE</span>
 
-                <div v-if="product.all_inventory_batch.length === 0" class="card mb-2">
+              <div v-if="product.all_inventory_batch.length === 0" class="card mb-2">
+                <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
+                <div class="card-header py-2 px-3">
+                  <span><i>Product Batch Not Found!</i></span>
+                </div>
+              </div>
+              <div v-else class="mb-3">
+                <label class="fs--1 mb-0">Pilih batch product: </label>
+                <hr class="m-0 mb-2"/>
+                <div v-for="batch in product.all_inventory_batch" class="card cursor-pointer mb-2" @click="clickAddToListFreeProduct(product, batch)">
                   <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
                   <div class="card-header py-2 px-3">
-                    <span><i>Product Batch Not Found!</i></span>
-                  </div>
-                </div>
-                <div v-else class="mb-3">
-                  <label class="fs--1 mb-0">Pilih batch product: </label>
-                  <hr class="m-0 mb-2"/>
-                  <div v-for="batch in product.all_inventory_batch" class="card cursor-pointer mb-2" @click="clickAddToListFreeProduct(product, batch)">
-                    <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
-                    <div class="card-header py-2 px-3">
-                      <div class="row align-items-center">
-                        <div class="col-md-4">
-                          <span class="fs--2"><u>Batch Number:</u></span>
-                          <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
-                        </div>
-                        <div class="col-md-8 text-end fs--1">
-                          <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
-                          <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
-                        </div>
+                    <div class="row align-items-center">
+                      <div class="col-md-4">
+                        <span class="fs--2"><u>Batch Number:</u></span>
+                        <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
                       </div>
-                      <!-- <span class="far fa-check-circle text-success"></span> -->
+                      <div class="col-md-8 text-end fs--1">
+                        <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
+                        <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
+                      </div>
                     </div>
+                    <!-- <span class="far fa-check-circle text-success"></span> -->
                   </div>
                 </div>
-                
-                <!-- clickAddToListFreeProduct(product) -->
-                <!-- <div v-if="product.all_inventory_batch.length > 0" class="d-flex">
-                  <input class="form-control p-0 ps-2 me-2" type="number" value="1" min="1" style="width: 60px;">
-                  <button class="btn btn-sm btn-primary px-2" type="button" @click="">
-                    Tambah <span class="fas fa-cart-plus" data-fa-transform="shrink-3"></span>
-                  </button>
-                </div> -->
               </div>
+              
+              <!-- clickAddToListFreeProduct(product) -->
+              <!-- <div v-if="product.all_inventory_batch.length > 0" class="d-flex">
+                <input class="form-control p-0 ps-2 me-2" type="number" value="1" min="1" style="width: 60px;">
+                <button class="btn btn-sm btn-primary px-2" type="button" @click="">
+                  Tambah <span class="fas fa-cart-plus" data-fa-transform="shrink-3"></span>
+                </button>
+              </div> -->
             </div>
           </div>
         </div>
@@ -1560,6 +1836,8 @@
         diskonPrice: 0,
         totalBayarPrice: 0,
         totalDiscountPromo: 0,
+        afterDiscountPromo: 0,
+        discountPromoAdditional: 0,
         calculateTotalBayarPrice: 0,
         tempValueInputMoreMetode: 0,
         totalPcsItemOrder: 0,
@@ -1629,7 +1907,33 @@
         allProductFindSearchBtn: [],
 
         dataActiveMasterPromo: [],
+        displayedPagesPromoDiskon: [],
+        totalDisplayedPagesPromoDiskon: 3,
+        currentPagePromoDiskon: 1,
+        perPagePromoDiskon: 6,
+        totalPagePromoDiskon: 0,
         selectedActivePromo: null,
+        inputSearchKodePromo: '',
+        
+        dataDataDetailPromoDiskon: [],
+        displayedPagesDetailPromoDiskon: [],
+        totalDisplayedPagesDetailPromoDiskon: 3,
+        currentPageDetailPromoDiskon: 1,
+        perPageDetailPromoDiskon: 6,
+        totalPageDetailPromoDiskon: 0,
+
+        productSingleGWP: null,
+        
+        selectedAllPromoMinValGwp: [],
+        productSelectBatchMinValGwp: null,
+
+        dataAllProductsMinValGwp: [],
+        displayedPagesMinValGwp: [],
+        totalDisplayedPagesMinValGwp: 3,
+        currentPageMinValGwp: 1,
+        perPageMinValGwp: 10,
+        totalPageMinValGwp: 0,
+        inputSearchProductInMinValGwp: '',
       };
     },
 
@@ -1924,11 +2228,11 @@
                       setObj.get_product.all_product_diskon = resDataProductPromo.get_product_diskon;
                     }
     
-                    const startDate = new Date(masterPromo.start_date);
-                    const endDate = new Date(masterPromo.end_date);
-                    if(today >= startDate && today <= endDate){
-                      responseAllDataPromoDetail.push(setObj);
-                    }
+                    responseAllDataPromoDetail.push(setObj);
+                    // const startDate = new Date(masterPromo.start_date);
+                    // const endDate = new Date(masterPromo.end_date);
+                    // if(today >= startDate && today <= endDate){
+                    // }
                   });
                 }
               } catch(e){
@@ -1981,6 +2285,45 @@
           console.log(e);
         }
         this.$root.hideLoading();
+      },
+
+      fatchDataPromoDiskon: async function(page = 1){
+        this.$root.showLoading();
+        try{
+          const checkPromo = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/getActivePromoDiskon',
+            params: {
+              page: page,
+              per_page: this.perPagePromoDiskon,
+              search: this.inputSearchKodePromo.trim()
+            }
+          });
+          
+          const resData = checkPromo.data;
+          const dataPromo = resData.data;
+          
+          this.currentPagePromoDiskon = resData.current_page;
+          this.totalPagePromoDiskon = resData.last_page;
+          this.dataActiveMasterPromo = dataPromo;
+          this.updateDisplayedPagesPromoDiskon();
+        }catch(e){
+          console.log(e);
+        }
+        this.$root.hideLoading();
+      },
+
+      updateDisplayedPagesPromoDiskon() {
+        const halfDisplayedPages = Math.floor(this.totalDisplayedPagesPromoDiskon / 2);
+
+        let startPage = Math.max(1, this.currentPagePromoDiskon - halfDisplayedPages);
+        let endPage = Math.min(this.totalPagePromoDiskon, startPage + this.totalDisplayedPagesPromoDiskon - 1);
+
+        if (endPage - startPage + 1 < this.totalDisplayedPagesPromoDiskon) {
+          startPage = Math.max(1, endPage - this.totalDisplayedPagesPromoDiskon + 1);
+        }
+
+        this.displayedPagesPromoDiskon = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
       },
       
       onChangeCheckVal: function(event){
@@ -2173,24 +2516,26 @@
         }
       },
 
-      deleteProductById: function (product, batch){
-        let indexToDelete = null;
+      deleteProductById: function (product, batch, index = null){
+        let indexToDelete = index;
 
-        if(product.is_promo_product){ // Jika product promo
-          try{
-            indexToDelete = this.dataProductInList.findIndex((p) => {
-              if(p.is_promo_product){
-                return p.is_promo_product.promo_product_id === product.is_promo_product.promo_product_id &&
-                p.is_promo_product.for_product.itemCode === product.product.itemCode && 
-                p.batch.batchNo.trim() === batch.batchNo.trim()
-              }
-            });
-          }catch(error){
-            indexToDelete = null;
-            console.log(error);
+        if(index == null){
+          if(product.is_promo_product){ // Jika product promo
+            try{
+              indexToDelete = this.dataProductInList.findIndex((p) => {
+                if(p.is_promo_product){
+                  return p.is_promo_product.promo_product_id === product.is_promo_product.promo_product_id &&
+                  p.is_promo_product.for_product.itemCode === product.product.itemCode && 
+                  p.batch.batchNo.trim() === batch.batchNo.trim()
+                }
+              });
+            }catch(error){
+              indexToDelete = null;
+              console.log(error);
+            }
+          }else{ // Jika product reguler
+            indexToDelete = this.dataProductInList.findIndex((p) => !p.is_promo_product && p.product.itemCode === product.product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim());
           }
-        }else{ // Jika product reguler
-          indexToDelete = this.dataProductInList.findIndex((p) => !p.is_promo_product && p.product.itemCode === product.product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim());
         }
         
         if (indexToDelete != null) {
@@ -2735,12 +3080,16 @@
         this.getCheckGelarPembelian = null;
         
         this.selectedActivePromo = null;
+        this.productSingleGWP = null;
         this.inputNominalMethodCash = null;
         this.totalKembalianMetodeCash = 0;
         this.checkboxMemberPotonganPoint = false;
         this.totalHematDiskon = 0;
         this.totalDiskonPercentReseller = 0;
         this.totalDiscountPromo = 0;
+        this.afterDiscountPromo = 0;
+        this.discountPromoAdditional = 0;
+        this.productSingleGWP = null;
 
         this.calculateAmoutPrice();
         $('#modalBatalConfirm').modal('hide');
@@ -2832,7 +3181,6 @@
       },
 
       validationBeforeContinueBtnBilling: function(){
-
         if(this.dataProductInList.length < 1){
           this.$root.showAlertFunction('warning', 'Order List', 'Tidak ada product yang ditambahkan dalam Order List!');
           return false;
@@ -2890,6 +3238,184 @@
           }
         }
       },
+
+      // Logic GWP
+      closeModalSelectActivePromo: function(){
+        this.selectedActivePromo = null;
+        this.productSingleGWP = null;
+        this.selectedAllPromoMinValGwp = [];
+        this.productSelectBatchMinValGwp = null;
+
+        $('#modalShowActivePromoDiskon').modal('show');
+      },
+
+      clickAddToListSingleGwpProduct: function(product, batch){
+        if(product.all_inventory_batch === 0){
+          return false;
+        }
+
+        const productObj = {
+          product: product,
+          qty: 1,
+          batch: batch,
+          is_promo_product: null,
+          is_free_product: true,
+          isGwpProduct: true,
+        };
+        this.dataProductListForStruk.push(productObj);
+
+        this.confirmationPayment();
+        $('#modalProductSingleGwp').modal('hide');
+        $('#modalShowActivePromoDiskon').modal('hide');
+        // if(parseInt(batch.onHand) > 0){
+        // }else{
+        //   this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
+        // }
+      },
+
+      fatchDataProductMinValueGwp: async function(page = 1){
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+        this.$root.showLoading();
+        try{
+          const getAllProduct = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/app/sales/getAllProduct',
+            params: {
+              page: page,
+              per_page: this.perPageMinValGwp,
+              store_outlet: cacheStoreAccess.store_outlet,
+              search: this.inputSearchProductInMinValGwp.trim(),
+            },
+          });
+          this.dataAllProductsMinValGwp = [];
+
+          const response = getAllProduct.data;
+          this.currentPageMinValGwp = response.current_page;
+          this.totalPageMinValGwp = response.last_page;
+          this.updateDisplayedPagesMinValueGwp();
+          
+          var getDataProduct = response.data;
+          this.dataAllProductsMinValGwp = getDataProduct.filter((x) => {
+            const ifHaveInListSelect = this.selectedAllPromoMinValGwp.some((y) => y.product.itemCode === x.itemCode);
+            if(ifHaveInListSelect){
+              x.isSelectedGwpMinVal = true;
+            }
+            return x;
+          });
+        }catch(e){
+          console.log(e);
+        }
+        this.$root.hideLoading();
+      },
+      
+      updateDisplayedPagesMinValueGwp() {
+        const halfDisplayedPages = Math.floor(this.totalDisplayedPagesMinValGwp / 2);
+
+        let startPage = Math.max(1, this.currentPageMinValGwp - halfDisplayedPages);
+        let endPage = Math.min(this.totalPageMinValGwp, startPage + this.totalDisplayedPagesMinValGwp - 1);
+
+        if (endPage - startPage + 1 < this.totalDisplayedPagesMinValGwp) {
+          startPage = Math.max(1, endPage - this.totalDisplayedPagesMinValGwp + 1);
+        }
+        
+        this.displayedPagesMinValGwp = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+      },
+
+      validateModalBatchProductMinValGwp: function(product, qty = 1){
+        this.productSelectBatchMinValGwp = null;
+        this.productSelectBatchMinValGwp = {
+          product: product,
+          qty: qty
+        };
+        $('#modalShowBatchProductMinValGwp').modal('show');
+      },
+
+      checkTotalPriceProductMinValGwp: function(){
+        let result = 0;
+        this.selectedAllPromoMinValGwp.forEach((product) => {
+          if(!product.is_promo_product){
+            var getProduct = product.product;
+            let formatHarga;
+
+            if(this.$root.filterDiskonProduct(getProduct).discCode == this.master_code.diskon.tanpa_diskon_code){
+              formatHarga = parseInt(getProduct.all_product_price[0].price);
+            }else{
+              formatHarga = parseInt(getProduct.all_product_price[0].price  - (getProduct.all_product_price[0].price * (this.$root.filterDiskonProduct(getProduct).discount/100)));
+            }
+          
+            var calculatePrice = formatHarga * product.qty;
+            result += calculatePrice;
+          }
+        });
+
+        return result;
+      },
+
+      selectBatchProductMinValGwp: function(product, batch, qty = 1){
+        if(product.all_inventory_batch === 0){
+          return false;
+        }
+        
+        const findInList = this.selectedAllPromoMinValGwp.find((x) => x.product.itemCode == product.itemCode);
+        if(findInList){
+          $('#modalShowBatchProductMinValGwp').modal('hide');
+          this.$root.showAlertFunction('warning', 'Gagal Menambahkan!', 'Product sudah ada dalam list.');
+          return false;
+        }
+
+        if(this.selectedActivePromo.tipe_gwp == this.master_coll.tipe_gwp.secound){
+          const getTotalInList = this.checkTotalPriceProductMinValGwp();
+          const getTotalWithAdd = parseInt(getTotalInList) + parseInt(product.all_product_price[0].price);
+          if(
+            (parseInt(product.all_product_price[0].price) > parseInt(this.selectedActivePromo.min_value_product)) ||
+            (getTotalWithAdd > parseInt(this.selectedActivePromo.min_value_product))
+          ){
+            $('#modalShowBatchProductMinValGwp').modal('hide');
+            this.$root.showAlertFunction('warning', 'Gagal Menambahkan!', 'Total value melebihi maksimal.');
+            return false;
+          }
+        }
+        if(this.selectedActivePromo.tipe_gwp == this.master_coll.tipe_gwp.three){
+          if(this.selectedAllPromoMinValGwp.length >= this.selectedActivePromo.mix_get_pcs_gwp){
+            $('#modalShowBatchProductMinValGwp').modal('hide');
+            this.$root.showAlertFunction('warning', 'Gagal Menambahkan!', 'Total item melebihi maksimal.');
+            return false;
+          }
+        }
+
+        const productObj = {
+          product: product,
+          qty: 1,
+          batch: batch,
+          is_promo_product: null,
+          is_free_product: true,
+          isGwpProduct: true,
+        };
+        this.selectedAllPromoMinValGwp.push(productObj);
+        product.isSelectedGwpMinVal = true;
+        $('#modalShowBatchProductMinValGwp').modal('hide');
+        this.productSelectBatchMinValGwp = null;
+        // if(parseInt(batch.onHand) > 0){
+        // }else{
+        //   this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
+        // }
+      },
+
+      deleteDataProductMinValGwp: function(data, index){
+        const findDataInList = this.dataAllProductsMinValGwp.find((x) => x.itemCode == data.product.itemCode);
+        if(findDataInList) delete findDataInList.isSelectedGwpMinVal;
+        this.selectedAllPromoMinValGwp.splice(index, 1);
+      },
+
+      btnContinueSelectMinValGwp: function(){
+        this.dataProductListForStruk = this.dataProductListForStruk.concat(this.selectedAllPromoMinValGwp);
+        $('#modalSelectProductFreeGwp').modal('hide');
+        
+        this.selectedAllPromoMinValGwp = [];
+        this.productSelectBatchMinValGwp = null;
+        this.confirmationPayment();
+      },
+      // End Logic GWP
       
       // Control all modal confirm transaksi
       openModalCancelConfirm: function(){
@@ -2900,7 +3426,7 @@
         if(this.validationBeforeContinueBtnBilling() == false){
           return false;
         }
-
+        
         this.$root.showLoading();
 
         const dataProductList = this.dataProductInList.slice();
@@ -2913,10 +3439,11 @@
               const getProduct = dataPromo.get_product;
               const calculateBuyGet = parseInt(dataList.qty) / parseInt(mPromoProduct.buy_item);
               if(getProduct.all_inventory_batch.length > 0 && calculateBuyGet >= 1){
+                const batch = getProduct.all_inventory_batch[0];
                 const productObj = {
                   product: getProduct,
                   qty: parseInt(Math.floor(calculateBuyGet)),
-                  batch: getProduct.all_inventory_batch[0],
+                  batch: batch,
                   is_promo_product: dataPromo,
                   is_free_product: true,
                 };
@@ -2927,27 +3454,38 @@
           }
         }
         this.dataProductListForStruk = dataProductList;
-        
+
         try{
           const checkPromo = await axios({
             method: 'get',
-            url: this.$root.API_ERP + '/pos/getActivePromoDiskon'
+            url: this.$root.API_ERP + '/pos/getActivePromoDiskon',
+            params: {
+              page: 1,
+              per_page: this.perPagePromoDiskon,
+            }
           });
-          const dataPromo = checkPromo.data;
+          
+          const resData = checkPromo.data;
+          const dataPromo = resData.data;
+          
           if(dataPromo.length > 0){
+            this.currentPagePromoDiskon = resData.current_page;
+            this.totalPagePromoDiskon = resData.last_page;
             this.dataActiveMasterPromo = dataPromo;
+            this.updateDisplayedPagesPromoDiskon();
+            
             $('#modalShowActivePromoDiskon').modal('show');
           }else{
             this.confirmationPayment();
           }
         }catch(e){
-          this.$root.showAlertFunction('warning', 'Traksaksi Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           console.log(e);
         }
+
         this.$root.hideLoading();
       },
 
-      clickPromoConfirmationPromo: function(promo){
+      clickPromoConfirmationPromo: async function(promo){
         if(promo.min_buy != null){
           if(this.totalPcsItemOrder < promo.min_buy){
             this.$root.showAlertFunction('warning', 'Promo Gagal!', 'Syarat dan ketentuan tidak terpenuhi.');
@@ -2982,17 +3520,111 @@
         if(totalPriceNonPromo > 0){
           const calculateDiscount = totalPriceNonPromo * (promo.percent/100);
           this.totalDiscountPromo = calculateDiscount;
-          this.totalBayarPrice = this.totalBayarPrice - calculateDiscount;
+
+          if(promo.percent_after_dic != null && promo.percent_after_dic > 0){
+            const afterDiscValue = totalPriceNonPromo - calculateDiscount;
+            const calculateAfterDiscValue = afterDiscValue * (promo.percent_after_dic/100);
+            this.afterDiscountPromo = calculateAfterDiscValue;
+          }
+          if(promo.percent_additional != null && promo.percent_additional > 0){
+            const totalMinimal = totalPriceNonPromo - calculateDiscount;
+            if(totalMinimal > parseInt(promo.min_value)){
+              const totalAfterMinimal = totalMinimal - this.afterDiscountPromo;
+              const calculateAfterMinimal = totalAfterMinimal * (promo.percent_additional/100);
+              this.discountPromoAdditional = calculateAfterMinimal;
+            }
+          }
+          // this.totalBayarPrice = this.totalBayarPrice - calculateDiscount;
         }else{
             this.$root.showAlertFunction('warning', 'Promo Gagal!', 'Promo berlaku untuk product reguler');
             this.$root.hideLoading();
             return false;
         }
+
         
         this.selectedActivePromo = promo;
+        
+        if(promo.is_gwp == true){
+          if(promo.tipe_gwp == this.master_coll.tipe_gwp.first){
+            const dataAllGwpDetail = await this.executeGwpPromoDiskon(promo);
+            const fisrtProd = dataAllGwpDetail[0].item;
+            this.productSingleGWP = fisrtProd;
+            $('#modalProductSingleGwp').modal('show');
+            this.$root.showAlertFunction('success', 'Promo Berhasil!', 'Selamat!! Promo berlaku dengan GWP.');
+          }
+          if(promo.tipe_gwp == this.master_coll.tipe_gwp.secound){
+            await this.fatchDataProductMinValueGwp();
+            $('#modalSelectProductFreeGwp').modal('show');
+          }
+          if(promo.tipe_gwp == this.master_coll.tipe_gwp.three){
+            this.dataAllProductsMinValGwp = [];
+            const dataAllGwpDetail = await this.executeGwpPromoDiskon(promo);
+
+            const listDataProduct = [];
+            dataAllGwpDetail.forEach(data => {
+              listDataProduct.push(data.item);
+            });
+
+            this.dataAllProductsMinValGwp = this.dataAllProductsMinValGwp.concat(listDataProduct);
+            $('#modalSelectProductFreeGwp').modal('show');
+          }
+        }else{
+          this.confirmationPayment();
+        }
+
         $('#modalShowActivePromoDiskon').modal('hide');
-        this.$root.showAlertFunction('success', 'Promo Berhasil!', 'Selamat!! Promo telah berhasil dipasangkan.');
-        this.confirmationPayment();
+      },
+
+      executeGwpPromoDiskon: async function(promo, page = 1){
+        this.$root.showLoading();
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+        try{
+          const reqDataPage = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/getPageOfPromoDiskonDetail',
+            params: {
+              promo_code: promo.promo_code,
+              store_code: cacheStoreAccess.store_code,
+              page: page,
+              per_page: this.perPageDetailPromoDiskon,
+            }
+          });
+          const resPage = reqDataPage.data;
+          this.currentPageDetailPromoDiskon = resPage.current_page;
+          this.totalPageDetailPromoDiskon = resPage.last_page;
+          this.updateDisplayedPagesDetailPromoDiskon();
+          
+          const reqData = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/getPromoDiskonDetailById',
+            params: {
+              promo_code: promo.promo_code,
+              store_code: cacheStoreAccess.store_code,
+              page: page,
+              per_page: this.perPageDetailPromoDiskon,
+            }
+          });
+
+          const resData = reqData.data;
+          this.$root.hideLoading();
+          return resData;
+        }catch(e){
+          console.log(e);
+          this.$root.hideLoading();
+        }
+      },
+      
+      updateDisplayedPagesDetailPromoDiskon() {
+        const halfDisplayedPages = Math.floor(this.totalDisplayedPagesDetailPromoDiskon / 2);
+
+        let startPage = Math.max(1, this.currentPageDetailPromoDiskon - halfDisplayedPages);
+        let endPage = Math.min(this.totalPageDetailPromoDiskon, startPage + this.totalDisplayedPagesDetailPromoDiskon - 1);
+
+        if (endPage - startPage + 1 < this.totalDisplayedPagesDetailPromoDiskon) {
+          startPage = Math.max(1, endPage - this.totalDisplayedPagesDetailPromoDiskon + 1);
+        }
+
+        this.displayedPagesDetailPromoDiskon = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
       },
 
       confirmationPayment: function(){
@@ -3043,7 +3675,7 @@
           }
         }
 
-        this.calculateTotalBayarPrice = this.calculateTotalBayarPrice - (this.totalDiskonPercentReseller + this.totalDiscountPromo);
+        this.calculateTotalBayarPrice = this.calculateTotalBayarPrice - (this.totalDiskonPercentReseller + this.totalDiscountPromo + this.afterDiscountPromo + this.discountPromoAdditional);
         $('#modalConfirmPay').modal('show');
 
         // this.generatePdfCheckout();
@@ -3120,6 +3752,19 @@
       
           if(storeTr.status == 201 || storeTr.status == 200){
             const dataStoreTr = storeTr.data.data;
+
+            if(this.memberOverview != null){
+              await this.fatchDataMember(this.currentPageMember);
+            }
+
+            if(this.selectedMetodeBayar.kode == this.master_code.metodeBayar.redeem){
+              this.generatePdfRedeem(dataStoreTr);
+            }else{
+              if(this.memberOverview != null){
+                this.memberOverview = this.dataAllMembers.find((m) => m.member_id === this.memberOverview.member_id);
+              }
+              this.generatePdfCheckout(dataStoreTr);
+            }
             
             try{
               this.dataProductInList.forEach(data => {
@@ -3136,49 +3781,13 @@
                 }
   
                 const intOnHand = parseInt(findInvtory.onHand);
-                findInvtory.onHand -= data.qty;
+                findInvtory.onHand = intOnHand - data.qty;
               });
             }catch(e){
               console.log(e);
             }
 
-            if(this.memberOverview != null){
-              await this.fatchDataMember(this.currentPageMember);
-
-              const findMember = this.dataAllMembers.find((m) => m.member_id === this.memberOverview.member_id);
-              if(this.selectedMetodeBayar.kode == this.master_code.metodeBayar.redeem){
-                this.generatePdfRedeem(dataStoreTr);
-              }else{
-                this.memberOverview = findMember;
-                this.generatePdfCheckout(dataStoreTr);
-              }
-            }
-
-
-            this.dataProductInList = [];
-            this.allTicketInOrder = [];
-            this.memberOverview = null;
-    
-            this.selectedActivePromo = null;
-            this.dataMoreMetodeBayar = [];
-            this.nominalMoreMetodeBayar = [];
-            this.selectedMetodeBayar = {};
-            this.selectMethodPayment = '';
-            this.modelInputSelectedMetodeBayar = '';
-            this.modelInputMoreMetodeBayar = [];
-    
-            this.selectedFilterBrand = null;
-            this.selectedBscWa = '';
-            this.inputSearchMember = '';
-            this.keteranganTransaksi = '';
-            this.checkboxMemberPotonganPoint = false;
-            
-            this.isBuatkanTiketBtn = true;
-            this.calculateAmoutPrice();
-            $('#modalCheckoutConfirm').modal('hide');
-            $('#modalConfirmPay').modal('hide');
-            $('#modalTransactionFinishSuccess').modal('show');
-
+            this.finishSuccessTransaction();
             // window.location.reload();
           }else{
             this.$root.showAlertFunction('warning', 'Traksaksi Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
@@ -3188,6 +3797,48 @@
           console.log(error);
         }
         this.$root.hideLoading();
+      },
+
+      finishSuccessTransaction: function(){
+        this.dataProductInList = [];
+        this.dataProductListForStruk = [];
+        this.allTicketInOrder = [];
+        this.memberOverview = null;
+
+        this.selectedActivePromo = null;
+        this.dataMoreMetodeBayar = [];
+        this.nominalMoreMetodeBayar = [];
+        this.selectedMetodeBayar = {};
+        this.selectMethodPayment = '';
+        this.modelInputSelectedMetodeBayar = '';
+        this.modelInputMoreMetodeBayar = [];
+
+        this.selectedFilterBrand = null;
+        this.selectedBscWa = '';
+        this.inputSearchMember = '';
+        this.keteranganTransaksi = '';
+        this.checkboxMemberPotonganPoint = false;
+
+        this.productSingleGWP = null;
+        this.selectedAllPromoMinValGwp = [];
+        this.productSelectBatchMinValGwp = null;
+
+        this.validasiMetodePembayaran = [];
+        this.getCheckGelarPembelian = null;
+        
+        this.inputNominalMethodCash = null;
+        this.totalKembalianMetodeCash = 0;
+        this.totalHematDiskon = 0;
+        this.totalDiskonPercentReseller = 0;
+        this.totalDiscountPromo = 0;
+        this.afterDiscountPromo = 0;
+        this.discountPromoAdditional = 0;
+
+        this.isBuatkanTiketBtn = true;
+        this.calculateAmoutPrice();
+        $('#modalCheckoutConfirm').modal('hide');
+        $('#modalConfirmPay').modal('hide');
+        $('#modalTransactionFinishSuccess').modal('show');
       },
 
       generatePdfCheckout: function(dataTr){
@@ -3372,6 +4023,7 @@
           ]
         ];
 
+        // Add data to ringkasan
         this.dataProductListForStruk.forEach(data => {
           const product = data.product;
 
@@ -3499,45 +4151,208 @@
               bodyRinkasanProduct.push(objProdPromo);
             }
           }else{
-            const obj = [
-              {
-                content: product.itemNameShort,
-                styles: {
-                  halign: 'left',
-                  fontSize: sizeFont,
-                  cellPadding: [0.5, 1.5, 0.5, 0],
+            let objProdPromo;
+            if(data.is_free_product){
+              objProdPromo = [
+                {
+                  content: product.itemNameShort,
+                  styles: {
+                    halign: 'left',
+                    fontSize: sizeFont,
+                    cellPadding: [0.5, 1.5, 0.5, 0],
+                  }
+                },
+                {
+                  content: data.qty,
+                  styles: {
+                    halign: 'center',
+                    fontSize: sizeFont,
+                    cellPadding: callPaddingProduct,
+                  }
+                },
+                {
+                  content: 'FREE',
+                  colSpan: 2,
+                  styles: {
+                    halign: 'right',
+                    fontSize: sizeFont,
+                    cellPadding: [0.5, 0, 0.5, 0.5],
+                  }
                 }
-              },
-              {
-                content: data.qty,
-                styles: {
-                  halign: 'center',
-                  fontSize: sizeFont,
-                  cellPadding: callPaddingProduct,
+              ];
+            }else{
+              objProdPromo = [
+                {
+                  content: product.itemNameShort,
+                  styles: {
+                    halign: 'left',
+                    fontSize: sizeFont,
+                    cellPadding: [0.5, 1.5, 0.5, 0],
+                  }
+                },
+                {
+                  content: data.qty,
+                  styles: {
+                    halign: 'center',
+                    fontSize: sizeFont,
+                    cellPadding: callPaddingProduct,
+                  }
+                },
+                {
+                  content: this.$root.formatPrice(product.all_product_price[0].price),
+                  styles: {
+                    halign: 'left',
+                    fontSize: sizeFont,
+                    cellPadding: [0.5, 0, 0.5, 1],
+                  }
+                },
+                {
+                  content: this.$root.formatPrice(product.all_product_price[0].price * data.qty),
+                  styles: {
+                    halign: 'right',
+                    fontSize: sizeFont,
+                    cellPadding: [0.5, 0, 0.5, 0.5],
+                  }
                 }
-              },
-              {
-                content: this.$root.formatPrice(product.all_product_price[0].price),
-                styles: {
-                  halign: 'left',
-                  fontSize: sizeFont,
-                  cellPadding: [0.5, 0, 0.5, 1],
-                }
-              },
-              {
-                content: this.$root.formatPrice(product.all_product_price[0].price * data.qty),
-                styles: {
-                  halign: 'right',
-                  fontSize: sizeFont,
-                  cellPadding: [0.5, 0, 0.5, 0.5],
-                }
-              }
-            ];
-            bodyRinkasanProduct.push(obj);
+              ];
+            }
+            bodyRinkasanProduct.push(objProdPromo);
           }
         });
 
+        // for (let i = 0; i < this.dataProductListForStruk.length; i++) {
+        //   const data = this.dataProductListForStruk[i];
+        //   const product = data.product;
+
+        //   if(data.is_promo_product){
+        //     const promoProduct = data.is_promo_product;
+        //     if(promoProduct.master_promo_product.tipe_promo == this.master_coll.tipePromo.percent){
+        //       const objNameProduct = [
+        //         {
+        //           content: product.itemNameShort,
+        //           colSpan: 4,
+        //           styles: {
+        //             halign: 'left',
+        //             fontSize: sizeFont,
+        //             cellPadding: [0.5, 0, 0, 0],
+        //           }
+        //         },
+        //       ];
+        //       bodyRinkasanProduct.push(objNameProduct);
+              
+        //       const discValue = parseInt(promoProduct.master_promo_product.percent);
+        //       const priceProduct = promoProduct.for_product.all_product_price[0].price;
+        //       const discPrice = priceProduct - (priceProduct * (discValue/100));
+        //       const objDiskonInfo = [
+        //         {
+        //           content: `Diskon ${discValue}%`,
+        //           styles: {
+        //             halign: 'left',
+        //             fontSize: sizeFont,
+        //             cellPadding: [0, 1.5, 0.5, 0],
+        //           }
+        //         },
+        //         {
+        //           content: data.qty,
+        //           styles: {
+        //             halign: 'center',
+        //             fontSize: sizeFont,
+        //             cellPadding: callPaddingProduct,
+        //           }
+        //         },
+        //         {
+        //           content: this.$root.formatPrice(discPrice),
+        //           styles: {
+        //             halign: 'left',
+        //             fontSize: sizeFont,
+        //             cellPadding: [0.5, 0, 0.5, 1],
+        //           }
+        //         },
+        //         {
+        //           content: this.$root.formatPrice(discPrice * data.qty),
+        //           styles: {
+        //             halign: 'right',
+        //             fontSize: sizeFont,
+        //             cellPadding: [0.5, 0, 0.5, 0.5],
+        //           }
+        //         }
+        //       ];
+        //       bodyRinkasanProduct.push(objDiskonInfo);
+
+        //       continue;
+        //     }
+        //   }
+          
+        //   let objProdPromo;
+        //   if(data.is_free_product){
+        //     objProdPromo = [
+        //       {
+        //         content: product.itemNameShort,
+        //         styles: {
+        //           halign: 'left',
+        //           fontSize: sizeFont,
+        //           cellPadding: [0.5, 1.5, 0.5, 0],
+        //         }
+        //       },
+        //       {
+        //         content: data.qty,
+        //         styles: {
+        //           halign: 'center',
+        //           fontSize: sizeFont,
+        //           cellPadding: callPaddingProduct,
+        //         }
+        //       },
+        //       {
+        //         content: 'FREE',
+        //         colSpan: 2,
+        //         styles: {
+        //           halign: 'right',
+        //           fontSize: sizeFont,
+        //           cellPadding: [0.5, 0, 0.5, 0.5],
+        //         }
+        //       }
+        //     ];
+        //   }else{
+        //     objProdPromo = [
+        //       {
+        //         content: product.itemNameShort,
+        //         styles: {
+        //           halign: 'left',
+        //           fontSize: sizeFont,
+        //           cellPadding: [0.5, 1.5, 0.5, 0],
+        //         }
+        //       },
+        //       {
+        //         content: data.qty,
+        //         styles: {
+        //           halign: 'center',
+        //           fontSize: sizeFont,
+        //           cellPadding: callPaddingProduct,
+        //         }
+        //       },
+        //       {
+        //         content: this.$root.formatPrice(product.all_product_price[0].price),
+        //         styles: {
+        //           halign: 'left',
+        //           fontSize: sizeFont,
+        //           cellPadding: [0.5, 0, 0.5, 1],
+        //         }
+        //       },
+        //       {
+        //         content: this.$root.formatPrice(product.all_product_price[0].price * data.qty),
+        //         styles: {
+        //           halign: 'right',
+        //           fontSize: sizeFont,
+        //           cellPadding: [0.5, 0, 0.5, 0.5],
+        //         }
+        //       }
+        //     ];
+        //   }
+        //   bodyRinkasanProduct.push(objProdPromo);
+        // }
+
         // Ringkasan product
+        
         autoTable(docStruk, {
           head: bodyRinkasanProduct,
           margin: marginPaper,
@@ -4146,45 +4961,208 @@
               bodyRinkasanProduct.push(objProdPromo);
             }
           }else{
-            const obj = [
-              {
-                content: product.itemNameShort,
-                styles: {
-                  halign: 'left',
-                  fontSize: sizeFont,
-                  cellPadding: [0.5, 1.5, 0.5, 0],
+            let objProdPromo;
+            if(data.is_free_product){
+              objProdPromo = [
+                {
+                  content: product.itemNameShort,
+                  styles: {
+                    halign: 'left',
+                    fontSize: sizeFont,
+                    cellPadding: [0.5, 1.5, 0.5, 0],
+                  }
+                },
+                {
+                  content: data.qty,
+                  styles: {
+                    halign: 'center',
+                    fontSize: sizeFont,
+                    cellPadding: callPaddingProduct,
+                  }
+                },
+                {
+                  content: 'FREE',
+                  colSpan: 2,
+                  styles: {
+                    halign: 'right',
+                    fontSize: sizeFont,
+                    cellPadding: [0.5, 0, 0.5, 0.5],
+                  }
                 }
-              },
-              {
-                content: data.qty,
-                styles: {
-                  halign: 'center',
-                  fontSize: sizeFont,
-                  cellPadding: callPaddingProduct,
+              ];
+            }else{
+              objProdPromo = [
+                {
+                  content: product.itemNameShort,
+                  styles: {
+                    halign: 'left',
+                    fontSize: sizeFont,
+                    cellPadding: [0.5, 1.5, 0.5, 0],
+                  }
+                },
+                {
+                  content: data.qty,
+                  styles: {
+                    halign: 'center',
+                    fontSize: sizeFont,
+                    cellPadding: callPaddingProduct,
+                  }
+                },
+                {
+                  content: this.$root.formatPrice(product.all_product_price[0].price),
+                  styles: {
+                    halign: 'left',
+                    fontSize: sizeFont,
+                    cellPadding: [0.5, 0, 0.5, 1],
+                  }
+                },
+                {
+                  content: this.$root.formatPrice(product.all_product_price[0].price * data.qty),
+                  styles: {
+                    halign: 'right',
+                    fontSize: sizeFont,
+                    cellPadding: [0.5, 0, 0.5, 0.5],
+                  }
                 }
-              },
-              {
-                content: this.$root.formatPrice(product.all_product_price[0].price),
-                styles: {
-                  halign: 'left',
-                  fontSize: sizeFont,
-                  cellPadding: [0.5, 0, 0.5, 1],
-                }
-              },
-              {
-                content: this.$root.formatPrice(product.all_product_price[0].price * data.qty),
-                styles: {
-                  halign: 'right',
-                  fontSize: sizeFont,
-                  cellPadding: [0.5, 0, 0.5, 0.5],
-                }
-              }
-            ];
-            bodyRinkasanProduct.push(obj);
+              ];
+            }
+            bodyRinkasanProduct.push(objProdPromo);
           }
         });
 
+        // for (let i = 0; i < this.dataProductListForStruk.length; i++) {
+        //   const data = this.dataProductListForStruk[i];
+        //   const product = data.product;
+
+        //   if(data.is_promo_product){
+        //     const promoProduct = data.is_promo_product;
+        //     if(promoProduct.master_promo_product.tipe_promo == this.master_coll.tipePromo.percent){
+        //       const objNameProduct = [
+        //         {
+        //           content: product.itemNameShort,
+        //           colSpan: 4,
+        //           styles: {
+        //             halign: 'left',
+        //             fontSize: sizeFont,
+        //             cellPadding: [0.5, 0, 0, 0],
+        //           }
+        //         },
+        //       ];
+        //       bodyRinkasanProduct.push(objNameProduct);
+              
+        //       const discValue = parseInt(promoProduct.master_promo_product.percent);
+        //       const priceProduct = promoProduct.for_product.all_product_price[0].price;
+        //       const discPrice = priceProduct - (priceProduct * (discValue/100));
+        //       const objDiskonInfo = [
+        //         {
+        //           content: `Diskon ${discValue}%`,
+        //           styles: {
+        //             halign: 'left',
+        //             fontSize: sizeFont,
+        //             cellPadding: [0, 1.5, 0.5, 0],
+        //           }
+        //         },
+        //         {
+        //           content: data.qty,
+        //           styles: {
+        //             halign: 'center',
+        //             fontSize: sizeFont,
+        //             cellPadding: callPaddingProduct,
+        //           }
+        //         },
+        //         {
+        //           content: this.$root.formatPrice(discPrice),
+        //           styles: {
+        //             halign: 'left',
+        //             fontSize: sizeFont,
+        //             cellPadding: [0.5, 0, 0.5, 1],
+        //           }
+        //         },
+        //         {
+        //           content: this.$root.formatPrice(discPrice * data.qty),
+        //           styles: {
+        //             halign: 'right',
+        //             fontSize: sizeFont,
+        //             cellPadding: [0.5, 0, 0.5, 0.5],
+        //           }
+        //         }
+        //       ];
+
+        //       bodyRinkasanProduct.push(objDiskonInfo);
+        //       continue;
+        //     }
+        //   }
+
+        //   let objProdPromo;
+        //   if(data.is_free_product){
+        //     objProdPromo = [
+        //       {
+        //         content: product.itemNameShort,
+        //         styles: {
+        //           halign: 'left',
+        //           fontSize: sizeFont,
+        //           cellPadding: [0.5, 1.5, 0.5, 0],
+        //         }
+        //       },
+        //       {
+        //         content: data.qty,
+        //         styles: {
+        //           halign: 'center',
+        //           fontSize: sizeFont,
+        //           cellPadding: callPaddingProduct,
+        //         }
+        //       },
+        //       {
+        //         content: 'FREE',
+        //         colSpan: 2,
+        //         styles: {
+        //           halign: 'right',
+        //           fontSize: sizeFont,
+        //           cellPadding: [0.5, 0, 0.5, 0.5],
+        //         }
+        //       }
+        //     ];
+        //   }else{
+        //     objProdPromo = [
+        //       {
+        //         content: product.itemNameShort,
+        //         styles: {
+        //           halign: 'left',
+        //           fontSize: sizeFont,
+        //           cellPadding: [0.5, 1.5, 0.5, 0],
+        //         }
+        //       },
+        //       {
+        //         content: data.qty,
+        //         styles: {
+        //           halign: 'center',
+        //           fontSize: sizeFont,
+        //           cellPadding: callPaddingProduct,
+        //         }
+        //       },
+        //       {
+        //         content: this.$root.formatPrice(product.all_product_price[0].price),
+        //         styles: {
+        //           halign: 'left',
+        //           fontSize: sizeFont,
+        //           cellPadding: [0.5, 0, 0.5, 1],
+        //         }
+        //       },
+        //       {
+        //         content: this.$root.formatPrice(product.all_product_price[0].price * data.qty),
+        //         styles: {
+        //           halign: 'right',
+        //           fontSize: sizeFont,
+        //           cellPadding: [0.5, 0, 0.5, 0.5],
+        //         }
+        //       }
+        //     ];
+        //   }
+        //   bodyRinkasanProduct.push(objProdPromo);
+        // }
+
         // Ringkasan product
+        
         autoTable(docStruk, {
           head: bodyRinkasanProduct,
           margin: marginPaper,
