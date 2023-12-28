@@ -381,12 +381,35 @@
                 </h5>
               </div> -->
               <div v-if="selectedTrView" class="text-end px-3 pb-2">
-                <button class="btn btn-secondary btn-sm me-2">Struk by Email <span class="fas fa-envelope-open-text"></span></button>
+                <!-- v-if="selectedTrView.member" selectedTrView.member.email -->
+                <button @click="sendEmailInvoice('davidhedrin123@gmail.com', selectedTrView.ducNum)" class="btn btn-secondary btn-sm me-2">Struk by Email <span class="fas fa-envelope-open-text"></span></button>
                 <button class="btn btn-secondary btn-sm me-2">Struk by Print <span class="fas fa-print"></span></button>
                 <button class="btn btn-primary btn-sm" data-bs-dismiss="modal">Selesai</button>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal email berhasil dan selesai -->
+  <div class="modal fade" id="modalSendEamilFinishSuccess" tabindex="0" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px">
+      <div class="modal-content position-relative">
+        <div class="modal-body p-0 pb-2">
+          <div class="py-2 text-center">
+            <div class="justify-content-center mb-0">
+              <img src="@/assets/img/icons/Gif/success-gif.gif" height="120" alt="">
+            </div>
+            <h3 class="mb-1">Kirim Email!</h3>
+            <p class="m-0 px-4">
+              Success! Invoice email berhasil dikirim.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <button class="btn btn-success btn-sm" type="button" data-bs-dismiss="modal">Selesai</button>
         </div>
       </div>
     </div>
@@ -526,6 +549,28 @@
         
         const formattedDateTime = `${day}-${month}-${year} ${hours}:${minutes}`;
         return formattedDateTime;
+      },
+
+      sendEmailInvoice: async function(email, docNum){
+        this.$root.showLoading();
+        try{
+          const request = await axios({
+            method: 'post',
+            url: this.$root.API_ERP + '/pos/sendEmailInvoice',
+            data:{
+              email_to: email,
+              doc_num: docNum,
+              user_login: this.$root.dataAuthToken.user_uuid
+            }
+          });
+
+          if(request.status == 201){
+            $('#modalSendEamilFinishSuccess').modal('show');
+          }
+        }catch(e){
+          console.log(e);
+        }
+        this.$root.hideLoading();
       },
     },
   }

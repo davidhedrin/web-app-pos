@@ -36,7 +36,7 @@
       <!------------------------>
 
       <!-- <div style="text-align: right">
-        <button type="button" class="btn btn-success">
+        <button type="button" class="btn btn-success" @click="clickNew()">
           NEW
         </button>
       </div> -->
@@ -57,7 +57,7 @@
         @close2="showModal11 = false"
       >
         <template #header>
-          <h3>Browse Data From DN</h3>
+          <h4>Browse Data From Delivery Order</h4>
         </template>
         <template #body>
           <div style="width: 90vw">
@@ -66,7 +66,7 @@
                 class="btn btn-success btn-sm me-1"
                 @click="getpagingPenerimaanBarangV2fromDN()"
               >
-                Get data
+                Get data from DO
               </button>
             </template>
             <div class="block-content">
@@ -82,7 +82,7 @@
             class="modal-default-button btn btn-secondary btn-sm me-1"
             @click="close11"
           >
-            Tutup
+            Close
           </button>
         </template>
       </FormModal>
@@ -96,7 +96,8 @@
         @close="showModal = false"
       >
         <template #header>
-          <h3>Form Penerimaan Barang</h3>
+          <h4>Goods Receipt Form</h4>
+          <button type="button" class="btn-close" @click="close"></button>
         </template>
         <template #body>
           <div style="width: 90vw">
@@ -273,13 +274,13 @@
             <div class="card">
               <div class="card-header">
                 <div class="row align-items-start">
-                  <div class="col-md-3 text-center mb-2">
-                    <span class="fs--1"><u>Doc Number</u></span>
+                  <div class="col-md-4 text-center mb-2">
+                    <span class="fs--1"><u>Doc No</u></span>
                     <h5>
                       {{ dataTr301.docNum == undefined || dataTr301.docNum == "" ? "-" : dataTr301.docNum }}
                     </h5>
                   </div>
-                  <div class="col-md-3 text-center mb-2">
+                  <div class="col-md-4 text-center mb-2">
                     <span class="fs--1"><u>Doc Status</u></span>
                     <h5>
                       {{
@@ -291,20 +292,15 @@
                       }}
                     </h5>
                   </div>
-                  <div class="col-md-3 text-center mb-2">
-                    <span class="fs--1"><u>Reff Number</u></span>
-                    <div v-if="idRincian == ''">
-                      <button class="btn btn-sm btn-primary" type="button" @click="clickReffNo()">
-                        Browse
-                      </button>
-                    </div>
-                    <h5 v-else>
+                  <div class="col-md-4 text-center mb-2">
+                    <span class="fs--1"><u>Reff No</u></span>
+                    <h5>
                       {{
                         dataTr301.reffNo == undefined ? "-" : dataTr301.reffNo
                       }}
                     </h5>
                   </div>
-                  <div class="col-md-3 text-center mb-2">
+                  <div class="col-md-4 text-center mb-2">
                     <span class="fs--1"><u>Doc Date</u></span>
                     <h5>
                       {{
@@ -314,7 +310,7 @@
                       }}
                     </h5>
                   </div>
-                  <div class="col-md-3 text-center mb-2">
+                  <div class="col-md-4 text-center mb-2">
                     <span class="fs--1"><u>Store Code</u></span>
                     <h5>
                       {{
@@ -324,7 +320,7 @@
                       }}
                     </h5>
                   </div>
-                  <div class="col-md-3 text-center mb-2">
+                  <div class="col-md-4 text-center mb-2">
                     <span class="fs--1"><u>Store Name</u></span>
                     <h5>
                       {{
@@ -334,9 +330,14 @@
                       }}
                     </h5>
                   </div>
-                  <div class="col-md-3 text-center mb-2">
+                  <div class="col-md-4 text-center mb-2">
                     <span class="fs--1"><u>Reference</u></span>
-                    <h5>
+                    <div v-if="idRincian == ''">
+                      <button class="btn btn-sm btn-primary" type="button" @click="clickReffNo()">
+                        Browse
+                      </button>
+                    </div>
+                    <h5 v-else>
                       {{
                         dataTr301.reference == undefined
                           ? "-"
@@ -344,73 +345,94 @@
                       }}
                         </h5>
                   </div>
-                  <div class="col-md-3 text-center mb-2">
-                    <span class="fs--1"><u>Warehouse Code</u></span>
+                  <div class="col-md-4 text-center mb-2">
+                    <span class="fs--1"><u>Total Qty DO</u></span>
                     <h5>
-                      <template v-if="idRincian != ''">
-                        <v-select
-                          :options="getCboWhsCodeInventoryOptions"
-                          v-model="tmp_getCboWhsCodeInventoryOptions"
-                          @update:modelValue="mySelectEvent2()"
-                          :clearable="false"
-                          :disabled="dataTr301.docStatus == 'C'"
-                        ></v-select>
-                      </template>
-                      <h5 v-else>-</h5>
+                      {{
+                        dataTr301.totalQty == undefined
+                          ? "-"
+                          : dataTr301.totalQty
+                      }}
                     </h5>
                   </div>
-                  <div class="col-md-3 text-center mb-2">
+                  <div class="col-md-4 text-center mb-2">
+                    <span class="fs--1"><u>Total Qty Goods Receipt</u></span>
+                    <h5>
+                      {{
+                        dataTr301.totalQtyTerima == undefined
+                          ? "-"
+                          : dataTr301.totalQtyTerima
+                      }}
+                    </h5>
+                  </div>
+                  <div class="col-md-4 text-center mb-2">
+                    <span class="fs--1"><u>WHS Code</u></span>
+                    <template v-if="idRincian != ''">
+                      <v-select
+                        :options="getCboWhsCodeInventoryOptions"
+                        v-model="tmp_getCboWhsCodeInventoryOptions"
+                        @update:modelValue="mySelectEvent2()"
+                        :clearable="false"
+                        :disabled="dataTr301.docStatus == 'C'"
+                      ></v-select>
+                    </template>
+                    <h5 v-else>-</h5>
+                  </div>
+                  <div class="col-md-4 text-center mb-2">
                     <span class="fs--1"><u>Price Code</u></span>
-                    <h5>
-                      <template v-if="idRincian != ''">
-                        <v-select
-                          :options="getCboPriceCodeInventoryOptions"
-                          v-model="tmp_getCboPriceCodeInventoryOptions"
-                          @update:modelValue="mySelectEvent22()"
-                          :clearable="false"
-                          :disabled="dataTr301.docStatus == 'C'"
-                        ></v-select>
-                      </template>
-                      <h5 v-else>-</h5>
-                    </h5>
+                    <template v-if="idRincian != ''">
+                      <v-select
+                        :options="getCboPriceCodeInventoryOptions"
+                        v-model="tmp_getCboPriceCodeInventoryOptions"
+                        @update:modelValue="mySelectEvent22()"
+                        :clearable="false"
+                        :disabled="dataTr301.docStatus == 'C'"
+                      ></v-select>
+                    </template>
+                    <h5 v-else>-</h5>
                   </div>
-                  <div class="col-md-3 text-center mb-2">
+                  <div class="col-md-4 text-center mb-2">
                     <span class="fs--1"><u>Discount Code</u></span>
-                    <h5>
-                      <template v-if="idRincian != ''">
-                        <v-select
-                          :options="getCboDiscCodeInventoryOptions"
-                          v-model="tmp_getCboDiscCodeInventoryOptions"
-                          @update:modelValue="mySelectEvent222()"
-                          :clearable="false"
-                          :disabled="dataTr301.docStatus == 'C'"
-                        ></v-select>
-                      </template>
-                      <h5 v-else>-</h5>
-                    </h5>
+                    <template v-if="idRincian != ''">
+                      <v-select
+                        :options="getCboDiscCodeInventoryOptions"
+                        v-model="tmp_getCboDiscCodeInventoryOptions"
+                        @update:modelValue="mySelectEvent222()"
+                        :clearable="false"
+                        :disabled="dataTr301.docStatus == 'C'"
+                      ></v-select>
+                    </template>
+                    <h5 v-else>-</h5>
                   </div>
-                  <div class="col-md-3 text-center mb-2">
-                    <span class="fs--1"><u>Comments</u></span>
-                    <h5>
-                      <template v-if="idRincian != ''">
-                        <textarea
-                          class="form-control"
-                          id="w3review"
-                          name="w3review"
-                          rows="5"
-                          cols="60"
-                          v-model="dataTr301.comments"
-                          placeholder="Kosongkan jika tidak ada selisih penerimaan"
-                          :disabled="dataTr301.docStatus == 'C'"
-                        ></textarea>
-                      </template>
-                      <h5 v-else>-</h5>
-                    </h5>
+                  <div class="col-md-12 text-center mb-2">
+                    <span class="fs--1"><u>Remarks</u></span>
+                    <template v-if="idRincian != ''">
+                      <textarea
+                        class="form-control"
+                        id="w3review"
+                        name="w3review"
+                        rows="1"
+                        cols="60"
+                        v-model="dataTr301.comments"
+                        placeholder="Kosongkan jika tidak ada selisih penerimaan"
+                        :disabled="dataTr301.docStatus == 'C'"
+                      ></textarea>
+                    </template>
+                    <h5 v-else>-</h5>
                   </div>
                 </div>
               </div>
             </div>
 
+            <br />
+            <template v-if="flagDownloadPDF == 1">
+                <button
+                  class="btn btn-sm btn-info"
+                  @click="exportToPDFConfirm()"
+                >
+                  <i class="fas fa-file-pdf"></i> Download
+                </button>
+            </template>
             <br />
             <br />
             <template v-if="flagUpdate == true">
@@ -419,12 +441,13 @@
                 class="btn btn-success"
                 @click="getFlagUpdate()"
               >
-                Get Data
+                Get Data Goods Receipt
               </button>
             </template>
 
             <div class="block-content">
               <div id="wrapper3"></div>
+              <div id="box3"></div>
             </div>
 
             <template v-if="flagGetData">
@@ -458,7 +481,7 @@
                       class="btn btn-success"
                       @click="confirmPenerimaanBarang()"
                     >
-                      Confirm Penerimaan
+                      Confirmation Goods Receipt
                     </button>
                   </template>
                 </template>
@@ -472,7 +495,7 @@
             class="modal-default-button btn btn-secondary btn-sm me-1"
             @click="close"
           >
-            Tutup
+            Close
           </button>
         </template>
       </FormModal>
@@ -498,6 +521,8 @@ import { idID } from "gridjs/l10n";
 import $ from "jquery";
 
 import Swal from "sweetalert2";
+
+import html2pdf from "html2pdf.js";
 
 export default {
   components: { Pages, FormInput, Button, FormModal },
@@ -526,18 +551,18 @@ export default {
 
       title: "Goods Receipt",
       showModal: false,
-      showmodal_zindex: "z-index:1000",
+      showmodal_zindex: "z-index:1030",
       grid2: new Grid(),
       dataTr301: {},
 
       showModal11: false,
-      showmodal11_zindex: "z-index:1001",
+      showmodal11_zindex: "z-index:1031",
       grid11: new Grid(),
 
       flagGetHeaderDN: false,
 
       showModal2: false,
-      showmodal2_zindex: "z-index:1001;",
+      showmodal2_zindex: "z-index:1031;",
 
       grid3: new Grid(),
       idRincian: "",
@@ -573,6 +598,11 @@ export default {
 
       x_nomor_baris: 0,
       x_count: 0,
+
+      limit_x: 100,
+      nomor_x: 1,
+      html_pdf: "",
+      flagDownloadPDF: 0,
     };
   },
   mounted() {
@@ -584,9 +614,136 @@ export default {
   },
   methods: {
     ///////////////////////////////////////////////////
+    padTo2Digits(num) {
+      return num.toString().padStart(2, "0");
+    },
+    formatDate(date) {
+      return (
+        [
+          date.getFullYear(),
+          this.padTo2Digits(date.getMonth() + 1),
+          this.padTo2Digits(date.getDate()),
+        ].join("-") +
+        " " +
+        [
+          this.padTo2Digits(date.getHours()),
+          this.padTo2Digits(date.getMinutes()),
+          this.padTo2Digits(date.getSeconds()),
+        ].join(":")
+      );
+    },
+    async exportToPDFConfirm() {
+      //alert("AAAA");
+      this.$root.showLoading();
+
+      //var tanggal = `${year}` + "-" + months[month] + "-" + `${day}`;
+      var data_x = "";
+      // var data_x = await this.getDataStockCard(
+      //   tmp_storeCode[0].trim(),
+      //   tmp_whsCode[0].trim(),
+      //   tanggal.trim(),
+      //   tmp_itemCode[0].trim()
+      // );
+
+      var xxx =
+        '<style> p, span, table { font-size: 10px } table { width: 100%; } .borderx { border-bottom: 1px solid black; border-top: 1px solid black; } .bordery { border-top: 1px solid black; } </style> <h4>GOODS RECEIPT</h4><table cellpadding="0"> <tr> <th width="12%">Store Code</th> <th width="40%">: ' +
+        this.dataTr301.storeCode +
+        '</th> <th width="20%">WHS Code</th> <th>: ' +
+        this.tmp_getCboWhsCodeInventoryOptions +
+        "</th> </tr> <tr> <th>Store Name</th> <th>: " +
+        this.dataTr301.storeName +
+        "</th> <th>Price Code</th> <th>: " +
+        this.tmp_getCboPriceCodeInventoryOptions +
+        "</th> </tr> <tr> <th>Doc No</th> <th>: " +
+        (this.dataTr301.docNum == undefined ? "-" : this.dataTr301.docNum) +
+        "</th> <th>Reff No</th> <th>: " +
+        this.dataTr301.reffNo +
+        "</th> </tr> <tr> <th>Doc Status</th> <th>: " +
+        (this.dataTr301.docStatus == "O" ? "Open" : "Close") +
+        "</th> <th>Doc Date</th> <th>: " +
+        this.dataTr301.docDate +
+        "</th> </tr> <tr> <th>Reference</th> <th>: " +
+        this.dataTr301.reference +
+        "</th> <th>Discount Code</th> <th>: " +
+        this.tmp_getCboDiscCodeInventoryOptions +
+        "</th> </tr> <tr> <th>Total Qty DO</th> <th>: " +
+        this.dataTr301.totalQty +
+        "</th> <th>Total Qty Goods Receipt</th> <th>: " +
+        (this.dataTr301.totalQtyTerima == undefined
+          ? "-"
+          : this.dataTr301.totalQtyTerima) +
+        "</th> </tr> <tr> <th>Remarks</th> <th>: " +
+        this.dataTr301.comments +
+        "</th> <th>Print Date</th> <th>: " +
+        this.formatDate(new Date()) +
+        ' </tr> </table><table id="tb-item" cellpadding="4" border="0"> <tr> <th class="borderx">No.</th> <th class="borderx">Item Code</th> <th class="borderx">Item Name</th> <th class="borderx">Batch No</th> <th class="borderx">Exp Date</th> <th style="text-align:right" class="borderx">DO QTy</th> <th style="text-align:right" class="borderx">Actual Qty</th> <th style="text-align:right" class="borderx">Variant</th> </tr>' +
+        this.html_pdf +
+        '<tr> <th colspan="8" class="bordery"></th></tr> <tr> <th colspan="2" class="">Mengetahui,</th> <th style="text-align:right" colspan="2" class="">Menyetujui,</th> <th style="text-align:right" colspan="2" class="">&nbsp</th> </tr></table>';
+
+      //'<tr> <th colspan="2" class="bordery">Mengetahui,</th> <th style="text-align:right" colspan="2" class="">Menyetujui,</th> <th style="text-align:right" colspan="2" class="">&nbsp</th> </tr>
+
+      this.$root.hideLoading();
+
+      var element = xxx;
+      var opt = {
+        //margin: 10,
+        margin: [10, 10, 0, 10], //top, left, buttom, right,
+        //margin: [0, -0.1, 0, 0],
+        filename:
+          "GOODS_RECEIPT_" +
+          this.dataTr301.docNum +
+          "_" +
+          this.dataTr301.docStatus +
+          ".pdf",
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: { dpi: 300, letterRendering: true },
+        //jsPDF: { unit: "in", format: "a4", orientation: "landscape" },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { before: ".newPage" },
+      };
+
+      //this.flagDownloadPDF = 0;
+
+      html2pdf()
+        .from(element)
+        .set(opt)
+        .toPdf()
+        .get("pdf")
+        .then(function (pdf) {
+          var totalPages = pdf.internal.getNumberOfPages();
+          //print current pdf width & height to console
+          console.log("getHeight:" + pdf.internal.pageSize.getHeight());
+          console.log("getWidth:" + pdf.internal.pageSize.getWidth());
+          for (var i = 1; i <= totalPages; i++) {
+            pdf.setPage(i);
+            pdf.setFontSize(7);
+            pdf.setTextColor(150);
+            //divided by 2 to go center
+            pdf.text(
+              "Page " + i + " of " + totalPages,
+              pdf.internal.pageSize.getWidth() / 2,
+              pdf.internal.pageSize.getHeight() -
+                pdf.internal.pageSize.getHeight() / 40
+            );
+          }
+        })
+        .save();
+    },
+
     async getTableRincianDataUpdate(id) {
       this.$root.showLoading();
       var mythis = this;
+
+      mythis.nomor_x = 1;
+      mythis.html_pdf = "";
+
+      var br_pdf = 1;
+      var br_flag = 0;
+      var br_string = "";
+
+      var sum_do_qty = 0;
+      var sum_actual_qty = 0;
+      var sum_variant_qty = 0;
 
       var nn = 0;
       var count = 1;
@@ -624,6 +781,57 @@ export default {
             resData.results[key].openQty_save == null
               ? resData.results[key].openQty1
               : resData.results[key].openQty_save;
+
+            br_string = "";
+            if (br_pdf == 36 && br_flag == 0) {
+              br_pdf = 0;
+              br_flag = 1;
+              br_string = 'class="newPage"';
+              //mythis.html_pdf +='<tr id="newPage"><td colspan="8">&nbsp;</td></tr>';
+            }
+            if (br_pdf == 45 && br_flag == 1) {
+              //mythis.html_pdf +='<tr id="newPage"><td colspan="8">&nbsp;</td></tr>';
+              br_pdf = 0;
+              br_string = 'class="newPage"';
+            }
+
+            if (br_string == 'class="newPage"') {
+              //mythis.html_pdf += '<tr ><td colspan="8">&nbsp;</td></tr>';
+              //mythis.html_pdf += '<tr ><td colspan="8">&nbsp;</td></tr>';
+              mythis.html_pdf +=
+                "<tr " +
+                br_string +
+                '><td colspan="8">&nbsp;</td></tr><tr> <th class="borderx">No.</th> <th class="borderx">Item Code</th> <th class="borderx">Item Name</th> <th class="borderx">Batch No</th> <th class="borderx">Exp Date</th> <th style="text-align:right" class="borderx">DO QTy</th> <th style="text-align:right" class="borderx">Actual Qty</th> <th style="text-align:right" class="borderx">Variant</th> </tr>';
+            }
+
+            sum_do_qty += resData.results[key].baseQty1;
+            sum_actual_qty += resData.results[key].openQty1;
+            sum_variant_qty +=
+              resData.results[key].baseQty1 - resData.results[key].openQty1;
+
+            mythis.html_pdf +=
+              "<tr " +
+              "" +
+              'style="font-size: 9px"><th>' +
+              mythis.nomor_x +
+              "</th><th>" +
+              resData.results[key].itemCode1 +
+              "</th><th>" +
+              resData.results[key].itemName +
+              "</th><th>" +
+              resData.results[key].batchNo +
+              "</th><th>" +
+              resData.results[key].expiredDate1 +
+              '</th><th style="text-align:center">' +
+              resData.results[key].baseQty1 +
+              '</th><th style="text-align:center">' +
+              resData.results[key].openQty1 +
+              '</th><th style="text-align:center">' +
+              (resData.results[key].baseQty1 - resData.results[key].openQty1) +
+              "</th></tr>";
+
+            mythis.nomor_x++;
+            br_pdf++;
         });
 
         // axios
@@ -674,9 +882,38 @@ export default {
           count = 0;
         }
       }
+
+      mythis.html_pdf +=
+        "<tr " +
+        "" +
+        'style="font-size: 9px"><th>' +
+        "&nbsp;" +
+        "</th><th>" +
+        "&nbsp;" +
+        "</th><th>" +
+        "TOTAL" +
+        "</th><th>" +
+        "&nbsp;" +
+        "</th><th>" +
+        "&nbsp;" +
+        '</th><th style="text-align:center">' +
+        sum_do_qty +
+        '</th><th style="text-align:center">' +
+        sum_actual_qty +
+        '</th><th style="text-align:center">' +
+        sum_variant_qty +
+        "</th></tr>";
+
       this.$root.hideLoading();
     },
     getTableRincianUpdate() {
+      //////////////////////////////
+      $("#wrapper3").remove();
+      var e = $('<div id="wrapper3"></div>');
+      $("#box3").append(e);
+      this.grid3 = new Grid();
+      //////////////////////////////
+
       this.grid3.updateConfig({
         //language: idID,
         fixedHeader: true,
@@ -889,7 +1126,7 @@ export default {
     ///////////////////////////////////////////////////
     getRincianHeaderTR_Update(id) {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getRincianheaderIDUpdate/" + id)
         .then((res) => {
@@ -905,6 +1142,8 @@ export default {
           mythis.dataTr301_comments = mythis.dataTr301.comments;
           mythis.dataTr301.docDate = res.data.data[0].docDate1;
           mythis.dataTr301.reference = res.data.data[0].reference;
+          mythis.dataTr301.totalQty = res.data.data[0].totalQty;
+          mythis.dataTr301.totalQtyTerima = res.data.data[0].totalQtyTerima;
           mythis.dataTr301.whsCode = res.data.data[0].whsCode;
           mythis.tmp_getCboWhsCodeInventoryOptions =
             res.data.data[0].whsCode + " - " + res.data.data[0].whsName;
@@ -919,7 +1158,7 @@ export default {
 
           mythis.idRincian = res.data.data[0].baseEntry;
 
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
           //console.log(this.dataRincianDetailID);
         });
     },
@@ -931,6 +1170,7 @@ export default {
       this.flagGetData = false;
       this.flagUpdate = false;
       this.flagSave = 0;
+      this.flagDownloadPDF = 1;
       this.flagSdataTr301_commentsave = "";
     },
     clickReffNo() {
@@ -966,6 +1206,7 @@ export default {
       this.total_bpitem_null = null;
 
       this.flagSave = 0;
+      this.flagDownloadPDF = 0;
     },
     close2: function () {
       this.dataRincianHeaderID = {};
@@ -1039,7 +1280,7 @@ export default {
         //mythis.idRincian = id;
         //mythis.getRincianHeaderID(id);
         //mythis.getRincianHeaderIDTR();
-        //mythis.$root.loader = true;
+        //mythis.$root.showLoading();
       });
 
       $(document).on("click", "#viewDeliveryNote", async function () {
@@ -1047,7 +1288,7 @@ export default {
         //alert(id);
         mythis.idRincian = id;
         mythis.close11();
-        //mythis.$root.loader = true;
+        //mythis.$root.showLoading();
         mythis.getTableRincian();
         mythis.getRincianHeaderID(id);
 
@@ -1058,6 +1299,8 @@ export default {
         mythis.getCboWhsCodeInventory();
         mythis.getCboPriceCodeInventory();
         mythis.getCboDiscCodeInventory();
+
+        mythis.flagDownloadPDF = 1;
       });
       $(document).on("click", "#updateDeliveryNoteD1", function () {
         let id = $(this).data("id");
@@ -1097,6 +1340,13 @@ export default {
     },
     getTable() {
       var mythis = this;
+      //////////////////////////////
+      $("#wrapper2").remove();
+      var e = $('<div id="wrapper2"></div>');
+      $("#box").append(e);
+      this.grid2 = new Grid();
+      //////////////////////////////
+
       this.grid2.updateConfig({
         //language: idID,
         fixedHeader: true,
@@ -1233,6 +1483,12 @@ export default {
     },
 
     getpagingPenerimaanBarangV2fromDN() {
+      //////////////////////////////
+      $("#wrapper11").remove();
+      var e = $('<div id="wrapper11"></div>');
+      $("#box11").append(e);
+      this.grid11 = new Grid();
+      //////////////////////////////
       this.grid11.updateConfig({
         //language: idID,
         fixedHeader: true,
@@ -1374,6 +1630,13 @@ export default {
     },
 
     getTableRincian() {
+      //////////////////////////////
+      $("#wrapper3").remove();
+      var e = $('<div id="wrapper3"></div>');
+      $("#box3").append(e);
+      this.grid3 = new Grid();
+      //////////////////////////////
+
       this.grid3.updateConfig({
         //language: idID,
         fixedHeader: true,
@@ -1590,7 +1853,7 @@ export default {
 
     getRincianHeaderID(id) {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getRincianheaderIDNew/" + id)
         .then((res) => {
@@ -1602,6 +1865,7 @@ export default {
           mythis.dataTr301.comments = res.data.data[0].comments;
           mythis.dataTr301.docDate = new Date().toISOString().slice(0, 10);
           mythis.dataTr301.reference = res.data.data[0].poNo;
+          mythis.dataTr301.totalQty = res.data.data[0].totalQty;
           mythis.dataTr301.whsCode = res.data.data[0].whsCode;
           mythis.tmp_getCboWhsCodeInventoryOptions =
             res.data.data[0].whsCode + " - " + res.data.data[0].whsName;
@@ -1614,40 +1878,40 @@ export default {
           mythis.dataTr301.discCode = res.data.data[0].discCode;
           mythis.tmp_getCboDiscCodeInventoryOptions = res.data.data[0].discName;
           mythis.dataTr301.discName = "";
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
           //console.log(this.dataRincianDetailID);
         });
     },
 
     getCboWhsCodeInventory() {
       var mythis = this;
-      //mythis.$root.loader = true;
+      //mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getCboWhsCodeInventory")
         .then((res) => {
-          console.log(res);
+          // console.log(res);
           mythis.getCboWhsCodeInventoryOptions = res.data.data;
-          //mythis.$root.loader = false;
+          //mythis.$root.hideLoading();
         });
     },
     getCboPriceCodeInventory() {
       var mythis = this;
-      //mythis.$root.loader = true;
+      //mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getCbopriceCode")
         .then((res) => {
-          console.log(res);
+          // console.log(res);
           mythis.getCboPriceCodeInventoryOptions = res.data.data;
-          //mythis.$root.loader = false;
+          //mythis.$root.hideLoading();
         });
     },
     getCboDiscCodeInventory() {
       var mythis = this;
-      //mythis.$root.loader = true;
+      //mythis.$root.showLoading();
       axios.get(this.$root.API_ERP + "/wms/getCbodiscCode").then((res) => {
-        console.log(res);
+        // console.log(res);
         mythis.getCboDiscCodeInventoryOptions = res.data.data;
-        //mythis.$root.loader = false;
+        //mythis.$root.hideLoading();
       });
     },
     ///////////////////////////////////////////////////
@@ -1712,7 +1976,7 @@ export default {
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
           //////////////////////////////////////////////////////
-          mythis.$root.loader = true;
+          mythis.$root.showLoading();
           axios
             .put(
               mythis.$root.API_ERP +
@@ -1735,7 +1999,7 @@ export default {
                 "Data telah disimpan sementara, silakan konfirmasi untuk menaikkan stok",
                 "success"
               );
-              mythis.$root.loader = false;
+              mythis.$root.hideLoading();
               mythis.flagSave = 1;
               mythis.status_save_PenerimaanBarang = 1;
               mythis.getRincianHeaderIDTR();
@@ -1743,26 +2007,10 @@ export default {
               // mythis.close2();
             })
             .catch(function (error) {
+              mythis.$root.hideLoading();
               if (error.response) {
                 //console.log(error.response.data);
-                if (error.response.status == 422) {
-                  mythis.errorList = error.response.data;
-                  mythis.isHidden = false;
-                  if (Object.keys(mythis.errorList).length > 0) {
-                    //refresh semua menjadi false
-                    Object.keys(mythis.errorField).forEach(function (key) {
-                      mythis.errorField[key] = false;
-                    });
-                    //membuat jika error jadi true
-                    Object.keys(mythis.errorList).forEach(function (key) {
-                      // toast.error(mythis.errorList[key], { theme: "colored" });
-                      mythis.$root.showAlertFunction('warning', 'Gagal Melanjutkan!', mythis.errorList[key]);
-
-                      const myArray = key.split(".");
-                      mythis.errorField[myArray[1]] = true;
-                    });
-                  }
-                }
+                Swal.fire("Failed!", error.response.data.message, "error");
               } else if (error.request) {
                 console.log(error.request);
               } else {
@@ -1792,7 +2040,7 @@ export default {
         if (result.isConfirmed) {
           mythis.savePenerimaanBarang();
           //////////////////////////////////////////////////////
-          mythis.$root.loader = true;
+          mythis.$root.showLoading();
           axios
             .put(
               mythis.$root.API_ERP +
@@ -1811,32 +2059,16 @@ export default {
                 "Penerimaan Barang telah dikonfirmasi sesuai",
                 "success"
               );
-              mythis.$root.loader = false;
+              mythis.$root.hideLoading();
               mythis.close2();
               mythis.close();
               mythis.refreshTable();
             })
             .catch(function (error) {
+              mythis.$root.hideLoading();
               if (error.response) {
                 //console.log(error.response.data);
-                if (error.response.status == 422) {
-                  mythis.errorList = error.response.data;
-                  mythis.isHidden = false;
-                  if (Object.keys(mythis.errorList).length > 0) {
-                    //refresh semua menjadi false
-                    Object.keys(mythis.errorField).forEach(function (key) {
-                      mythis.errorField[key] = false;
-                    });
-                    //membuat jika error jadi true
-                    Object.keys(mythis.errorList).forEach(function (key) {
-                      // toast.error(mythis.errorList[key], { theme: "colored" });
-                      mythis.$root.showAlertFunction('warning', 'Gagal Melanjutkan!', mythis.errorList[key]);
-
-                      const myArray = key.split(".");
-                      mythis.errorField[myArray[1]] = true;
-                    });
-                  }
-                }
+                Swal.fire("Failed!", error.response.data.message, "error");
               } else if (error.request) {
                 console.log(error.request);
               } else {
@@ -1851,7 +2083,7 @@ export default {
     },
     updateRincianDeliveryNoteDetail() {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       axios
         .put(
           mythis.$root.API_ERP +
@@ -1868,7 +2100,7 @@ export default {
           // toast.success("Data Qty berhasil diubah");
           mythis.$root.showAlertFunction('success', 'Berhasil Diubah!', 'Data Qty berhasil diubah');
           mythis.dataRincianDetailID = {};
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
           mythis.close();
           mythis.close2();
         })
@@ -1903,19 +2135,19 @@ export default {
 
     getRincianDetailID(id) {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getRincianDetailID/" + id)
         .then((res) => {
           mythis.dataRincianDetailID = res.data.data[0];
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
           //console.log(this.dataRincianDetailID);
         });
     },
 
     getRincianHeaderIDTR() {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       axios
         .get(
           this.$root.API_ERP +
@@ -1932,7 +2164,7 @@ export default {
             //mythis.data_CboWhs = res.data.data[0].whsCode;
           }
 
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
           //console.log(this.dataRincianDetailID);
         });
     },
@@ -1940,6 +2172,13 @@ export default {
     async getTableRincianData(id) {
       this.$root.showLoading();
       var mythis = this;
+
+      mythis.nomor_x = 1;
+      mythis.html_pdf = "";
+
+      var br_pdf = 1;
+      var br_flag = 0;
+      var br_string = "";
 
       var nn = 0;
       var count = 1;
@@ -1979,6 +2218,52 @@ export default {
             resData.results[key].openQty_save == null
               ? resData.results[key].openQty1
               : resData.results[key].openQty_save;
+
+            br_string = "";
+            if (br_pdf == 36 && br_flag == 0) {
+              br_pdf = 0;
+              br_flag = 1;
+              br_string = 'class="newPage"';
+              //mythis.html_pdf +='<tr id="newPage"><td colspan="8">&nbsp;</td></tr>';
+            }
+            if (br_pdf == 45 && br_flag == 1) {
+              //mythis.html_pdf +='<tr id="newPage"><td colspan="8">&nbsp;</td></tr>';
+              br_pdf = 0;
+              br_string = 'class="newPage"';
+            }
+
+            if (br_string == 'class="newPage"') {
+              //mythis.html_pdf += '<tr ><td colspan="8">&nbsp;</td></tr>';
+              //mythis.html_pdf += '<tr ><td colspan="8">&nbsp;</td></tr>';
+              mythis.html_pdf +=
+                "<tr " +
+                br_string +
+                '><td colspan="8">&nbsp;</td></tr><tr> <th class="borderx">No.</th> <th class="borderx">Item Code</th> <th class="borderx">Item Name</th> <th class="borderx">Batch No</th> <th class="borderx">Exp Date</th> <th style="text-align:right" class="borderx">DO QTy</th> <th style="text-align:right" class="borderx">Actual Qty</th> <th style="text-align:right" class="borderx">Variant</th> </tr>';
+            }
+
+            mythis.html_pdf +=
+              "<tr " +
+              br_string +
+              'style="font-size: 9px"><th>' +
+              mythis.nomor_x +
+              "</th><th>" +
+              resData.results[key].itemCode1 +
+              "</th><th>" +
+              resData.results[key].itemName +
+              "</th><th>" +
+              resData.results[key].batchNo +
+              "</th><th>" +
+              resData.results[key].expiredDate1 +
+              '</th><th style="text-align:center">' +
+              resData.results[key].baseQty1 +
+              '</th><th style="text-align:center">' +
+              "________" +
+              '</th><th style="text-align:center">' +
+              "________" +
+              "</th></tr>";
+
+            mythis.nomor_x++;
+            br_pdf++;
         });
 
         // axios

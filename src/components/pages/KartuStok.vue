@@ -179,6 +179,12 @@
         </div>
       </div> -->
       <hr />
+      <template v-if="flagDownloadPDF == 1">
+        <button class="btn btn-sm btn-info" @click="exportToPDF()">
+          <i class="fas fa-file-pdf"></i> Download
+        </button>
+      </template>
+      <hr />
       <!------------------------>
       <div class="block-content">
         <div id="wrapper2"></div>
@@ -277,6 +283,9 @@ import { idID } from "gridjs/l10n";
 import $ from "jquery";
 
 import Swal from "sweetalert2";
+import html2pdf from "html2pdf.js";
+
+import fs from "fs";
 
 export default {
   components: { Pages, FormInput, Button, FormModal },
@@ -299,6 +308,8 @@ export default {
       master_coll: this.$root.master_coll,
       local_storage: this.$root.local_storage,
 
+      //txtccc: txtccc,
+      fs: fs,
       format: format,
       title: "Stock Card",
       showModal: false,
@@ -333,6 +344,13 @@ export default {
       },
 
       userid: "",
+
+      flagDownloadPDF: 0,
+      x_nomor_baris: 0,
+      x_count: 0,
+
+      limit_x: 100,
+      nomor_x: 1,
     };
   },
   mounted() {
@@ -346,6 +364,267 @@ export default {
     this.$root.hideLoading();
   },
   methods: {
+    async getDataStockCard(storeCode, whsCode, tanggal, itemCode) {
+      var mythis = this;
+
+      mythis.nomor_x = 1;
+      var br_pdf = 0;
+      var br_flag = 0;
+      var br_string = "";
+
+      var html = "";
+      var nn = 0;
+      var count = 1;
+      var limitx = mythis.limit_x;
+      var offsetx = 0;
+      while (count > 0) {
+        offsetx = limitx * nn;
+
+        const reqData = await axios({
+          method: "get",
+          url:
+            this.$root.API_ERP +
+            "/wms/kartuStokRincian/" +
+            "?limit=" +
+            limitx +
+            "&offset=" +
+            offsetx +
+            "&storeCode=" +
+            storeCode +
+            "&whsCode=" +
+            whsCode +
+            "&tglCutOff=" +
+            tanggal +
+            "&itemCode=" +
+            itemCode +
+            "",
+        });
+
+        const resData = reqData.data;
+        mythis.x_nomor_baris = parseInt(resData.nomorBaris);
+        mythis.x_count = parseInt(resData.count);
+
+        if (resData.results.length > 0) {
+          Object.keys(resData.results).forEach(function (key) {
+            if (
+              resData.results[key].dscription == "Saldo Awal" ||
+              resData.results[key].dscription == "Saldo Akhir"
+            ) {
+              resData.results[key].dscription =
+                "<b><i>" + resData.results[key].dscription + "</i></b>";
+            }
+
+            ///////////////////////////////////////////////////////////
+            br_string = "";
+            if (br_pdf == 36 && br_flag == 0) {
+              br_pdf = 0;
+              br_flag = 1;
+              br_string = 'class="newPage"';
+              //mythis.html_pdf +='<tr id="newPage"><td colspan="8">&nbsp;</td></tr>';
+            }
+            if (br_pdf == 45 && br_flag == 1) {
+              //mythis.html_pdf +='<tr id="newPage"><td colspan="8">&nbsp;</td></tr>';
+              br_pdf = 0;
+              br_string = 'class="newPage"';
+            }
+
+            if (br_string == 'class="newPage"') {
+              //html += '<tr ><td colspan="8">&nbsp;</td></tr>';
+              //html += '<tr ><td colspan="8">&nbsp;</td></tr>';
+              html +=
+                "<tr " +
+                br_string +
+                '><td colspan="8">&nbsp;</td></tr><tr> <th class="borderx">No.</th> <th class="borderx">Doc No</th> <th class="borderx">Doc Date</th> <th class="borderx">Info</th> <th class="borderx">Trans Type</th> <th style="text-align:right" class="borderx">IN</th> <th style="text-align:right" class="borderx">OUT</th> <th style="text-align:right" class="borderx">Balance</th> </tr>';
+            }
+            ///////////////////////////////////////////////////////////
+            html +=
+              "<tr " +
+              "" +
+              'style="font-size: 9px"><th>' +
+              mythis.nomor_x +
+              "</th><th>" +
+              resData.results[key].docnum +
+              "</th><th>" +
+              resData.results[key].docdate +
+              "</th><th>" +
+              resData.results[key].dscription +
+              "</th><th>" +
+              resData.results[key].transdesc +
+              '</th><th style="text-align:right">' +
+              resData.results[key].inqty +
+              '</th><th style="text-align:right">' +
+              resData.results[key].outqty +
+              '</th><th style="text-align:right">' +
+              resData.results[key].balanceqtyx +
+              "</th></tr>";
+
+            mythis.nomor_x++;
+            br_pdf++;
+          });
+        }
+
+        nn = nn + 1;
+        //console.log("MASUKK A");
+        // console.log("aaa " + mythis.x_count + "<" + mythis.x_nomor_baris);
+        if (mythis.x_count < mythis.x_nomor_baris) {
+          count = 0;
+          //console.log("MASUKK B");
+        }
+        if (nn >= 30) {
+          count = 0;
+        }
+      }
+
+      return html;
+    },
+
+    padTo2Digits(num) {
+      return num.toString().padStart(2, "0");
+    },
+
+    formatDate(date) {
+      return (
+        [
+          date.getFullYear(),
+          this.padTo2Digits(date.getMonth() + 1),
+          this.padTo2Digits(date.getDate()),
+        ].join("-") +
+        " " +
+        [
+          this.padTo2Digits(date.getHours()),
+          this.padTo2Digits(date.getMinutes()),
+          this.padTo2Digits(date.getSeconds()),
+        ].join(":")
+      );
+    },
+
+    async exportToPDF() {
+      //alert("AAAA");
+      this.$root.showLoading();
+
+      const tmp_storeCode = this.tmp_storeCode.label.split("-");
+      const tmp_itemCode = this.tmp_itemCode.label.split("-");
+      const tmp_whsCode = this.tmp_whsCode.label.split("-");
+
+      const months = {
+        Jan: "01",
+        Feb: "02",
+        Mar: "03",
+        Apr: "04",
+        May: "05",
+        Jun: "06",
+        Jul: "07",
+        Aug: "08",
+        Sep: "09",
+        Oct: "10",
+        Nov: "11",
+        Dec: "12",
+      };
+      const d = this.todo.tglCutOff;
+      let day = new Intl.DateTimeFormat("en", { day: "2-digit" }).format(d);
+      let month = new Intl.DateTimeFormat("en", { month: "short" }).format(d);
+      let year = new Intl.DateTimeFormat("en", { year: "numeric" }).format(d);
+      //console.log(`${day} ` + months[month] + ` ${year}`);
+
+      var tanggal = `${year}` + "-" + months[month] + "-" + `${day}`;
+
+      var data_x = await this.getDataStockCard(
+        tmp_storeCode[0].trim(),
+        tmp_whsCode[0].trim(),
+        tanggal.trim(),
+        tmp_itemCode[0].trim()
+      );
+
+      var xxx =
+        '<style> p, span, table { font-size: 10px } table { width: 100%; } .borderx { border-bottom: 1px solid black; border-top: 1px solid black; } .bordery { border-top: 1px solid black; } </style> <h4>STOCK CARD</h4><table cellpadding="0"> <tr> <th width="10%">Store Code</th> <th width="60%">: ' +
+        tmp_storeCode[0] +
+        '</th> <th width="11%">WHS Code</th> <th width="40%">: ' +
+        tmp_whsCode[0] +
+        "</th> </tr> <tr> <th>Store Name</th> <th>: " +
+        tmp_storeCode[1] +
+        "</th> <th>WHS Name</th> <th>: " +
+        tmp_whsCode[1] +
+        "</th> </tr> <tr> <th>Item Code</th> <th>: " +
+        tmp_itemCode[0] +
+        "</th> <th>Cut Off Date</th> <th>: " +
+        tanggal +
+        "</th> </tr> <tr> <th>Item Name</th> <th>: " +
+        tmp_itemCode[1] +
+        "</th> <th>Print Date</th> <th>: " +
+        this.formatDate(new Date()) +
+        ' </tr> </table> <br> <table id="tb-item" cellpadding="4" border="0"> <tr> <th class="borderx">No.</th> <th class="borderx">Doc No</th> <th class="borderx">Doc Date</th> <th class="borderx">Info</th> <th class="borderx">Trans Type</th> <th style="text-align:right" class="borderx">IN</th> <th style="text-align:right" class="borderx">OUT</th> <th style="text-align:right" class="borderx">Balance</th> </tr>' +
+        data_x +
+        '<tr> <th colspan="8" class="bordery"></th></tr> </table>';
+
+      //'<tr> <th colspan="2" class="bordery">Mengetahui,</th> <th style="text-align:right" colspan="2" class="">Menyetujui,</th> <th style="text-align:right" colspan="2" class="">&nbsp</th> </tr>
+
+      this.$root.hideLoading();
+
+      var element = xxx;
+      var opt = {
+        margin: [10, 10, 0, 10], //top, left, buttom, right,
+        filename:
+          "STOCK_CARD_" +
+          tmp_storeCode[0] +
+          "_" +
+          tmp_whsCode[0] +
+          "_" +
+          tmp_itemCode[0] +
+          "_" +
+          tanggal +
+          ".pdf",
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: { dpi: 300, letterRendering: true },
+        //jsPDF: { unit: "in", format: "a4", orientation: "landscape" },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { before: ".newPage" },
+      };
+
+      html2pdf()
+        .from(element)
+        .set(opt)
+        .toPdf()
+        .get("pdf")
+        .then(function (pdf) {
+          var totalPages = pdf.internal.getNumberOfPages();
+          //print current pdf width & height to console
+          console.log("getHeight:" + pdf.internal.pageSize.getHeight());
+          console.log("getWidth:" + pdf.internal.pageSize.getWidth());
+          for (var i = 1; i <= totalPages; i++) {
+            pdf.setPage(i);
+            pdf.setFontSize(7);
+            pdf.setTextColor(150);
+            //divided by 2 to go center
+            pdf.text(
+              "Page " + i + " of " + totalPages,
+              pdf.internal.pageSize.getWidth() / 2,
+              pdf.internal.pageSize.getHeight() -
+                pdf.internal.pageSize.getHeight() / 40
+            );
+          }
+        })
+        .save();
+      /*
+      html2pdf(xxx, {
+        margin: 10,
+        filename:
+          "STOCK_CARD_" +
+          tmp_storeCode[0] +
+          "_" +
+          tmp_whsCode[0] +
+          "_" +
+          tmp_itemCode[0] +
+          "_" +
+          tanggal +
+          ".pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { dpi: 192, letterRendering: true },
+        //jsPDF: { unit: "in", format: "a4", orientation: "landscape" },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      });
+      */
+    },
+
     getKartuStok() {
       if (this.todo.storeCode == "" || this.todo.storeCode == undefined) {
         // toast.error("Silakan pilih Store terlebih dahulu", {
@@ -457,7 +736,7 @@ export default {
       var tglCutOff = mythis.todo.tglCutOff;
       var itemCode = mythis.todo.itemCode;
 
-      console.log(tglCutOff);
+      // console.log(tglCutOff);
 
       const months = {
         Jan: "01",
@@ -478,14 +757,14 @@ export default {
       let day = new Intl.DateTimeFormat("en", { day: "2-digit" }).format(d);
       let month = new Intl.DateTimeFormat("en", { month: "short" }).format(d);
       let year = new Intl.DateTimeFormat("en", { year: "numeric" }).format(d);
-      console.log(`${day} ` + months[month] + ` ${year}`);
+      // console.log(`${day} ` + months[month] + ` ${year}`);
 
       var tanggal = `${year}` + "-" + months[month] + "-" + `${day}`;
 
       this.grid2.updateConfig({
         //language: idID,
         pagination: {
-          limit: 50,
+          limit: mythis.limit_x,
           server: {
             url: (prev, page, limit) =>
               `${prev}${prev.includes("?") ? "&" : "?"}limit=${limit}&offset=${
@@ -622,6 +901,8 @@ export default {
       $(document).off("click", "#editData");
       $(document).off("click", "#deleteData");
       mythis.jqueryDelEdit();
+
+      mythis.flagDownloadPDF = 1;
     },
 
     refreshTable() {

@@ -146,6 +146,7 @@ export const pages = {
   transin: 'TransIn',
   transout: 'TransOut',
   kartustok: 'KartuStok',
+  mutasistok: 'MutasiStok',
 
   // Master
   productlist: 'ProductList',
