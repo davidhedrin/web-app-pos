@@ -618,15 +618,15 @@
                 <div v-else>
                   <form @submit.prevent="storeNewMember">
                     <div class="mb-1">
-                      <label class="form-label mb-0" for="nama_member">Name <span class="text-danger">*</span></label>
+                      <label class="form-label mb-0" for="nama_member">Name<span class="text-danger">*</span></label>
                       <input v-model="dataInputMember.nama" class="form-control bg-transparent" id="nama_member" type="text" placeholder="Masukkan nama lengkap" required>
                     </div>
                     <div class="mb-1">
-                      <label class="form-label mb-0" for="no_hp_member">No Hp <span class="text-danger">*</span></label>
+                      <label class="form-label mb-0" for="no_hp_member">No Hp<span class="text-danger">*</span></label>
                       <input v-model="dataInputMember.no_hp" class="form-control bg-transparent" id="no_hp_member" type="text" placeholder="Masukkan nomor handpone" required>
                     </div>
                     <div class="mb-1">
-                      <label class="form-label mb-0" for="email_member">Email address <span class="text-danger">*</span></label>
+                      <label class="form-label mb-0" for="email_member">Email address<span class="text-danger">*</span></label>
                       <input v-model="dataInputMember.email" class="form-control bg-transparent" id="email_member" type="email" placeholder="email@example.com" required>
                     </div>
                     <div class="mb-1">
@@ -919,7 +919,7 @@
               </div>
               <div class="text-end px-3 pt-0 pb-3">
                 <button class="btn btn-secondary me-2 btn-sm" type="button" @click="openModalCancelConfirm()">Batal</button>
-                <button class="btn btn-primary btn-sm" type="button" v-on:click="openModalCheckoutConfirm">Checkout <span class="fas fa-shopping-basket"></span></button>
+                <button class="btn btn-primary btn-sm" type="button" @click="openModalCheckoutConfirm()">Checkout <span class="fas fa-shopping-basket"></span></button>
               </div>
             </div>
           </div>
@@ -2679,7 +2679,11 @@
             this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           }
         } catch (error) {
-          this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', error.response.data.message);
+          if(error.response.data.status == 101){
+            this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', error.response.data.message);
+          }else{
+            this.$root.showAlertFunction('warning', 'Pendaftaran Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
           this.$root.hideLoading();
           console.log(error);
         }
@@ -3430,7 +3434,7 @@
         this.$root.showLoading();
 
         const dataProductList = this.dataProductInList.slice();
-        for (let i = dataProductList.length - 1; i >= 0; i--) {
+        for (let i = 0; i < dataProductList.length; i++) {
           let dataList = dataProductList[i]
           let dataPromo = dataList.is_promo_product;
           if(dataPromo){
@@ -3455,6 +3459,7 @@
         }
         this.dataProductListForStruk = dataProductList;
 
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
         try{
           const checkPromo = await axios({
             method: 'get',
@@ -3462,6 +3467,7 @@
             params: {
               page: 1,
               per_page: this.perPagePromoDiskon,
+              store_outlet: cacheStoreAccess.store_outlet
             }
           });
           
@@ -3714,6 +3720,7 @@
             storeCode: this.$root.selectedStoreAccess.store_code,
             memberId: this.memberOverview != null ? this.memberOverview : null,
             salesBy: this.selectSalesBy,
+            salesByWaName: this.selectedBscWa != null ? this.selectedBscWa.trim() != '' ? this.selectedBscWa : null : null,
 
             totalQty: this.totalPcsItemOrder > 0 ? parseInt(this.totalPcsItemOrder) : null,
 
@@ -3739,7 +3746,7 @@
             discountPromoValue : this.selectedActivePromo != null ? parseInt(this.totalDiscountPromo) : null,
 
             products: this.dataProductListForStruk,
-            activeStore: activeStore,
+            activeStore: activeStore.store_outlet,
             isTicket: this.allTicketInOrder.length > 0 ? this.allTicketInOrder : null,
             objTypeCode: this.selectedMetodeBayar.kode == this.master_code.metodeBayar.redeem ? parseInt(this.master_coll.masterObjType.salesredeem) : parseInt(this.master_coll.masterObjType.salestoko),
           }

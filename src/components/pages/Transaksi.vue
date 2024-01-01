@@ -222,10 +222,10 @@
                     <h3>Detail Transaksi</h3>
                     <h6 class="mb-0"><u>Nomor Bon</u></h6>
                     <p class="fs-0 mb-0 fw-semi-bold">{{ selectedTrView.bonStruk }}</p>
-                    <h6 class="mb-0"><u>Status Transfer Data</u></h6>
+                    <!-- <h6 class="mb-0"><u>Status Transfer Data</u></h6>
                     <span class="badge rounded-pill" :class="selectedTrView.confirm_transfer ? 'badge-subtle-success' : 'badge-subtle-secondary'">
                       {{ selectedTrView.confirm_transfer ? 'Transfered' : 'Not-Transfer' }}
-                    </span>
+                    </span> -->
                   </div>
                   <div class="col-12">
                     <hr class="my-3 my-sm-1">
@@ -382,7 +382,7 @@
               </div> -->
               <div v-if="selectedTrView" class="text-end px-3 pb-2">
                 <!-- v-if="selectedTrView.member" selectedTrView.member.email -->
-                <button @click="sendEmailInvoice('davidhedrin123@gmail.com', selectedTrView.ducNum)" class="btn btn-secondary btn-sm me-2">Struk by Email <span class="fas fa-envelope-open-text"></span></button>
+                <button v-if="selectedTrView.member" @click="sendEmailInvoice(selectedTrView.member.email, selectedTrView.ducNum)" class="btn btn-secondary btn-sm me-2">Struk by Email <span class="fas fa-envelope-open-text"></span></button>
                 <button class="btn btn-secondary btn-sm me-2">Struk by Print <span class="fas fa-print"></span></button>
                 <button class="btn btn-primary btn-sm" data-bs-dismiss="modal">Selesai</button>
               </div>
@@ -440,7 +440,7 @@
 
     async beforeMount(){
       this.dateRangeStart = this.formatDateRangeNow();
-      this.dateRangeEnd = this.formatDateRangeNow();
+      this.dateRangeEnd = this.formatDateRangeNow(true);
 
       await this.loadAllData();
     },
@@ -509,6 +509,9 @@
 
           const resData = reqData.data;
           if(reqData.status == 200){
+            trans.member = resData.member;
+            trans.store_outlet = resData.store_outlet;
+
             trans.all_data_tr_d1 = resData.all_data_tr_d1;
             trans.all_data_tr_d2 = resData.all_data_tr_d2;
             trans.all_data_tr_d3 = resData.all_data_tr_d3;
@@ -526,9 +529,14 @@
         $('#modalViewProduct').modal('show');
       },
 
-      formatDateRangeNow: function(){
+      formatDateRangeNow: function(endOfDay = false) {
         const date = new Date();
-        date.setHours(0, 0, 0, 0);
+        
+        if (endOfDay) {
+          date.setHours(23, 59, 59, 999);
+        } else {
+          date.setHours(0, 0, 0, 0);
+        }
 
         const localDate = new Date(
           date.getTime() - date.getTimezoneOffset() * 60000

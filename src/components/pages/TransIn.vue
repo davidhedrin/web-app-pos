@@ -846,7 +846,7 @@ export default {
               html +=
                 "<tr " +
                 br_string +
-                '><td colspan="8">&nbsp;</td></tr> <tr> <th class="borderx">No.</th> <th class="borderx">Item Code</th> <th class="borderx">Item Name</th> <th class="borderx" style="text-align:right" >On Hand</th> <th class="borderx" style="text-align:right" >Ticket TO Qty</th> <th style="text-align:right" class="borderx">Actual Qty</th> <th style="text-align:right" class="borderx">Variant</th></tr>';
+                '><td colspan="8">&nbsp;</td></tr> <tr> <th class="borderx">No.</th> <th class="borderx">Item Code</th> <th class="borderx">Item Name</th> <th class="borderx" style="text-align:right" >Batch</th> <th class="borderx" style="text-align:right" >Expired Date</th><th class="borderx" style="text-align:right" >Ticket TO Qty</th> <th style="text-align:right" class="borderx">Actual Qty</th> <th style="text-align:right" class="borderx">Variant</th></tr>';
             }
             ///////////////////////////////////////////////////////////
             html +=
@@ -859,7 +859,9 @@ export default {
               "</th><th>" +
               resData.results[key].itemName +
               '</th><th style="text-align:right">' +
-              resData.results[key].onHand +
+              resData.results[key].batchNo +
+              '</th><th style="text-align:right">' +
+              resData.results[key].expiredDate1 +
               '</th><th style="text-align:right">' +
               resData.results[key].baseQty1 +
               '</th><th style="text-align:right">' +
@@ -934,9 +936,9 @@ export default {
         this.tmp_getCboDiscCodeInventoryOptions +
         '</th> </tr> <tr> <th colspan="7" class="bordery"><br/></th></tr><tr> <th>Print Date</th> <th>: ' +
         this.formatDate(new Date()) +
-        ' </tr> </table> <br> <table id="tb-item" cellpadding="4" border="0"> <tr> <th class="borderx">No.</th> <th class="borderx">Item Code</th> <th class="borderx">Item Name</th> <th class="borderx" style="text-align:right" >On Hand</th> <th class="borderx" style="text-align:right" >Ticket TO Qty</th> <th style="text-align:right" class="borderx">Actual Qty</th> <th style="text-align:right" class="borderx">Variant</th></tr>' +
+        ' </tr> </table> <br> <table id="tb-item" cellpadding="4" border="0"> <tr> <th class="borderx">No.</th> <th class="borderx">Item Code</th> <th class="borderx">Item Name</th> <th class="borderx" style="text-align:right" >Batch</th> <th class="borderx" style="text-align:right" >Expired Date</th> <th class="borderx" style="text-align:right" >Ticket TO Qty</th> <th style="text-align:right" class="borderx">Actual Qty</th> <th style="text-align:right" class="borderx">Variant</th></tr>' +
         data_x +
-        '<tr> <th colspan="7" class="bordery"></th></tr> <tr> <th colspan="2" class="">Mengetahui,</th> <th style="text-align:right" colspan="2" class="">Menyetujui,</th> <th style="text-align:right" colspan="2" class="">&nbsp</th> </tr></table>';
+        '<tr> <th colspan="8" class="bordery"></th></tr> <tr> <th colspan="2" class="">Mengetahui,</th> <th style="text-align:right" colspan="2" class="">Menyetujui,</th> <th style="text-align:right" colspan="2" class="">&nbsp</th> </tr></table>';
 
       //'<tr> <th colspan="2" class="bordery">Mengetahui,</th> <th style="text-align:right" colspan="2" class="">Menyetujui,</th> <th style="text-align:right" colspan="2" class="">&nbsp</th> </tr>
 
@@ -1034,7 +1036,7 @@ export default {
       //////////////////////////////
 
       this.grid3.updateConfig({
-        // language: idID,
+        //language: idID,
         fixedHeader: true,
         height: 500,
         pagination: {
@@ -1090,9 +1092,16 @@ export default {
           },
 
           {
-            id: "onHand",
+            id: "batchNo",
             name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>On Hand</b></div>'
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Batch No</b></div>'
+            ),
+          },
+
+          {
+            id: "expiredDate1",
+            name: html(
+              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Exp Date</b></div>'
             ),
           },
 
@@ -1131,12 +1140,12 @@ export default {
               '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Variant</b></div>'
             ),
           },
-          {
-            id: "updatedAt",
-            name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Updated Date</b></div>'
-            ),
-          },
+          // {
+          //   id: "updatedAt",
+          //   name: html(
+          //     '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b> Updated Date</b></div>'
+          //   ),
+          // },
         ],
         style: {
           container: {
@@ -1180,7 +1189,8 @@ export default {
 
               card.itemName,
 
-              card.onHand,
+              card.batchNo,
+              card.expiredDate1,
               //card.batchNo,
               //card.expiredDate1,
 
