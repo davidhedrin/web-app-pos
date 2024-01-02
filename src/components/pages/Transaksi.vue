@@ -235,15 +235,15 @@
                 <div class="row align-items-start mx-0">
                   <div class="col text-center text-sm-start mb-3">
                     <h6 class="text-600 mb-0"><u>Member Overview</u></h6>
-                    <div v-if="selectedTrView.member">
-                      <h5 class="mb-0">{{ selectedTrView.member.nama }}</h5>
+                    <div v-if="selectedTrView.memberId != null">
+                      <h5 class="mb-0">{{ selectedTrView.memberName }}</h5>
                       <p class="fs--1 mb-0">
-                        Member ID: {{ selectedTrView.member.member_id }}
+                        Member ID: {{ selectedTrView.memberId }}
                       </p>
                       <p class="fs--1 mb-0">
-                        <a :href="`mailto:${selectedTrView.member.email}`">{{ selectedTrView.member.email }}</a>
+                        <a :href="`mailto:${selectedTrView.memberEmail}`">{{ selectedTrView.memberEmail }}</a>
                         <br>
-                        <a :href="`tel:${selectedTrView.member.no_hp}`">{{ selectedTrView.member.no_hp }}</a>
+                        <a :href="`tel:${selectedTrView.memberPhone}`">{{ selectedTrView.memberPhone }}</a>
                       </p>
                     </div>
                     <div v-else>
@@ -381,8 +381,8 @@
                 </h5>
               </div> -->
               <div v-if="selectedTrView" class="text-end px-3 pb-2">
-                <!-- v-if="selectedTrView.member" selectedTrView.member.email -->
-                <button v-if="selectedTrView.member" @click="sendEmailInvoice(selectedTrView.member.email, selectedTrView.ducNum)" class="btn btn-secondary btn-sm me-2">Struk by Email <span class="fas fa-envelope-open-text"></span></button>
+                <!-- v-if="selectedTrView.memberId != null" selectedTrView.member.email -->
+                <button v-if="selectedTrView.memberId != null" @click="sendEmailInvoice(selectedTrView.ducNum, selectedTrView.memberEmail)" class="btn btn-secondary btn-sm me-2">Struk by Email <span class="fas fa-envelope-open-text"></span></button>
                 <button class="btn btn-secondary btn-sm me-2">Struk by Print <span class="fas fa-print"></span></button>
                 <button class="btn btn-primary btn-sm" data-bs-dismiss="modal">Selesai</button>
               </div>
@@ -509,13 +509,13 @@
 
           const resData = reqData.data;
           if(reqData.status == 200){
-            trans.member = resData.member;
-            trans.store_outlet = resData.store_outlet;
+            // trans.member = resData.member;
+            // trans.store_outlet = resData.store_outlet;
 
-            trans.all_data_tr_d1 = resData.all_data_tr_d1;
-            trans.all_data_tr_d2 = resData.all_data_tr_d2;
-            trans.all_data_tr_d3 = resData.all_data_tr_d3;
-            this.showDetailTransaction(trans);
+            // trans.all_data_tr_d1 = resData.all_data_tr_d1;
+            // trans.all_data_tr_d2 = resData.all_data_tr_d2;
+            // trans.all_data_tr_d3 = resData.all_data_tr_d3;
+            this.showDetailTransaction(resData);
           }
         } catch (error) {
           console.log(error);
@@ -559,14 +559,14 @@
         return formattedDateTime;
       },
 
-      sendEmailInvoice: async function(email, docNum){
+      sendEmailInvoice: async function(docNum, email = null){
         this.$root.showLoading();
         try{
           const request = await axios({
             method: 'post',
             url: this.$root.API_ERP + '/pos/sendEmailInvoice',
             data:{
-              email_to: email,
+              email_to: email ?? null,
               doc_num: docNum,
               user_login: this.$root.dataAuthToken.user_uuid
             }

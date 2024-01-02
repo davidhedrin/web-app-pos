@@ -3434,7 +3434,7 @@
         this.$root.showLoading();
 
         const dataProductList = this.dataProductInList.slice();
-        for (let i = 0; i < dataProductList.length; i++) {
+        for (let i = dataProductList.length - 1; i >= 0; i--) {
           let dataList = dataProductList[i]
           let dataPromo = dataList.is_promo_product;
           if(dataPromo){

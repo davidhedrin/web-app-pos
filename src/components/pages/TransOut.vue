@@ -1909,12 +1909,12 @@ export default {
               '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Variant</b></div>'
             ),
           },
-          {
-            id: "updatedAt",
-            name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>Updated Date</b></div>'
-            ),
-          },
+          // {
+          //   id: "updatedAt",
+          //   name: html(
+          //     '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b> Updated Date</b></div>'
+          //   ),
+          // },
         ],
         style: {
           container: {
@@ -2191,26 +2191,11 @@ export default {
               // mythis.close2();
             })
             .catch(function (error) {
+              mythis.$root.loader = false;
               if (error.response) {
                 //console.log(error.response.data);
-                if (error.response.status == 422) {
-                  mythis.errorList = error.response.data;
-                  mythis.isHidden = false;
-                  if (Object.keys(mythis.errorList).length > 0) {
-                    //refresh semua menjadi false
-                    Object.keys(mythis.errorField).forEach(function (key) {
-                      mythis.errorField[key] = false;
-                    });
-                    //membuat jika error jadi true
-                    Object.keys(mythis.errorList).forEach(function (key) {
-                      // toast.error(mythis.errorList[key], { theme: "colored" });
-                      mythis.$root.showAlertFunction('warning', 'Gagal Melanjutkan!', mythis.errorList[key]);
-
-                      const myArray = key.split(".");
-                      mythis.errorField[myArray[1]] = true;
-                    });
-                  }
-                }
+                //mythis.insertModalSukses = false;
+                Swal.fire("Failed!", error.response.data.message, "error");
               } else if (error.request) {
                 console.log(error.request);
               } else {
@@ -2266,26 +2251,11 @@ export default {
               mythis.refreshTable();
             })
             .catch(function (error) {
+              mythis.$root.loader = false;
               if (error.response) {
                 //console.log(error.response.data);
-                if (error.response.status == 422) {
-                  mythis.errorList = error.response.data;
-                  mythis.isHidden = false;
-                  if (Object.keys(mythis.errorList).length > 0) {
-                    //refresh semua menjadi false
-                    Object.keys(mythis.errorField).forEach(function (key) {
-                      mythis.errorField[key] = false;
-                    });
-                    //membuat jika error jadi true
-                    Object.keys(mythis.errorList).forEach(function (key) {
-                      // toast.error(mythis.errorList[key], { theme: "colored" });
-                      mythis.$root.showAlertFunction('warning', 'Gagal Melanjutkan!', mythis.errorList[key]);
-
-                      const myArray = key.split(".");
-                      mythis.errorField[myArray[1]] = true;
-                    });
-                  }
-                }
+                //mythis.insertModalSukses = false;
+                Swal.fire("Failed!", error.response.data.message, "error");
               } else if (error.request) {
                 console.log(error.request);
               } else {
