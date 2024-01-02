@@ -264,7 +264,7 @@
                 <div v-if="$root.selectedStoreAccess" class="mb-1 col-sm-6 col-md-2 p-1" v-for="product in filteredProducts" :key="product.itemCode">
                   <div class="border rounded-1 h-100 d-flex flex-column justify-content-between">
                     <div class="overflow-hidden">
-                      <div class="position-relative rounded-top overflow-hidden cursor-pointer" @click="validateModalBatchProduct(product)">
+                      <div class="position-relative rounded-top overflow-hidden cursor-pointer" @click="checkInventoryBatchProduct(product)">
                         <div class="d-block text-center">
                           <div v-if="product.promo_product_id">
                             <img v-if="product.for_product.imageUrl != null && product.for_product.imageUrl.trim() != ''" class="img-fluid rounded-top" :src="product.for_product.imageUrl" style="width: 100%; height: 110px;" alt="">
@@ -1753,7 +1753,7 @@
       </div>
       <div class="d-flex justify-content-end">
         <input class="form-control p-0 ps-2 me-2" type="number" min="1" :value="qtyProductShowDetail" style="width: 60px;" @input="incDecQtyInputCanvas($event)" @change="incDecQtyChangeCanvas($event)">
-        <button v-on:click="validateModalBatchProduct(productShowDetail, qtyProductShowDetail)" class="btn btn-primary px-2" type="button" data-bs-dismiss="offcanvas" aria-label="Close">
+        <button v-on:click="checkInventoryBatchProduct(productShowDetail, qtyProductShowDetail)" class="btn btn-primary px-2" type="button" data-bs-dismiss="offcanvas" aria-label="Close">
           Tambah <span class="fas fa-cart-plus" data-fa-transform="shrink-3"></span>
         </button>
       </div>
@@ -2461,6 +2461,46 @@
       },
       
       // Logic Product In Order List
+      checkInventoryBatchProduct: async function(product, qty = 1){
+        this.$root.showLoading();
+        try{
+          const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+
+          const request = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/app/sales/checkInventoryBatchProduct',
+            params: {
+              id_product: product.id,
+              store_outlet: cacheStoreAccess.store_outlet,
+              is_promo_product: product.hasOwnProperty('promo_product_id') && product.promo_product_id ? {
+                for_product_whs: product.for_product_whs,
+                get_product_whs: product.get_product_whs ?? null
+              } : null,
+            }
+          });
+
+          const reqData = request.data;
+
+          if(product.promo_product_id){
+            product.for_product.all_inventory_stok = reqData.for_inventory_stok;
+            product.for_product.all_inventory_batch = reqData.for_inventory_batch;
+            if(product.get_product){
+              product.get_product.all_inventory_stok = reqData.get_inventory_stok;
+              product.get_product.all_inventory_batch = reqData.get_inventory_batch;
+            }
+          }else{
+            product.all_inventory_stok = reqData.all_inventory_stok;
+            product.all_inventory_batch = reqData.all_inventory_batch;
+          }
+
+          this.validateModalBatchProduct(product, qty);
+        }catch(e){
+          console.log(e);
+        }
+        this.$root.hideLoading();
+        // validateModalBatchProduct
+      },
+
       validateModalBatchProduct: function(product, qty = 1){
         this.productSelectBatch = null;
         this.productSelectBatch = {
@@ -3773,26 +3813,26 @@
               this.generatePdfCheckout(dataStoreTr);
             }
             
-            try{
-              this.dataProductInList.forEach(data => {
-                const product = data.product;
-                let findInvtory;
-                if(data.is_promo_product){
-                  const promoDetail = data.is_promo_product;
-                  const findRowProduct = this.dataAllProducts.find((p) => p.promo_product_id == promoDetail.promo_product_id && p.id === promoDetail.id);
-                  findInvtory = findRowProduct.for_product.all_inventory_stok[0];
-                }else{
-                  const productInList = this.dataAllProducts.find((p) => !p.is_promo_product && p.itemCode === product.itemCode);
-                  // findInvtory = productInList.all_inventory_stok.find((w) => w.storeCode === activeStore.store_outlet.storeCode && w.whsCode === activeStore.store_outlet.whsCode);
-                  findInvtory = productInList.all_inventory_stok[0];
-                }
+            // try{
+            //   this.dataProductInList.forEach(data => {
+            //     const product = data.product;
+            //     let findInvtory;
+            //     if(data.is_promo_product){
+            //       const promoDetail = data.is_promo_product;
+            //       const findRowProduct = this.dataAllProducts.find((p) => p.promo_product_id == promoDetail.promo_product_id && p.id === promoDetail.id);
+            //       findInvtory = findRowProduct.for_product.all_inventory_stok[0];
+            //     }else{
+            //       const productInList = this.dataAllProducts.find((p) => !p.is_promo_product && p.itemCode === product.itemCode);
+            //       // findInvtory = productInList.all_inventory_stok.find((w) => w.storeCode === activeStore.store_outlet.storeCode && w.whsCode === activeStore.store_outlet.whsCode);
+            //       findInvtory = productInList.all_inventory_stok[0];
+            //     }
   
-                const intOnHand = parseInt(findInvtory.onHand);
-                findInvtory.onHand = intOnHand - data.qty;
-              });
-            }catch(e){
-              console.log(e);
-            }
+            //     const intOnHand = parseInt(findInvtory.onHand);
+            //     findInvtory.onHand = intOnHand - data.qty;
+            //   });
+            // }catch(e){
+            //   console.log(e);
+            // }
 
             this.finishSuccessTransaction();
             // window.location.reload();
