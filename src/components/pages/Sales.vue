@@ -264,7 +264,7 @@
                 <div v-if="$root.selectedStoreAccess" class="mb-1 col-sm-6 col-md-2 p-1" v-for="product in filteredProducts" :key="product.itemCode">
                   <div class="border rounded-1 h-100 d-flex flex-column justify-content-between">
                     <div class="overflow-hidden">
-                      <div class="position-relative rounded-top overflow-hidden cursor-pointer" @click="checkInventoryBatchProduct(product)">
+                      <div class="position-relative rounded-top overflow-hidden cursor-pointer" @click="validateModalBatchProduct(product)">
                         <div class="d-block text-center">
                           <div v-if="product.promo_product_id">
                             <img v-if="product.for_product.imageUrl != null && product.for_product.imageUrl.trim() != ''" class="img-fluid rounded-top" :src="product.for_product.imageUrl" style="width: 100%; height: 110px;" alt="">
@@ -1753,7 +1753,7 @@
       </div>
       <div class="d-flex justify-content-end">
         <input class="form-control p-0 ps-2 me-2" type="number" min="1" :value="qtyProductShowDetail" style="width: 60px;" @input="incDecQtyInputCanvas($event)" @change="incDecQtyChangeCanvas($event)">
-        <button v-on:click="checkInventoryBatchProduct(productShowDetail, qtyProductShowDetail)" class="btn btn-primary px-2" type="button" data-bs-dismiss="offcanvas" aria-label="Close">
+        <button v-on:click="validateModalBatchProduct(productShowDetail, qtyProductShowDetail)" class="btn btn-primary px-2" type="button" data-bs-dismiss="offcanvas" aria-label="Close">
           Tambah <span class="fas fa-cart-plus" data-fa-transform="shrink-3"></span>
         </button>
       </div>
@@ -2461,7 +2461,7 @@
       },
       
       // Logic Product In Order List
-      checkInventoryBatchProduct: async function(product, qty = 1){
+      checkInventoryBatchProduct: async function(product){
         this.$root.showLoading();
         try{
           const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
@@ -2493,18 +2493,20 @@
             product.all_inventory_batch = reqData.all_inventory_batch;
           }
 
-          this.validateModalBatchProduct(product, qty);
+          this.$root.hideLoading();
+          return product;
         }catch(e){
           console.log(e);
+          this.$root.hideLoading();
         }
-        this.$root.hideLoading();
-        // validateModalBatchProduct
       },
 
-      validateModalBatchProduct: function(product, qty = 1){
+      validateModalBatchProduct: async function(product, qty = 1){
+        const checkProduct = await this.checkInventoryBatchProduct(product);
+
         this.productSelectBatch = null;
         this.productSelectBatch = {
-          product: product,
+          product: checkProduct,
           qty: qty
         };
         $('#modalShowBatchProduct').modal('show');
@@ -3365,10 +3367,12 @@
         this.displayedPagesMinValGwp = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
       },
 
-      validateModalBatchProductMinValGwp: function(product, qty = 1){
+      validateModalBatchProductMinValGwp: async function(product, qty = 1){
+        const checkProduct = await this.checkInventoryBatchProduct(product);
+
         this.productSelectBatchMinValGwp = null;
         this.productSelectBatchMinValGwp = {
-          product: product,
+          product: checkProduct,
           qty: qty
         };
         $('#modalShowBatchProductMinValGwp').modal('show');
