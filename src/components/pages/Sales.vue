@@ -1291,17 +1291,19 @@
               <div v-else class="mb-3">
                 <label class="fs--1 mb-0">Pilih batch product: </label>
                 <hr class="m-0 mb-2"/>
-                <div v-for="batch in productSingleGWP.all_inventory_batch" class="card cursor-pointer mb-2" @click="clickAddToListSingleGwpProduct(productSingleGWP, batch)">
-                  <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
-                  <div class="card-header py-2 px-3">
-                    <div class="row align-items-center">
-                      <div class="col-md-4">
-                        <span class="fs--2"><u>Batch Number:</u></span>
-                        <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
-                      </div>
-                      <div class="col-md-8 text-end fs--1">
-                        <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
-                        <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
+                <div class="scrollable-customize" style="min-height: 1vh; max-height: 35vh;">
+                  <div v-for="batch in productSingleGWP.all_inventory_batch" class="card cursor-pointer mb-2" @click="clickAddToListSingleGwpProduct(productSingleGWP, batch)">
+                    <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
+                    <div class="card-header py-2 px-3">
+                      <div class="row align-items-center">
+                        <div class="col-md-4">
+                          <span class="fs--2"><u>Batch Number:</u></span>
+                          <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
+                        </div>
+                        <div class="col-md-8 text-end fs--1">
+                          <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
+                          <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1475,48 +1477,50 @@
           <div class="rounded-top-3 py-3 ps-4 pe-6 bg-body-tertiary">
             <h5 class="mb-1" id="modalExampleDemoLabel">Batch product </h5>
           </div>
-          <div v-if="productSelectBatch != null" class="px-4 pb-4">
-            <!-- For Promo Product -->
-            <div v-if="productSelectBatch.product.promo_product_id">
-              <div v-if="productSelectBatch.product.for_product.all_inventory_batch.length > 0" class="card cursor-pointer mt-3" v-for="batch in productSelectBatch.product.for_product.all_inventory_batch" @click="addProductToList(productSelectBatch.product, batch, productSelectBatch.qty)">
-                <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
-                <div class="card-header position-relative py-2 px-3">
-                  <div class="row align-items-center">
-                    <div class="col-md-4">
-                      <span class="fs--2"><u>Batch Number:</u></span>
-                      <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
-                    </div>
-                    <div class="col-md-8 text-end fs--1">
-                      <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
-                      <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div v-else class="text-center mt-3">
-                <span><i>Product Batch Not Found!</i></span>
-              </div>
-            </div>
-
-            <!-- For Regular Product -->
-            <div v-else>
-              <div v-if="productSelectBatch.product.all_inventory_batch.length > 0" class="card cursor-pointer mt-3" v-for="batch in productSelectBatch.product.all_inventory_batch" @click="addProductToList(productSelectBatch.product, batch, productSelectBatch.qty)">
-                <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
-                <div class="card-header position-relative py-2 px-3">
-                  <div class="row align-items-center">
-                    <div class="col-md-4">
-                      <span class="fs--2"><u>Batch Number:</u></span>
-                      <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
-                    </div>
-                    <div class="col-md-8 text-end fs--1">
-                      <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
-                      <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
+          <div v-if="productSelectBatch != null" class="px-3 pb-3">
+            <div class="scrollable-customize mb-2" style="min-height: 1vh; max-height: 70vh;">
+              <!-- For Promo Product -->
+              <div v-if="productSelectBatch.product.promo_product_id">
+                <div v-if="productSelectBatch.product.for_product.all_inventory_batch.length > 0" class="card cursor-pointer mt-3" v-for="batch in productSelectBatch.product.for_product.all_inventory_batch" @click="addProductToList(productSelectBatch.product, batch, productSelectBatch.qty)">
+                  <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
+                  <div class="card-header position-relative py-2 px-3">
+                    <div class="row align-items-center">
+                      <div class="col-md-4">
+                        <span class="fs--2"><u>Batch Number:</u></span>
+                        <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
+                      </div>
+                      <div class="col-md-8 text-end fs--1">
+                        <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
+                        <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
+                      </div>
                     </div>
                   </div>
                 </div>
+                <div v-else class="text-center mt-3">
+                  <span><i>Product Batch Not Found!</i></span>
+                </div>
               </div>
-              <div v-else class="text-center mt-3">
-                <span><i>Product Batch Not Found!</i></span>
+  
+              <!-- For Regular Product -->
+              <div v-else>
+                <div v-if="productSelectBatch.product.all_inventory_batch.length > 0" class="card cursor-pointer mt-3" v-for="batch in productSelectBatch.product.all_inventory_batch" @click="addProductToList(productSelectBatch.product, batch, productSelectBatch.qty)">
+                  <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
+                  <div class="card-header position-relative py-2 px-3">
+                    <div class="row align-items-center">
+                      <div class="col-md-4">
+                        <span class="fs--2"><u>Batch Number:</u></span>
+                        <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
+                      </div>
+                      <div class="col-md-8 text-end fs--1">
+                        <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
+                        <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="text-center mt-3">
+                  <span><i>Product Batch Not Found!</i></span>
+                </div>
               </div>
             </div>
           </div>
@@ -1597,20 +1601,22 @@
               <div v-else class="mb-3">
                 <label class="fs--1 mb-0">Pilih batch product: </label>
                 <hr class="m-0 mb-2"/>
-                <div v-for="batch in product.all_inventory_batch" class="card cursor-pointer mb-2" @click="clickAddToListFreeProduct(product, batch)">
-                  <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
-                  <div class="card-header py-2 px-3">
-                    <div class="row align-items-center">
-                      <div class="col-md-4">
-                        <span class="fs--2"><u>Batch Number:</u></span>
-                        <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
+                <div class="scrollable-customize" style="min-height: 1vh; max-height: 35vh;">
+                  <div v-for="batch in product.all_inventory_batch" class="card cursor-pointer mb-2" @click="clickAddToListFreeProduct(product, batch)">
+                    <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: auto;"></div>
+                    <div class="card-header py-2 px-3">
+                      <div class="row align-items-center">
+                        <div class="col-md-4">
+                          <span class="fs--2"><u>Batch Number:</u></span>
+                          <h4 class="mb-0">{{ batch.batchNo ?? '-' }}</h4>
+                        </div>
+                        <div class="col-md-8 text-end fs--1">
+                          <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
+                          <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
+                        </div>
                       </div>
-                      <div class="col-md-8 text-end fs--1">
-                        <p class="m-0">Exp Date: <strong>{{ batch.expiredDate ? $root.formatDate(batch.expiredDate) : '-' }}</strong></p>
-                        <p class="m-0">Warehouse: <strong>{{ batch.master_warehouse ? `${batch.master_warehouse.whsName} (${batch.master_warehouse.whsCode})` : '-' }}</strong></p>
-                      </div>
+                      <!-- <span class="far fa-check-circle text-success"></span> -->
                     </div>
-                    <!-- <span class="far fa-check-circle text-success"></span> -->
                   </div>
                 </div>
               </div>
@@ -3003,9 +3009,15 @@
       submitFindOrderWithTiket: async function (){
         try{
           this.$root.showLoading();
+          const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+
           const store = await axios({
             method: 'get',
-            url: this.$root.API_ERP + '/pos/app/sales/findOrderWithTicket/' + this.inputFindNoTiket,
+            url: this.$root.API_ERP + '/pos/app/sales/findOrderWithTicket',
+            params: {
+              no_tiket: this.inputFindNoTiket,
+              store_outlet: cacheStoreAccess.store_outlet,
+            }
           });
 
           if(store.status == 200){
