@@ -2498,13 +2498,12 @@
             product.all_inventory_stok = reqData.all_inventory_stok;
             product.all_inventory_batch = reqData.all_inventory_batch;
           }
-
-          this.$root.hideLoading();
-          return product;
         }catch(e){
           console.log(e);
-          this.$root.hideLoading();
         }
+
+        this.$root.hideLoading();
+        return product;
       },
 
       validateModalBatchProduct: async function(product, qty = 1){
