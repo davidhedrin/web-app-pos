@@ -25,9 +25,9 @@
     watch: {
       showAlert: function(newShowAlert) {
         if (newShowAlert) {
-          // setTimeout(() => {
-          //   this.$emit('close-alert');
-          // }, 4000);
+          setTimeout(() => {
+            this.$emit('close-alert');
+          }, 4000);
         }
       },
     },

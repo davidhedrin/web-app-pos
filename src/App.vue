@@ -1,4 +1,5 @@
 <template>
+  <div id="firebaseNotifErp" class="position-fixed bottom-0 start-0" style="z-index: 9999"></div>
   <div v-if="isLoading" class="loading">
     <div class="center-content-loading">
       <component :is="loadingWhite"></component>
@@ -83,6 +84,7 @@ export default {
         title: '',
         msg: '',
       },
+      counterAlert: 0,
       
       superAdminMenu: [
         pages.productlist,
@@ -155,7 +157,7 @@ export default {
         this.body_pesan = snap.data().body;
         this.updated_at_pesan = snap.data().updated_at;
         
-        this.$root.showAlertFunction('info', this.header_pesan, this.body_pesan);
+        this.addNotifFirebase(this.header_pesan, this.body_pesan);
       });
     },
 
@@ -177,6 +179,30 @@ export default {
           }
         );
       });
+    },
+
+    addNotifFirebase: function(header, body){
+      const newAlert = document.createElement("div");
+      newAlert.innerHTML = `
+        <div id="alertFirebase_${this.counterAlert}" class="pb-0 px-3">
+          <div class="alert alert-info border-0 d-flex align-items-center" role="alert" style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);">
+            <div class="me-3 w-sm-15">
+              <div class="icon-item">
+                <img class="rounded-circle" src="assets/img/Gif/info-icon.gif" height="40" alt="">
+              </div>
+            </div>
+            <div class="me-3 w-100">
+              <h5 class="alert-heading fs-0 fw-semi-bold mb-0">${header}</h5>
+              <p class="m-0 fs--1 flex-1">${body}</p>
+            </div>
+            <button class="btn-close" type="button" onclick="document.getElementById('alertFirebase_${this.counterAlert}').remove()"></button>
+          </div>
+        </div>
+      `;
+
+      const targetElement = document.getElementById("firebaseNotifErp");
+      targetElement.appendChild(newAlert);
+      this.counterAlert++;
     },
 
     goto: async function(comp){
