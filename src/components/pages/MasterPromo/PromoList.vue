@@ -80,7 +80,7 @@
               {{ promo.master_kode_promo.name }}
             </span>
             <div>
-              <a class="fs--1" href="javascript:void(0)" @click="openModalDetailPromo(promo)">Detail <span class="far fa-eye"></span></a>
+              <a class="fs--1" href="javascript:void(0)" @click="getDetailPromoById(promo)">Detail <span class="far fa-eye"></span></a>
             </div>
           </div>
         </div>
@@ -300,7 +300,7 @@
                           <div v-for="(product, index) in detailDataPromo.promo_product.all_promo_product" class="card mt-2">
                             <div class="card-header py-2 px-3">
                               <div class="row">
-                                <spam class="fs--2">PRODUCT-{{ index + 1 }}</spam>
+                                <span class="fs--2">PRODUCT-{{ index + 1 }}</span>
                                 <div class="col-md-6">
                                   <div class="fs--2"><u>buy product</u></div>
                                   <span class="badge bg-secondary me-2 d-inline-block text-truncate" style="max-width: 263px;">
@@ -344,7 +344,6 @@
 <script>
   import axios from "axios";
   import { markRaw } from 'vue';
-  import LoadingWhite from '@/components/layouts/LoadingWhite.vue';
 
   export default {
     name: 'PromoList',
@@ -365,22 +364,15 @@
         dataAllMasterKodePromo: [],
         modalAddOrEditPromo: true,
 
-        dataMasterPromo: {
-          id: '',
-          master_promo_id: '',
-          kode_promo: '',
-          nama_promo: '',
-          start_date: null,
-          end_date: null,
-          tipe_promo: '',
-          buy_item: '',
-          get_item: '',
-          percent: '',
-          keterangan: '',
-          
-          product_promo_buy_get: [],
-          products_promo_percent: [],
-        },
+        allPromoDiskonDetail: [],
+        currentPagePromoDiskonDetail: 1,
+        perPagePromoDiskonDetail: 40,
+        totalPagePromoDiskonDetail: 0,
+
+        allPromoProductDetail: [],
+        currentPagePromoProductDetail: 1,
+        perPagePromoProductDetail: 40,
+        totalPagePromoProductDetail: 0,
       }
     },
 
@@ -441,14 +433,109 @@
         this.$root.hideLoading();
       },
 
-      openModalDetailPromo: function(promo){
-        promo.selectedSingleGwpProduct = promo.detail_promo.length > 0 ? this.dataAllProduct.find((p) => p.itemCode == promo.detail_promo[0].itemCode) : null;
-        promo.selectedMultiGwpProduct = this.dataAllProduct.filter((p) => {
-          return promo.detail_promo.some(detail => detail.itemCode === p.itemCode);
-        });
+      getDetailPromoById: async function(promo){
+        this.$root.showLoading();
+        if(promo.kode_tipe_promo == this.master_coll.tipeMasterPromo.first){
+          const getData = await this.getDataPromoProductDetail(promo);
+          promo.promo_product.all_promo_product = getData;
+        }
+        if(promo.kode_tipe_promo == this.master_coll.tipeMasterPromo.secound){
+          const getData = await this.getDataPromoDiskonDetail(promo);
+          promo.detail_promo = getData;
+        }
+        this.$root.hideLoading();
 
         this.detailDataPromo = promo;
-        // console.log(promo);
+        $('#modalDetailPromo').modal('show');
+      },
+
+      getDataPromoProductDetail: async function(promo, page = 1){
+        try{
+          const requestPromo = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/getDetailDataPromoProduct',
+            params: {
+              page: page,
+              per_page: this.perPagePromoProductDetail,
+              promo_product_id: promo.promo_product.promo_product_id
+            }
+          });
+          
+          const response = requestPromo.data;
+
+          let dataProduct = [];
+          if(response.last_page > 1){
+            for (let i = 1; i <= response.last_page; i++){
+              const requestPage = await axios({
+                method: 'get',
+                url: this.$root.API_ERP + '/pos/getDetailDataPromoProduct',
+                params: {
+                  page: i,
+                  per_page: this.perPagePromoProductDetail,
+                  promo_product_id: promo.promo_product.promo_product_id
+                }
+              });
+  
+              const resReqPage = requestPage.data.data;
+              dataProduct = dataProduct.concat(resReqPage);
+            }
+          }else{
+            dataProduct = response.data;
+          }
+
+          return dataProduct;
+        } catch(e) {
+          console.log(e);
+        }
+      },
+
+      getDataPromoDiskonDetail: async function(promo, page = 1){
+        try{
+          const requestPromo = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/getDetailDataPromoDiskon',
+            params: {
+              page: page,
+              per_page: this.perPagePromoDiskonDetail,
+              promo_code: promo.promo_code
+            }
+          });
+          
+          const response = requestPromo.data;
+
+          let dataProduct = [];
+          if(response.last_page > 1){
+            for (let i = 1; i <= response.last_page; i++){
+              const requestPage = await axios({
+                method: 'get',
+                url: this.$root.API_ERP + '/pos/getDetailDataPromoDiskon',
+                params: {
+                  page: page,
+                  per_page: this.perPagePromoDiskonDetail,
+                  promo_code: promo.promo_code
+                }
+              });
+  
+              const resReqPage = requestPage.data.data;
+              dataProduct = dataProduct.concat(resReqPage);
+            }
+          }else{
+            dataProduct = response.data;
+          }
+
+          return dataProduct;
+        } catch(e) {
+          console.log(e);
+        }
+      },
+
+      openModalDetailPromo: function(promo){
+        // promo.selectedSingleGwpProduct = promo.detail_promo.length > 0 ? this.dataAllProduct.find((p) => p.itemCode == promo.detail_promo[0].itemCode) : null;
+        // promo.selectedMultiGwpProduct = this.dataAllProduct.filter((p) => {
+        //   return promo.detail_promo.some(detail => detail.itemCode === p.itemCode);
+        // });
+
+        this.detailDataPromo = promo;
         $('#modalDetailPromo').modal('show');
       },
 
