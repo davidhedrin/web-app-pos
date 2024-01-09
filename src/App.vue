@@ -157,7 +157,8 @@ export default {
         this.body_pesan = snap.data().body;
         this.updated_at_pesan = snap.data().updated_at;
         
-        this.addNotifFirebase(this.header_pesan, this.body_pesan);
+        const current_page = sessionStorage.getItem(this.local_storage.current_page);
+        if(current_page && current_page != 'Login') this.addNotifFirebase(this.header_pesan, this.body_pesan);
       });
     },
 

@@ -950,7 +950,7 @@
         </div>
         <div class="modal-footer d-flex justify-content-center">
           <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">Batal</button>
-          <button class="btn btn-primary btn-sm" type="button" v-on:click="checkoutBtn">Konfirmasi</button>
+          <button class="btn btn-primary btn-sm" type="button" data-bs-dismiss="modal" v-on:click="checkoutBtn">Konfirmasi</button>
         </div>
       </div>
     </div>
@@ -1634,6 +1634,33 @@
       </div>
     </div>
   </div>
+  
+  <!-- Modal info check plafon member karyawan -->
+  <div class="modal fade" id="modalInfoCheckPlafonKaryawan" tabindex="0" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px">
+      <div class="modal-content position-relative">
+        <div class="modal-body p-0 pb-2">
+          <div class="rounded-top-3 py-3 bg-body-tertiary text-center">
+            <h3 class="mb-1" id="modalExampleDemoLabel">Plafon Info</h3>
+          </div>
+          <div class="py-2 text-center">
+            <div class="d-flex justify-content-center mb-2">
+              <img src="@/assets/img/icons/Gif/info-icon.gif" height="60" alt="">
+            </div>
+            <h5 class="m-0 px-1">
+              {{ headerModalInfoPlafon }}
+            </h5>
+            <p class="m-0 px-3">
+              {{ bodyModalInfoPlafon }}
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="offcanvas offcanvas-end" id="canvasShowDetailProduct" tabindex="-1" aria-labelledby="canvasShowDetailProductLabel">
     <!-- Header nama product dan btn close -->
@@ -1863,6 +1890,7 @@
           email: '',
           jenis_kelamin: '',
           tanggal_lahir: '',
+          jenis_member: null,
         },
 
         inputSearchProduct: '',
@@ -1940,6 +1968,9 @@
         perPageMinValGwp: 10,
         totalPageMinValGwp: 0,
         inputSearchProductInMinValGwp: '',
+
+        headerModalInfoPlafon: '',
+        bodyModalInfoPlafon: '',
       };
     },
 
@@ -2757,6 +2788,7 @@
             this.$root.showAlertFunction('warning', 'Mengubah Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
           }
           
+          this.memberOverview = null;
           this.$root.hideLoading();
         } catch (error) {
           this.$root.showAlertFunction('warning', 'Update Gagal!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
@@ -2775,8 +2807,8 @@
       },
 
       openModalFindOrRegis: async function(){
-        await this.fatchDataMember(this.currentPageMember);
         this.memberFindOrRegis = true;
+        await this.fatchDataMember(this.currentPageMember);
         for (let prop in this.dataInputMember) {
           this.dataInputMember[prop] = '';
         }
@@ -2843,7 +2875,7 @@
           const dataPost = {
             member: this.memberOverview,
             products: this.dataProductInList,
-            access_store: storeActive,
+            access_store: storeActive.store_outlet,
             user_login: this.$root.dataAuthToken
           };
 
@@ -3485,7 +3517,7 @@
         if(this.validationBeforeContinueBtnBilling() == false){
           return false;
         }
-        
+
         this.$root.showLoading();
 
         const dataProductList = this.dataProductInList.slice();
@@ -3765,6 +3797,42 @@
       checkoutBtn: async function(){
         try{
           this.$root.showLoading();
+
+          // Check plafon if member karyawan metode karyawan
+          const findMetodeBayar = this.dataAllMetodeBayar.find((metode) => metode.id === this.selectMethodPayment);
+          if(findMetodeBayar.kode == this.master_code.metodeBayar.karyawan){
+            try{
+              const reqPlafon = await axios({
+                method: 'get',
+                url: this.$root.API_ERP + '/pos/app/sales/getPlafonMemberKaryawan',
+                params: {
+                  memberId: this.memberOverview.member_id,
+                }
+              });
+
+              const resPlafon = reqPlafon.data;
+              if(parseInt(this.calculateTotalBayarPrice) > parseInt(resPlafon.balance)){
+                this.$root.hideLoading();
+                this.headerModalInfoPlafon = 'Balance plafon invalid';
+                this.bodyModalInfoPlafon = 'Balance plafon per-bulan ini tidak cukup. Gunakan metode lainnya!';
+                $('#modalInfoCheckPlafonKaryawan').modal('show');
+                return false;
+              }
+            }catch(e){
+              this.$root.hideLoading();
+              if(e.response.status == 404){
+                this.headerModalInfoPlafon = 'Plafon not-Found!';
+                this.bodyModalInfoPlafon = 'Plafon member karyawan tidak terdaftar. Gunakan metode lainnya!';
+                $('#modalInfoCheckPlafonKaryawan').modal('show');
+              }else{
+                this.$root.showAlertFunction('warning', 'Payment Invalid', 'Ops..! Terjadi kesalahan, Metode pambayaran karyawan tidak dapat digunakan');
+                console.log(e);
+              }
+
+              return false;
+            }
+          }
+          // End logic
           
           const user_login = this.$root.dataAuthToken;
           const activeStore = JSON.parse(localStorage.getItem(this.local_storage.access_store));
@@ -3828,27 +3896,6 @@
               this.generatePdfCheckout(dataStoreTr);
             }
             
-            // try{
-            //   this.dataProductInList.forEach(data => {
-            //     const product = data.product;
-            //     let findInvtory;
-            //     if(data.is_promo_product){
-            //       const promoDetail = data.is_promo_product;
-            //       const findRowProduct = this.dataAllProducts.find((p) => p.promo_product_id == promoDetail.promo_product_id && p.id === promoDetail.id);
-            //       findInvtory = findRowProduct.for_product.all_inventory_stok[0];
-            //     }else{
-            //       const productInList = this.dataAllProducts.find((p) => !p.is_promo_product && p.itemCode === product.itemCode);
-            //       // findInvtory = productInList.all_inventory_stok.find((w) => w.storeCode === activeStore.store_outlet.storeCode && w.whsCode === activeStore.store_outlet.whsCode);
-            //       findInvtory = productInList.all_inventory_stok[0];
-            //     }
-  
-            //     const intOnHand = parseInt(findInvtory.onHand);
-            //     findInvtory.onHand = intOnHand - data.qty;
-            //   });
-            // }catch(e){
-            //   console.log(e);
-            // }
-
             this.finishSuccessTransaction();
             // window.location.reload();
           }else{
