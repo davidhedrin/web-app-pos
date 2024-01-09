@@ -2246,8 +2246,8 @@
                       get_product_code: resDataProductPromo.get_product_code,
                       for_product_whs: resDataProductPromo.for_product_whs,
                       get_product_whs: resDataProductPromo.get_product_whs,
-                      // for_product_price: resDataProductPromo.,
-                      // get_product_price: resDataProductPromo.,
+                      // for_product_price: resDataProductPromo.for_product_price,
+                      // get_product_price: resDataProductPromo.get_product_price,
                       isActive: resDataProductPromo.isActive,
                       master_promo_product: resDataProductPromo.master_promo_product,
                       for_product: resDataProductPromo.for_product,
@@ -2255,14 +2255,16 @@
                     };
                     setObj.for_product.all_product_price = resDataProductPromo.for_product_price;
                     setObj.for_product.all_inventory_stok = resDataProductPromo.for_inventory_stok;
-                    setObj.for_product.all_inventory_batch = resDataProductPromo.for_inventory_batch;
+                    // setObj.for_product.all_inventory_batch = resDataProductPromo.for_inventory_batch;
                     setObj.for_product.all_product_diskon = resDataProductPromo.for_product_diskon;
+                    setObj.for_product.all_product_detail = resDataProductPromo.for_product_detail;
                     
                     if(masterPromoProduct.tipe_promo == this.master_coll.tipePromo.bundle){
                       setObj.get_product.all_product_price = resDataProductPromo.get_product_price;
                       setObj.get_product.all_inventory_stok = resDataProductPromo.get_inventory_stok;
-                      setObj.get_product.all_inventory_batch = resDataProductPromo.get_inventory_batch;
+                      // setObj.get_product.all_inventory_batch = resDataProductPromo.get_inventory_batch;
                       setObj.get_product.all_product_diskon = resDataProductPromo.get_product_diskon;
+                      // setObj.get_product.all_product_detail = resDataProductPromo.get_product_diskon;
                     }
     
                     responseAllDataPromoDetail.push(setObj);

@@ -385,144 +385,6 @@
                     </div>
                   </div>
                 </div>
-                
-                <!-- Review Price and Diskon -->
-                <!-- <div class="row mx-0">
-                  <div class="col-md-6 mb-3">
-                    <h5 class="mb-0"><span class="fas fa-dollar-sign"></span> Price:</h5>
-                    <hr class="my-1">
-                    <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
-                      <table class="table table-scrollable table-sm">
-                        <thead>
-                          <tr class="fs--1">
-                            <th class="ps-0 py-2 bg-white">Price Code</th>
-                            <th class="py-2 bg-white">Product Price</th>
-                            <th class="pe-0 py-2 bg-white">Product Cost</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="price in data_master_price" class="fs--1">
-                            <td class="ps-0">{{ price.price_code.priceName + ` (${price.price_code.priceCode})` }}</td>
-                            <td>Rp {{ price.price ? $root.formatPrice(price.price) : '-' }}</td>
-                            <td class="pe-0">Rp {{ price.cost ? $root.formatPrice(price.cost) : '-' }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <h5 class="mb-0"><span class="fas fa-percentage"></span> Diskon:</h5>
-                    <hr class="my-1">
-                    <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
-                      <table class="table table-scrollable table-sm">
-                        <thead>
-                          <tr class="fs--1">
-                            <th class="ps-0 py-2 bg-white">Diskon Code</th>
-                            <th class="py-2 bg-white">Deskripsi</th>
-                            <th class="pe-0 py-2 bg-white">Diskon(%)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="diskon in data_master_diskon" class="fs--1">
-                            <td class="ps-0">#{{ diskon.diskon_code.discCode }}</td>
-                            <td>{{ diskon.name }}</td>
-                            <td class="pe-0">
-                              <span v-if="diskon.diskon_code.discCode != '0'">{{ diskon.nilai_diskon ? diskon.nilai_diskon : '0' }}</span>
-                              <span v-else>-</span>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div> -->
-  
-                <!-- Review Inventory and Supplier -->
-                <!-- <div class="row mx-0">
-                  <div class="col-md-6 mb-3">
-                    <h5 class="mb-0"><span class="fas fa-dolly"></span> Inventory:</h5>
-                    <hr class="my-1">
-                    <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
-                      <table class="table table-scrollable table-sm">
-                        <thead>
-                          <tr class="fs--1">
-                            <th class="ps-0 py-2 bg-white">Code</th>
-                            <th class="py-2 bg-white">Name</th>
-                            <th class="py-2 bg-white">On Hand</th>
-                            <th class="py-2 bg-white">On Order</th>
-                            <th class="py-2 bg-white">Min Buffer</th>
-                            <th class="pe-0 py-2 bg-white">Max Buffer</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="whs in data_master_warehouse" class="fs--1">
-                            <td class="ps-0">{{ whs.whs_code.whsCode }}</td>
-                            <td>{{ whs.name }}</td>
-                            <td>{{ whs.on_hand ? whs.on_hand : '-' }}</td>
-                            <td>{{ whs.on_order ? whs.on_order : '-' }}</td>
-                            <td>{{ whs.min_buffer ? whs.min_buffer : '-' }}</td>
-                            <td class="pe-0">{{ whs.max_buffer ? whs.max_buffer : '-' }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <h5 class="mb-0"><span class="fas fa-truck-loading"></span> Supplier:</h5>
-                    <hr class="my-1">
-                    <div class="table-scrollable-wrapper" style="min-height: 146px; max-height: 146px;">
-                      <table class="table table-scrollable table-sm">
-                        <thead>
-                          <tr class="fs--1">
-                            <th class="ps-0 py-2 bg-white">Code</th>
-                            <th class="py-2 bg-white">Name</th>
-                            <th class="py-2 bg-white">Priority</th>
-                            <th class="pe-0 py-2 bg-white">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="supplier in data_master_supplier" class="fs--1">
-                            <td class="ps-0">{{ supplier.code }}</td>
-                            <td>{{ supplier.name }}</td>
-                            <td>{{ getSelectedNamePriority(supplier.priority) }}</td>
-                            <td class="pe-0">
-                              <span class="badge rounded-pill" :class="supplier.status ? 'badge-subtle-success' : 'badge-subtle-danger'">
-                                {{ supplier.status ? 'Active' : 'No Active' }}
-                              </span>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div> -->
-  
-                <!-- Review Optional Info -->
-                <!-- <div class="px-3">
-                  <h5 class="mb-0"><span class="fas fa-adobe"></span> Optional Info:</h5>
-                  <hr class="my-1">
-                  <div class="table-scrollable-wrapper" style="min-height: 0; max-height: 146px;">
-                    <table class="table table-scrollable table-sm">
-                      <thead>
-                        <tr class="fs--1">
-                          <th class="ps-0 py-2 bg-white">Info Code</th>
-                          <th class="py-2 bg-white">Info Name</th>
-                          <th class="py-2 bg-white">Detail Code</th>
-                          <th class="pe-0 py-2 bg-white">Detail Name</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="code in data_master_opt_info" class="fs--1">
-                          <td class="ps-0">{{ code.code }}</td>
-                          <td>{{ code.name }}</td>
-                          <td>{{ code.select_opt_info ? code.select_opt_info.optDtlCode : '-' }}</td>
-                          <td class="pe-0">{{ code.select_opt_info ? code.select_opt_info.optDtlName : '-' }}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div> -->
-              
               </div>
               <div v-else class="text-center">
                 <div class="mt-5">
@@ -749,17 +611,17 @@
           // });
           
           // Set Object master optional info
-          // this.data_master_opt_info = this.dataMasterOptionInfoCode.map(info => {
-          //   const have_master = resData.all_product_detail;
-          //   const masterExists = have_master.find(item => item.optionalCode === info.optionalCode);
+          this.data_master_opt_info = this.dataMasterOptionInfoCode.map(info => {
+            const have_master = resData.all_product_detail;
+            const masterExists = have_master.find(item => item.optionalCode === info.optionalCode);
 
-          //   return {
-          //     opt_info: info,
-          //     code: info.optionalCode,
-          //     name: info.optionalName,
-          //     select_opt_info: masterExists ? masterExists : null,
-          //   }
-          // });
+            return {
+              opt_info: info,
+              code: info.optionalCode,
+              name: info.optionalName,
+              select_opt_info: masterExists ? masterExists : null,
+            }
+          });
         }catch(e){
           console.log(e);
         }
@@ -847,83 +709,10 @@
         }, 500);
       },
 
-      // -->
-      openModalAddNewProduct: () => {
-        const modal = $('#modalAddNewProduct');
-        modal.modal('show');
-      },
-
-      nextPillTabAddProducrt: () => {
-        const modal = $('#modalAddNewProduct');
-
-        const pillTab = modal.find('#pill_addProductTab');
-        const pillTabNavLink = pillTab.find('.nav-link');
-
-        const pillBody = modal.find('#pill-addProduct');
-        const pillBodyTabPane = pillBody.find('.tab-pane');
-
-        for (let i = 0; i < pillTabNavLink.length; i++) {
-          const element = pillTabNavLink[i];
-          if ($(element).hasClass('active')) {
-            if (i < pillTabNavLink.length - 1) {
-              $(element).removeClass('active');
-              $(element).removeClass('text-inactive-pill');
-              $(element).addClass('text-active-pill');
-              $(pillTabNavLink[i + 1]).addClass('active');
-            }
-            break;
-          }
-        }
-
-        for (let i = 0; i < pillBodyTabPane.length; i++) {
-          const element = pillBodyTabPane[i];
-          if ($(element).hasClass('active')) {
-            if (i < pillBodyTabPane.length - 1) {
-              $(element).removeClass('show').removeClass('active');
-              $(pillBodyTabPane[i + 1]).addClass('show active');
-            }
-            break;
-          }
-        }
-      },
-
-      prevPillTabAddProducrt: () => {
-        const modal = $('#modalAddNewProduct');
-
-        const pillTab = modal.find('#pill_addProductTab');
-        const pillTabNavLink = pillTab.find('.nav-link');
-
-        const pillBody = modal.find('#pill-addProduct');
-        const pillBodyTabPane = pillBody.find('.tab-pane');
-
-        for (let i = 0; i < pillTabNavLink.length; i++) {
-          const element = pillTabNavLink[i];
-          if ($(element).hasClass('active')) {
-            if (i > 0) {
-              $(element).removeClass('active');
-              $(pillTabNavLink[i - 1]).addClass('active');
-            }
-            break;
-          }
-        }
-        
-        for (let i = 0; i < pillBodyTabPane.length; i++) {
-          const element = pillBodyTabPane[i];
-          if ($(element).hasClass('active')) {
-            if (i > 0) {
-              $(element).removeClass('show').removeClass('active');
-              $(pillBodyTabPane[i - 1]).addClass('show active');
-            }
-            break;
-          }
-        }
-      },
-      
       getSelectedNamePriority(id) {
         const selectedItem = this.optionsDataPriority.find(item => item.id === id);
         return selectedItem ? selectedItem.name : '';
       },
-      // <--
     },
   }
 </script>
