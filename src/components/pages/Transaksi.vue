@@ -85,7 +85,7 @@
   </div>
 
   <div class="card">
-    <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1-left.png'); background-position: left; background-size: auto;"></div>
+    <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1-left.png'); background-position: left; background-size: cover;"></div>
     <div class="card-body pb-0 position-relative">
       <div class="row align-items-center">
         <div class="col-md-6 mb-3">
@@ -444,7 +444,6 @@
 
       await this.loadAllData();
     },
-    
 
     methods: {
       loadAllData: async function(){

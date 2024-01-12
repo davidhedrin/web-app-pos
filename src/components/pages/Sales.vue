@@ -2920,24 +2920,7 @@
           });
 
           this.dataAllTicket = store.data;
-
-          // const groupedData = {};
-          // store.data.forEach(item => {
-          //   const key = `${item.member_id}_${item.member}`;
-            
-          //   if (!groupedData[key]) {
-          //     groupedData[key] = {
-          //       member_id: item.member_id,
-          //       no_ticket: [],
-          //       member: item.member,
-          //     };
-          //   }
-            
-          //   groupedData[key].no_ticket.push(item.no_ticket);
-          // });
-
-          // const finishDataFilter = Object.values(groupedData);
-
+          
           const groupedData = {};
           store.data.forEach((data) => {
             const member_id = data.member_id;
@@ -3524,7 +3507,7 @@
 
         const dataProductList = this.dataProductInList.slice();
         for (let i = dataProductList.length - 1; i >= 0; i--) {
-          let dataList = dataProductList[i]
+          let dataList = dataProductList[i];
           let dataPromo = dataList.is_promo_product;
           if(dataPromo){
             let mPromoProduct = dataPromo.master_promo_product;

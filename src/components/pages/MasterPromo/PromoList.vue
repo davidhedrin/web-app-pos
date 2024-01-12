@@ -103,17 +103,17 @@
     <nav aria-label="Page navigation example">
       <ul class="pagination pagination-sm">
         <li class="page-item" :class="{ 'disabled': currentPagePromo === 1 }">
-          <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchProductData(currentPagePromo - 1)">
+          <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchPromoData(currentPagePromo - 1)">
             <span aria-hidden="true">&laquo;</span>
           </a>
         </li>
 
         <li v-for="pageNumber in totalPagePromo" :key="pageNumber" class="page-item"  :class="{ 'active': pageNumber === currentPagePromo }">
-          <a class="page-link" href="javascript:void(0)" @click="fatchProductData(pageNumber)">{{ pageNumber }}</a>
+          <a class="page-link" href="javascript:void(0)" @click="fatchPromoData(pageNumber)">{{ pageNumber }}</a>
         </li>
 
         <li class="page-item" :class="{ 'disabled': currentPagePromo === totalPagePromo }">
-          <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchProductData(currentPagePromo + 1)">
+          <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchPromoData(currentPagePromo + 1)">
             <span aria-hidden="true">&raquo;</span>
           </a>
         </li>
@@ -411,7 +411,7 @@
         this.$root.hideLoading();
       },
 
-      fatchPromoData: async function(page){
+      fatchPromoData: async function(page = 1){
         this.$root.showLoading();
         try{
           const requestPromo = await axios({
