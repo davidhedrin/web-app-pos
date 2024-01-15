@@ -11357,6 +11357,10 @@ fieldset:disabled .tox .tox-dialog__footer .tox-button--secondary,
     --falcon-border-width: 5px
 }
 
+.w-10 {
+    width: 10% !important
+}
+
 .w-15 {
     width: 15% !important
 }

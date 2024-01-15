@@ -32,23 +32,23 @@
   </div> -->
 
   <div class="row g-3 mb-3">
-    <div class="col-sm-6 col-md-3">
+    <div class="col-6 col-md-3 col-lg-3">
       <div class="card overflow-hidden" style="min-width: 12rem">
         <div class="card-header">
           <h6>Jumlah Transaksi</h6>
-          <div class="display-4 fs-4 mb-2 fw-normal font-sans-serif">
+          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">
             {{ dataAllTransaction.length }}
           </div>
           <span class="badge badge-subtle-warning rounded-pill fs--2">+ 2 Hari ini</span>
         </div>
       </div>
     </div>
-    <div class="col-sm-6 col-md-3">
+    <div class="col-6 col-md-3 col-lg-3">
       <div class="card overflow-hidden" style="min-width: 12rem">
         <div class="card-header">
           <h6>Tiket Booking <span class="badge badge-subtle-info rounded-pill ms-2">0.0%</span>
           </h6>
-          <div class="display-4 fs-4 mb-2 fw-normal font-sans-serif">23.43k</div>
+          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">23.43k</div>
           <a class="fw-semi-bold fs--1 text-nowrap" href="javascript:void(0)">
             Semua Tiket 
             <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
@@ -56,12 +56,12 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3 col-lg-3">
       <div class="card overflow-hidden" style="min-width: 12rem">
         <div class="card-header">
           <h6>Revenue <span class="badge badge-subtle-success rounded-pill ms-2">9.54%</span>
           </h6>
-          <div class="display-4 fs-4 mb-2 fw-normal font-sans-serif">Rp 43.594</div>
+          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">Rp 43.594</div>
           <a class="fw-semi-bold fs--1 text-nowrap" href="javascript:void(0)">
             Statistics 
             <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
@@ -69,12 +69,12 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3 col-lg-3">
       <div class="card overflow-hidden" style="min-width: 12rem">
         <div class="card-header">
           <h6>Revenue <span class="badge badge-subtle-success rounded-pill ms-2">9.54%</span>
           </h6>
-          <div class="display-4 fs-4 mb-2 fw-normal font-sans-serif">Rp 13.594</div>
+          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">Rp 13.594</div>
           <a class="fw-semi-bold fs--1 text-nowrap" href="javascript:void(0)">
             Statistics 
             <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
@@ -88,14 +88,14 @@
     <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1-left.png'); background-position: left; background-size: cover;"></div>
     <div class="card-body pb-0 position-relative">
       <div class="row align-items-center">
-        <div class="col-md-6 mb-3">
+        <div class="col-md-8 mb-3">
           <h4>Daftar transaksi</h4>
         </div>
-        <div class="col-md-6 mb-3">
+        <div class="col-md-4 mb-3">
           <form @submit.prevent="fatchDataTransaction()" class="d-flex align-items-center">
-            <input v-model="dateRangeStart" type="datetime-local" class="form-control">
-            <span class="fw-semi-bold px-2">s/d</span>
-            <input v-model="dateRangeEnd" type="datetime-local" class="form-control">
+            <VueDatePicker
+              v-model="dateRangeValueTr" range
+            />
             <div class="ms-3">
               <button class="btn btn-primary" type="submit">
                 <span class="fas fa-search"></span>
@@ -431,16 +431,16 @@
         perPageTr: 7,
         totalPageTr: 0,
 
-        dateRangeStart: null,
-        dateRangeEnd: null,
-
+        dateRangeValueTr: [],
         selectedTrView: null,
       }
     },
 
     async beforeMount(){
-      this.dateRangeStart = this.formatDateRangeNow();
-      this.dateRangeEnd = this.formatDateRangeNow(true);
+      const thisDate = new Date();
+      const startOfDay = new Date(thisDate.getFullYear(), thisDate.getMonth(), thisDate.getDate(), 0, 0, 0);
+      const endOfDay = new Date(thisDate.getFullYear(), thisDate.getMonth(), thisDate.getDate(), 23, 59, 59);
+      this.dateRangeValueTr = [startOfDay, endOfDay];
 
       await this.loadAllData();
     },
@@ -458,7 +458,7 @@
         this.$root.hideLoading();
       },
 
-      fatchDataTransaction: async function(page = 1, startDate = this.dateRangeStart, endDate = this.dateRangeEnd){
+      fatchDataTransaction: async function(page = 1, startDate = this.dateRangeValueTr[0], endDate = this.dateRangeValueTr[1]){
         this.$root.showLoading();
         try{
           const check_uuid = localStorage.getItem(this.local_storage.is_dynamic);

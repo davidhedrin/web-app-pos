@@ -261,7 +261,7 @@
             </div>
             <div class="px-3">
               <div class="row px-3">
-                <div v-if="$root.selectedStoreAccess" class="mb-1 col-sm-6 col-md-2 p-1" v-for="product in filteredProducts" :key="product.itemCode">
+                <div v-if="$root.selectedStoreAccess" class="mb-1 col-6 col-md-2 col-sm-6 p-1" v-for="product in filteredProducts" :key="product.itemCode">
                   <div class="border rounded-1 h-100 d-flex flex-column justify-content-between">
                     <div class="overflow-hidden">
                       <div class="position-relative rounded-top overflow-hidden cursor-pointer" @click="validateModalBatchProduct(product)">
@@ -1324,7 +1324,7 @@
           <button @click="closeModalSelectActivePromo()" class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-0">
-          <div class="rounded-top-3 bg-body-tertiary py-3 ps-4 pe-6">
+          <div class="rounded-top-3 bg-body-tertiary py-3 ps-4 pe-4">
             <h5 class="mb-0" id="staticBackdropLabel">Promo Gift With Purchese</h5>
             <p v-if="selectedActivePromo != null" class="fs--1 mb-0">
               Promo <strong class="text-success">{{ selectedActivePromo.nama_promo.toUpperCase() }}</strong>
@@ -1332,15 +1332,21 @@
                 Free Total Product Maksimal <strong class="text-danger">Rp {{ $root.formatPrice(selectedActivePromo.min_value_product) }}</strong>
               </span>
               <span v-if="selectedActivePromo.tipe_gwp == master_coll.tipe_gwp.three">
-                Pilih Product Maksimal <strong class="text-danger fs-0">{{ selectedActivePromo.mix_get_pcs_gwp }}</strong> Item<span v-if="selectedActivePromo.mix_get_pcs_gwp > 1">s</span>
+                Pilih Product Maksimal <strong class="text-danger fs-0">{{ selectedActivePromo.mix_get_pcs_gwp }}</strong> Piece<span v-if="selectedActivePromo.mix_get_pcs_gwp > 1">s</span>
               </span>
             </p>
-            <div>
-              <span v-for="(data, index) in selectedAllPromoMinValGwp" class="badge badge-subtle-primary fw-bold" style="font-weight: normal;">
-                {{ index + 1 }}. {{ data.product.itemCode }} - {{ data.product.itemNameShort }}
+            <div class="scrollable-customize" style="min-height: 1vh; max-height: 15vh;">
+              <span v-for="(data, index) in selectedAllPromoMinValGwp" class="badge badge-subtle-primary fw-bold mb-1 me-2" style="font-weight: normal;">
+                {{ data.product.itemCode }} - {{ data.product.itemNameShort }}
                 <span class="cursor-pointer" @click="deleteDataProductMinValGwp(data, index)">
                   <span class="fas fa-window-close text-danger ms-1"></span>
                 </span>
+                <div class="row align-items-center">
+                  <label class="col-form-label col-sm-2 py-0">Pieces:</label>
+                  <div class="col-sm-10 p-0">
+                    <input class="form-control py-0 pe-0 ps-2 fs--1 w-15 me-2" type="number" min="1" :value="data.qty" @change="updateQtySelectProductGwp($event, data, selectedActivePromo)" />
+                  </div>
+                </div>
               </span>
             </div>
           </div>
@@ -1355,9 +1361,9 @@
             <div v-if="dataAllProductsMinValGwp.length > 0" class="scrollable-customize mb-3" style="min-height: 1vh; max-height: 67vh;">
               <div class="row m-0">
                 <div v-for="product in dataAllProductsMinValGwp" class="col-md-6 p-2" :key="product.itemCode">
-                  <div class="card cursor-pointer" @click="validateModalBatchProductMinValGwp(product)">
+                  <div class="card">
                     <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-1.png'); background-size: cover;"></div>
-                    <div class="card-header position-relative d-flex">
+                    <div class="card-header position-relative d-flex cursor-pointer" @click="validateModalBatchProductMinValGwp(product)">
                       <div class="me-2">
                         <img v-if="product.imageUrl != null && product.imageUrl.trim() != ''" class="img-fluid rounded-3" :src="product.imageUrl" style="width: 100%; height: 70px;" alt="">
                         <img v-else class="img-fluid rounded-3" src="@/assets/img/product/no_image.jpg" style="width: 100%; height: 70px;" alt="">
@@ -3406,6 +3412,38 @@
         $('#modalShowBatchProductMinValGwp').modal('show');
       },
 
+      updateQtySelectProductGwp: function(event, data, promo){
+        const newValue = parseInt(event.target.value);
+        if (isNaN(newValue) || newValue < 1) {
+          event.target.value = data.qty;
+          return;
+        }
+
+        if(newValue > data.qty){
+          if(promo.tipe_gwp == this.master_coll.tipe_gwp.secound){
+            const getTotalInList = this.checkTotalPriceProductMinValGwp();
+            const getTotalWithAdd = parseInt(getTotalInList) + parseInt(data.product.all_product_price[0].price);
+            if(
+              (parseInt(data.product.all_product_price[0].price) > parseInt(promo.min_value_product)) ||
+              (getTotalWithAdd > parseInt(promo.min_value_product))
+            ){
+              event.target.value = data.qty;
+              return false;
+            }
+          }
+  
+          if(promo.tipe_gwp == this.master_coll.tipe_gwp.three){
+            const getQtyInList = this.getTotalQtyProductSelectGwp();
+            if (getQtyInList >= parseInt(promo.mix_get_pcs_gwp)) {
+              event.target.value = data.qty;
+              return;
+            }
+          }
+        }
+
+        data.qty = newValue;
+      },
+
       checkTotalPriceProductMinValGwp: function(){
         let result = 0;
         this.selectedAllPromoMinValGwp.forEach((product) => {
@@ -3427,15 +3465,19 @@
         return result;
       },
 
+      getTotalQtyProductSelectGwp: function(){
+        let result = 0;
+        this.selectedAllPromoMinValGwp.forEach((product) => {
+          if(!product.is_promo_product){
+            result += product.qty;
+          }
+        });
+
+        return result;
+      },
+
       selectBatchProductMinValGwp: function(product, batch, qty = 1){
         if(product.all_inventory_batch === 0){
-          return false;
-        }
-        
-        const findInList = this.selectedAllPromoMinValGwp.find((x) => x.product.itemCode == product.itemCode);
-        if(findInList){
-          $('#modalShowBatchProductMinValGwp').modal('hide');
-          this.$root.showAlertFunction('warning', 'Gagal Menambahkan!', 'Product sudah ada dalam list.');
           return false;
         }
 
@@ -3451,24 +3493,32 @@
             return false;
           }
         }
+
         if(this.selectedActivePromo.tipe_gwp == this.master_coll.tipe_gwp.three){
-          if(this.selectedAllPromoMinValGwp.length >= this.selectedActivePromo.mix_get_pcs_gwp){
+          const getQtyInList = this.getTotalQtyProductSelectGwp();
+          if(getQtyInList >= this.selectedActivePromo.mix_get_pcs_gwp){
             $('#modalShowBatchProductMinValGwp').modal('hide');
-            this.$root.showAlertFunction('warning', 'Gagal Menambahkan!', 'Total item melebihi maksimal.');
+            this.$root.showAlertFunction('warning', 'Gagal Menambahkan!', 'Total pieces melebihi maksimal.');
             return false;
           }
         }
+        
+        const findInList = this.selectedAllPromoMinValGwp.find((x) => x.product.itemCode == product.itemCode);
+        if(findInList){
+          findInList.qty += 1;
+        }else{
+          const productObj = {
+            product: product,
+            qty: 1,
+            batch: batch,
+            is_promo_product: null,
+            is_free_product: true,
+            isGwpProduct: true,
+          };
+          this.selectedAllPromoMinValGwp.push(productObj);
+          product.isSelectedGwpMinVal = true;
+        }
 
-        const productObj = {
-          product: product,
-          qty: 1,
-          batch: batch,
-          is_promo_product: null,
-          is_free_product: true,
-          isGwpProduct: true,
-        };
-        this.selectedAllPromoMinValGwp.push(productObj);
-        product.isSelectedGwpMinVal = true;
         $('#modalShowBatchProductMinValGwp').modal('hide');
         this.productSelectBatchMinValGwp = null;
         // if(parseInt(batch.onHand) > 0){
@@ -5496,17 +5546,12 @@
 }
 
 .max-width-text-truncate{
-  max-width: 135px;
+  max-width: 140px;
 }
 
 @media (min-width: 600px) and (max-width: 1024px) {
   .max-width-text-truncate{
-    max-width: 500px;
-  }
-}
-@media (max-width: 600px) {
-  .max-width-text-truncate{
-    max-width: 230px;
+    max-width: 200px;
   }
 }
 </style>
