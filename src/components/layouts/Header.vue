@@ -36,7 +36,7 @@
             <div class="scrollable-customize" style="max-height: 350px;">
               <div v-if="$root.dataAuthToken.flag_active == true" class="row gx-0 gy-0">
                 <div class="col-12 px-0">
-                  <span class="px-1">Main Menu</span>
+                  <span class="px-1">Main Menus</span>
                 </div>
                 <div class="col-4">
                   <a @click="validateGoto(pages.dashboard)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
@@ -88,10 +88,48 @@
                 </div>
               </div>
 
+              <div class="row gx-0 gy-0">
+                <div class="col-12 px-0">
+                  <hr class="my-2 bg-200">
+                  <span class="px-1">ERP Menus</span>
+                </div>
+                <div class="col-4">
+                  <a @click="validateGoto(pages.entrycc)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                    <div class="avatar"> <span class="fas fa-receipt" style="font-size: 30px;"></span></div>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">CC Entry</p>
+                  </a>
+                </div>
+                <div class="col-4">
+                  <a @click="validateGoto(pages.ccdocument)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                    <div class="avatar"> <span class="fas fa-scroll" style="font-size: 30px;"></span></div>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">CC Document</p>
+                  </a>
+                </div>
+                <div class="col-4">
+                  <a @click="validateGoto(pages.entryso)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                    <div class="avatar"> <span class="fas fa-file-contract" style="font-size: 30px;"></span></div>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">SO Entry</p>
+                  </a>
+                </div>
+                <div class="col-4">
+                  <a @click="validateGoto(pages.sodocument)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
+                    <div class="avatar"> <span class="fas fa-file-signature" style="font-size: 30px;"></span></div>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">SO Document</p>
+                  </a>
+                </div>
+              </div>
+
+              <!-- <div class="row gx-0 gy-0">
+                <div class="col-12 px-0">
+                  <hr class="my-2 bg-200">
+                  <span class="px-1">Stok Opname</span>
+                </div>
+              </div> -->
+
               <div v-if="$root.dataAuthToken.role && $root.dataAuthToken.role.id == '1'" class="row gx-0 gy-0">
                 <div class="col-12 px-0">
                   <hr class="my-2 bg-200">
-                  <span class="px-1">Master Menu</span>
+                  <span class="px-1">Master Menus</span>
                 </div>
                 <div class="col-4">
                   <a @click="validateGoto(pages.productlist)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">

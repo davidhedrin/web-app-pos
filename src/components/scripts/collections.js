@@ -153,4 +153,10 @@ export const pages = {
   promolist: 'PromoList',
   promoproduct: 'PromoProduct',
   userlist: 'UserList',
+  
+  // Cycle Count
+  ccdocument: 'CCDocument',
+  entrycc: 'EntryCC',
+  sodocument: 'SODocument',
+  entryso: 'EntrySO',
 }
