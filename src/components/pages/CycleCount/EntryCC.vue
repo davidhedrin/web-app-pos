@@ -1041,7 +1041,7 @@ export default {
         denyButtonText: `Batal`,
       }).then(async (result) => {
         if (result.isConfirmed) {
-          mythis.$root.loader = true;
+          mythis.$root.showLoading();
           mythis.tabel_ticket_so_final_batch = {};
           await Object.keys(mythis.var_SO_awal_batch).forEach(async function (
             key
@@ -1083,7 +1083,7 @@ export default {
             }
           });
           mythis.var_warna_item = "";
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
           mythis.close88();
           mythis.getDataSOTable();
         }
@@ -1094,7 +1094,7 @@ export default {
     async tambah_batch() {
       var mythis = this;
 
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
 
       console.log(mythis.var_so_d2[0][2]);
       console.log(mythis.var_so_d2[0][3]);
@@ -1159,7 +1159,7 @@ export default {
         await mythis.sleep(1000);
       }
 
-      mythis.$root.loader = false;
+      mythis.$root.hideLoading();
     },
     ///////////////////////////////////////////////////
     async getDataCCTableRincian_D2(idx) {
@@ -1167,7 +1167,7 @@ export default {
       console.log("AAGBABAGWEGEEBEBE");
       mythis.var_SO_awal_batch = {};
       mythis.var_so_d2 = [];
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
       var limitx = 500;
@@ -1277,7 +1277,7 @@ export default {
         //await mythis.sleep(1000);
       }
       console.log("total ticket CC " + mythis.tabel_ticket_so.length);
-      mythis.$root.loader = false;
+      mythis.$root.hideLoading();
       mythis.flagGetDataSO = false;
 
       // if (mythis.tabel_ticket_so_final.hasOwnProperty(mythis.itemcode_data)) {
@@ -1317,7 +1317,7 @@ export default {
           //////////////////////////////////////////////////////
           mythis.saveData();
           //////////////////////////////////////////////////////
-          mythis.$root.loader = true;
+          mythis.$root.showLoading();
           axios
             .put(
               mythis.$root.API_ERP +
@@ -1336,7 +1336,7 @@ export default {
                 "CC Entry telah dikonfirmasi sesuai. Silakan lanjutkan proses Adjustment CC",
                 "success"
               );
-              mythis.$root.loader = false;
+              mythis.$root.hideLoading();
               mythis.dataTr104.docStatus = "O";
               mythis.close();
               mythis.close21();
@@ -1344,7 +1344,7 @@ export default {
             })
             .catch(function (error) {
               console.log(error);
-              mythis.$root.loader = false;
+              mythis.$root.hideLoading();
               if (error.response) {
                 //console.log(error.response.data);
                 Swal.fire("Failed!", error.response.data.message, "error");
@@ -1367,7 +1367,7 @@ export default {
     async postSplitDataSO_batch() {
       var mythis = this;
       //kz
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       var limitx = 100;
       var count = 1;
       var key_split = 1;
@@ -1445,7 +1445,7 @@ export default {
           mythis.API_split_temp_tabel_ticket_so_final_batch;
         mythis.API_split_temp_tabel_ticket_so_final_batch = {};
         //////////////////////////////////////////////////////////////
-        //mythis.$root.loader = false;
+        //mythis.$root.hideLoading();
         //return false;
         //kz
         var a = Object.keys(mythis.var_SO_awal).length / limitx;
@@ -1486,23 +1486,23 @@ export default {
         }
 
         //await mythis.sleep(2000);
-        mythis.$root.loader = false;
+        mythis.$root.hideLoading();
 
         // count++;
       } catch (error) {
         console.log(error);
-        mythis.$root.loader = false;
+        mythis.$root.hideLoading();
         //Swal.fire("Failed!", error.response.data.message, "error");
         Swal.fire("Failed!", error.response.data.message, "error");
         return false;
       }
       console.log(mythis.tabel_ticket_so_split_all);
-      mythis.$root.loader = false;
+      mythis.$root.hideLoading();
     },
     async postSplitDataSO() {
       var mythis = this;
       //kz
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       var limitx = 100;
       var count = 1;
       var key_split = 1;
@@ -1588,7 +1588,7 @@ export default {
           mythis.API_split_temp_tabel_ticket_so_final_batch;
         mythis.API_split_temp_tabel_ticket_so_final_batch = {};
         //////////////////////////////////////////////////////////////
-        //mythis.$root.loader = false;
+        //mythis.$root.hideLoading();
         //return false;
         //kz
         var a = Object.keys(mythis.var_SO_awal).length / limitx;
@@ -1632,18 +1632,18 @@ export default {
         */
 
         await mythis.sleep(2000);
-        mythis.$root.loader = false;
+        mythis.$root.hideLoading();
 
         // count++;
       } catch (error) {
         console.log(error);
-        mythis.$root.loader = false;
+        mythis.$root.hideLoading();
         //Swal.fire("Failed!", error.response.data.message, "error");
         Swal.fire("Failed!", error.response.data.message, "error");
         return false;
       }
       console.log(mythis.tabel_ticket_so_split_all);
-      mythis.$root.loader = false;
+      mythis.$root.hideLoading();
 
       Swal.fire(
         "Update Success!",
@@ -1755,7 +1755,7 @@ export default {
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
           //////////////////////////////////////////////////////
-          mythis.$root.loader = true;
+          mythis.$root.showLoading();
 
           //////////////////////////////////////////////////////
           mythis.postSplitDataSO();
@@ -1768,7 +1768,7 @@ export default {
     ///////////////////////////////////////////////////
     async getDataCCTableRincian() {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
       var limitx = 500;
@@ -1871,7 +1871,7 @@ export default {
         //await mythis.sleep(1000);
       }
       console.log("total ticket CC " + mythis.tabel_ticket_so.length);
-      mythis.$root.loader = false;
+      mythis.$root.hideLoading();
       mythis.flagGetDataSO = false;
 
       if (
@@ -2189,7 +2189,7 @@ export default {
     },
     async getDataTO_pdf_batch() {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
       var limitx = 500;
@@ -2325,7 +2325,7 @@ export default {
     },
     async getDataTO_pdf() {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
       var limitx = 500;
@@ -2437,7 +2437,7 @@ export default {
     },
     async exportToPDFConfirm_batch() {
       //alert("AAAA");
-      this.$root.loader = true;
+      this.$root.showLoading();
 
       //await this.sleep(5000);
 
@@ -2492,7 +2492,7 @@ export default {
 
       //'<tr> <th colspan="2" class="bordery">Mengetahui,</th> <th style="text-align:right" colspan="2" class="">Menyetujui,</th> <th style="text-align:right" colspan="2" class="">&nbsp</th> </tr>
 
-      this.$root.loader = false;
+      this.$root.hideLoading();
 
       var element = xxx;
       var opt = {
@@ -2541,7 +2541,7 @@ export default {
     },
     async exportToPDFConfirm() {
       //alert("AAAA");
-      this.$root.loader = true;
+      this.$root.showLoading();
 
       //await this.sleep(5000);
 
@@ -2595,7 +2595,7 @@ export default {
 
       //'<tr> <th colspan="2" class="bordery">Mengetahui,</th> <th style="text-align:right" colspan="2" class="">Menyetujui,</th> <th style="text-align:right" colspan="2" class="">&nbsp</th> </tr>
 
-      this.$root.loader = false;
+      this.$root.hideLoading();
 
       var element = xxx;
       var opt = {
@@ -2928,7 +2928,7 @@ export default {
     getRincianHeaderTR_NON_Update(id) {
       //alert("BBBB");
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getRincianheaderIDUpdate_CC/" + id)
         .then((res) => {
@@ -2996,7 +2996,7 @@ export default {
           mythis.trSO_update = 0;
           mythis.flagDownloadPDF = 0;
 
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
           //console.log(this.dataRincianDetailID);
         });
     },
@@ -3004,7 +3004,7 @@ export default {
     getRincianHeaderTR_Update(id) {
       //alert("AAAA");
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       axios
         .get(
           this.$root.API_ERP +
@@ -3083,7 +3083,7 @@ export default {
             mythis.trSO_update = 1;
           }
 
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
           //console.log(this.dataRincianDetailID);
         });
     },
@@ -3234,44 +3234,44 @@ export default {
     getCbooptCode() {
       //alert("AAA");
       var mythis = this;
-      //mythis.$root.loader = true;
+      //mythis.$root.showLoading();
       axios.get(this.$root.API_ERP + "/wms/getCbooptCode").then((res) => {
         mythis.optCodeOptions = res.data.data;
 
         //console.log(res.data.data);
-        //mythis.$root.loader = false;
+        //mythis.$root.hideLoading();
       });
     },
 
     getCboWhsCodeInventory_from() {
       var mythis = this;
-      //mythis.$root.loader = true;
+      //mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getCboWhsCodeInventory")
         .then((res) => {
           console.log(res);
           mythis.getCboWhsCodeOptions_from = res.data.data;
-          //mythis.$root.loader = false;
+          //mythis.$root.hideLoading();
         });
     },
     getCboPriceCodeInventory_from() {
       var mythis = this;
-      //mythis.$root.loader = true;
+      //mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getCbopriceCode")
         .then((res) => {
           console.log(res);
           mythis.getCboPriceCodeOptions_from = res.data.data;
-          //mythis.$root.loader = false;
+          //mythis.$root.hideLoading();
         });
     },
     getCboDiscCodeInventory_from() {
       var mythis = this;
-      //mythis.$root.loader = true;
+      //mythis.$root.showLoading();
       axios.get(this.$root.API_ERP + "/wms/getCbodiscCode").then((res) => {
         console.log(res);
         mythis.getCboDiscCodeOptions_from = res.data.data;
-        //mythis.$root.loader = false;
+        //mythis.$root.hideLoading();
       });
     },
 
@@ -3402,7 +3402,7 @@ export default {
         //mythis.idRincian = id;
         //mythis.getRincianHeaderID(id);
         //mythis.getRincianHeaderIDTR_TO();
-        //mythis.$root.loader = true;
+        //mythis.$root.showLoading();
       });
 
       $(document).on("click", "#viewToTinUpdate", function () {
@@ -3441,7 +3441,7 @@ export default {
         // alert("ABCD");
         mythis.idRincian = id;
         mythis.close11();
-        //mythis.$root.loader = true;
+        //mythis.$root.showLoading();
         // mythis.getTableRincian();
         // mythis.getRincianHeaderID(id);
 
@@ -4052,7 +4052,7 @@ export default {
 
     getRincianHeaderID(id) {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getRincianheaderIDNew_TO/" + id)
         .then((res) => {
@@ -4076,7 +4076,7 @@ export default {
           mythis.dataTr104.discCode = res.data.data[0].discCode;
           mythis.tmp_getCboDiscCodeInventoryOptions = res.data.data[0].discName;
           mythis.dataTr104.discName = "";
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
 
           mythis.dataTr104.storeCodeTo = res.data.data[0].storeCodeTo;
           mythis.dataTr104.storeNameTo = res.data.data[0].storeName2;
@@ -4095,33 +4095,33 @@ export default {
 
     getCboWhsCodeInventory() {
       var mythis = this;
-      //mythis.$root.loader = true;
+      //mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getCboWhsCodeInventory")
         .then((res) => {
           console.log(res);
           mythis.getCboWhsCodeInventoryOptions = res.data.data;
-          //mythis.$root.loader = false;
+          //mythis.$root.hideLoading();
         });
     },
     getCboPriceCodeInventory() {
       var mythis = this;
-      //mythis.$root.loader = true;
+      //mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getCbopriceCode")
         .then((res) => {
           console.log(res);
           mythis.getCboPriceCodeInventoryOptions = res.data.data;
-          //mythis.$root.loader = false;
+          //mythis.$root.hideLoading();
         });
     },
     getCboDiscCodeInventory() {
       var mythis = this;
-      //mythis.$root.loader = true;
+      //mythis.$root.showLoading();
       axios.get(this.$root.API_ERP + "/wms/getCbodiscCode").then((res) => {
         console.log(res);
         mythis.getCboDiscCodeInventoryOptions = res.data.data;
-        //mythis.$root.loader = false;
+        //mythis.$root.hideLoading();
       });
     },
     ///////////////////////////////////////////////////
@@ -4186,7 +4186,7 @@ export default {
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
           //////////////////////////////////////////////////////
-          mythis.$root.loader = true;
+          mythis.$root.showLoading();
           axios
             .put(
               mythis.$root.API_ERP +
@@ -4209,7 +4209,7 @@ export default {
                 "Data telah disimpan sementara, silakan konfirmasi untuk melanjutkan proses TI di Toko Tujuan",
                 "success"
               );
-              mythis.$root.loader = false;
+              mythis.$root.hideLoading();
               mythis.flagSave = 1;
               mythis.status_save_PenerimaanBarang = 1;
               mythis.getRincianHeaderIDTR_TO();
@@ -4217,7 +4217,7 @@ export default {
               // mythis.close2();
             })
             .catch(function (error) {
-              mythis.$root.loader = false;
+              mythis.$root.hideLoading();
               if (error.response) {
                 //console.log(error.response.data);
                 //mythis.insertModalSukses = false;
@@ -4251,7 +4251,7 @@ export default {
         if (result.isConfirmed) {
           mythis.savePenerimaanBarang();
           //////////////////////////////////////////////////////
-          mythis.$root.loader = true;
+          mythis.$root.showLoading();
           axios
             .put(
               mythis.$root.API_ERP +
@@ -4270,14 +4270,14 @@ export default {
                 "Transfer Out Barang telah dikonfirmasi sesuai",
                 "success"
               );
-              mythis.$root.loader = false;
+              mythis.$root.hideLoading();
               mythis.doSendNotifFirebase();
               mythis.close();
               mythis.close2();
               mythis.refreshTable();
             })
             .catch(function (error) {
-              mythis.$root.loader = false;
+              mythis.$root.hideLoading();
               if (error.response) {
                 //console.log(error.response.data);
                 //mythis.insertModalSukses = false;
@@ -4296,7 +4296,7 @@ export default {
     },
     updateRincianDeliveryNoteDetail() {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       axios
         .put(
           mythis.$root.API_ERP +
@@ -4313,7 +4313,7 @@ export default {
           // toast.success("Data Qty berhasil diubah");
           mythis.$root.showAlertFunction('success', 'Berhasil Dirubah', 'Data Qty berhasil diubah.');
           mythis.dataRincianDetailID = {};
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
           mythis.close();
           mythis.close2();
         })
@@ -4348,19 +4348,19 @@ export default {
 
     getRincianDetailID(id) {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       axios
         .get(this.$root.API_ERP + "/wms/getRincianDetailID/" + id)
         .then((res) => {
           mythis.dataRincianDetailID = res.data.data[0];
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
           //console.log(this.dataRincianDetailID);
         });
     },
 
     getRincianHeaderIDTR_TO() {
       var mythis = this;
-      mythis.$root.loader = true;
+      mythis.$root.showLoading();
       axios
         .get(
           this.$root.API_ERP +
@@ -4377,7 +4377,7 @@ export default {
             //mythis.data_CboWhs = res.data.data[0].whsCode;
           }
 
-          mythis.$root.loader = false;
+          mythis.$root.hideLoading();
           //console.log(this.dataRincianDetailID);
         });
     },
