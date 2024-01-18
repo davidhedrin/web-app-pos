@@ -552,7 +552,30 @@
                     </div>
                   </div>
                   <hr class="p-0 m-0">
-                  <div class="table-scrollable-wrapper" style="min-height: 3vh; max-height: 30vh;">
+
+                  <div class="row d-block d-md-none p-0 mb-3">
+                    <div class="scrollable-customize" style="min-height: 1vh; max-height: 55vh;">
+                      <div v-for="member in filteredMembers" class="col-12 col-md-3 col-lg-3 mb-3">
+                        <div class="card" @click="selectMemberOverview(member)">
+                          <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/pro-member-bg.png');"></div>
+                          <div class="card-header d-flex justify-content-between">
+                            <div>
+                              <h5 class="m-0">{{ member.nama }}</h5>
+                              <p class="m-0 fs--1">{{ member.no_hp }}</p>
+                              <p class="m-0 fs--1">{{ member.email }}</p>
+                            </div>
+                            <div>
+                              <span class="fs--1">
+                                {{ $root.formatDate(member.tanggal_lahir) }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="d-none d-md-block table-scrollable-wrapper" style="min-height: 3vh; max-height: 30vh;">
                     <table class="table table-scrollable table-sm table-hover">
                       <thead>
                         <tr>
