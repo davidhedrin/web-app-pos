@@ -1422,7 +1422,7 @@
                 <button @click="btnContinueSelectMinValGwp()" class="btn btn-sm btn-primary" type="button">Lanjutkan</button>
               </div>
               
-              <nav v-if="totalPageMinValGwp > 1" aria-label="Page navigation example">
+              <nav v-if="selectedActivePromo != null && selectedActivePromo.tipe_gwp == master_coll.tipe_gwp.secound && totalPageMinValGwp > 1" aria-label="Page navigation example">
                 <ul class="pagination pagination-sm mb-0">
 
                   <li v-if="displayedPagesMinValGwp[0] > 1">
@@ -1447,6 +1447,36 @@
 
                   <li v-if="displayedPagesMinValGwp[displayedPagesMinValGwp.length - 1] < totalPageMinValGwp">
                     <a class="page-link" href="javascript:void(0)" @click="fatchDataProductMinValueGwp(totalPageMinValGwp)">Last</a>
+                  </li>
+
+                </ul>
+              </nav>
+
+              <nav v-if="selectedActivePromo != null && selectedActivePromo.tipe_gwp == master_coll.tipe_gwp.three && totalPageDetailPromoDiskon > 1" aria-label="Page navigation example">
+                <ul class="pagination pagination-sm mb-0">
+
+                  <li v-if="displayedPagesDetailPromoDiskon[0] > 1">
+                    <a class="page-link" href="javascript:void(0)" @click="fatchDataProductMultiGwp(selectedActivePromo)">First</a>
+                  </li>
+
+                  <li class="page-item" :class="{ 'disabled': currentPageDetailPromoDiskon === 1 }">
+                    <a class="page-link" href="javascript:void(0)" aria-label="Previous" @click="fatchDataProductMultiGwp(selectedActivePromo, currentPageDetailPromoDiskon - 1)">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+
+                  <li v-for="pageNumber in displayedPagesDetailPromoDiskon" :key="pageNumber" class="page-item" :class="{ 'active': pageNumber === currentPageDetailPromoDiskon }">
+                    <a class="page-link" href="javascript:void(0)" @click="fatchDataProductMultiGwp(selectedActivePromo, pageNumber)">{{ pageNumber }}</a>
+                  </li>
+
+                  <li class="page-item" :class="{ 'disabled': currentPageDetailPromoDiskon === totalPageDetailPromoDiskon }">
+                    <a class="page-link" href="javascript:void(0)" aria-label="Next" @click="fatchDataProductMultiGwp(selectedActivePromo, currentPageDetailPromoDiskon + 1)">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+
+                  <li v-if="displayedPagesDetailPromoDiskon[displayedPagesDetailPromoDiskon.length - 1] < totalPageDetailPromoDiskon">
+                    <a class="page-link" href="javascript:void(0)" @click="fatchDataProductMultiGwp(selectedActivePromo, totalPageDetailPromoDiskon)">Last</a>
                   </li>
 
                 </ul>
@@ -3410,6 +3440,76 @@
         }
         this.$root.hideLoading();
       },
+
+      fatchDataProductMultiGwp: async function(promo, page = 1){
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+        this.$root.showLoading();
+        try{
+          const reqDataPage = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/getPageOfPromoDiskonDetail',
+            params: {
+              promo_code: promo.promo_code,
+              store_code: cacheStoreAccess.store_code,
+              page: page,
+              per_page: this.perPageDetailPromoDiskon,
+            }
+          });
+          const resPage = reqDataPage.data;
+          this.currentPageDetailPromoDiskon = resPage.current_page;
+          this.totalPageDetailPromoDiskon = resPage.last_page;
+          this.updateDisplayedPagesDetailPromoDiskon();
+          
+          const reqData = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/getPromoDiskonDetailById',
+            params: {
+              promo_code: promo.promo_code,
+              store_code: cacheStoreAccess.store_code,
+              page: page,
+              per_page: this.perPageDetailPromoDiskon,
+            }
+          });
+
+          const resData = reqData.data;
+          this.dataAllProductsMinValGwp = resData.map((data) => {
+            const x = data.item;
+            const ifHaveInListSelect = this.selectedAllPromoMinValGwp.some((y) => y.product.itemCode === x.itemCode);
+            if(ifHaveInListSelect){
+              x.isSelectedGwpMinVal = true;
+            }
+            return x;
+          });
+        }catch(e){
+          console.log(e);
+        }
+        this.$root.hideLoading();
+      },
+
+      fatchDataProductSingleGwp: async function(promo, page = 1){
+        this.$root.showLoading();
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+        try{
+          const reqData = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/getPromoDiskonDetailById',
+            params: {
+              promo_code: promo.promo_code,
+              store_code: cacheStoreAccess.store_code,
+              page: page,
+              per_page: 1,
+            }
+          });
+
+          const resData = reqData.data;
+          const getInvBatch = await this.checkInventoryBatchProduct(resData[0].item);
+          resData[0].item.all_inventory_batch = getInvBatch.all_inventory_batch;
+          return resData;
+        }catch(e){
+          console.log(e);
+        }
+        this.$root.hideLoading();
+      },
       
       updateDisplayedPagesMinValueGwp() {
         const halfDisplayedPages = Math.floor(this.totalDisplayedPagesMinValGwp / 2);
@@ -3422,6 +3522,19 @@
         }
         
         this.displayedPagesMinValGwp = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+      },
+      
+      updateDisplayedPagesDetailPromoDiskon() {
+        const halfDisplayedPages = Math.floor(this.totalDisplayedPagesDetailPromoDiskon / 2);
+
+        let startPage = Math.max(1, this.currentPageDetailPromoDiskon - halfDisplayedPages);
+        let endPage = Math.min(this.totalPageDetailPromoDiskon, startPage + this.totalDisplayedPagesDetailPromoDiskon - 1);
+
+        if (endPage - startPage + 1 < this.totalDisplayedPagesDetailPromoDiskon) {
+          startPage = Math.max(1, endPage - this.totalDisplayedPagesDetailPromoDiskon + 1);
+        }
+
+        this.displayedPagesDetailPromoDiskon = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
       },
 
       validateModalBatchProductMinValGwp: async function(product, qty = 1){
@@ -3697,7 +3810,7 @@
         
         if(promo.is_gwp == true){
           if(promo.tipe_gwp == this.master_coll.tipe_gwp.first){
-            const dataAllGwpDetail = await this.executeGwpPromoDiskon(promo);
+            const dataAllGwpDetail = await this.fatchDataProductSingleGwp(promo);
             const fisrtProd = dataAllGwpDetail[0].item;
             this.productSingleGWP = fisrtProd;
             $('#modalProductSingleGwp').modal('show');
@@ -3708,15 +3821,7 @@
             $('#modalSelectProductFreeGwp').modal('show');
           }
           if(promo.tipe_gwp == this.master_coll.tipe_gwp.three){
-            this.dataAllProductsMinValGwp = [];
-            const dataAllGwpDetail = await this.executeGwpPromoDiskon(promo);
-
-            const listDataProduct = [];
-            dataAllGwpDetail.forEach(data => {
-              listDataProduct.push(data.item);
-            });
-
-            this.dataAllProductsMinValGwp = this.dataAllProductsMinValGwp.concat(listDataProduct);
+            await this.fatchDataProductMultiGwp(promo);
             $('#modalSelectProductFreeGwp').modal('show');
           }
         }else{
@@ -3724,58 +3829,6 @@
         }
 
         $('#modalShowActivePromoDiskon').modal('hide');
-      },
-
-      executeGwpPromoDiskon: async function(promo, page = 1){
-        this.$root.showLoading();
-        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
-        try{
-          const reqDataPage = await axios({
-            method: 'get',
-            url: this.$root.API_ERP + '/pos/getPageOfPromoDiskonDetail',
-            params: {
-              promo_code: promo.promo_code,
-              store_code: cacheStoreAccess.store_code,
-              page: page,
-              per_page: this.perPageDetailPromoDiskon,
-            }
-          });
-          const resPage = reqDataPage.data;
-          this.currentPageDetailPromoDiskon = resPage.current_page;
-          this.totalPageDetailPromoDiskon = resPage.last_page;
-          this.updateDisplayedPagesDetailPromoDiskon();
-          
-          const reqData = await axios({
-            method: 'get',
-            url: this.$root.API_ERP + '/pos/getPromoDiskonDetailById',
-            params: {
-              promo_code: promo.promo_code,
-              store_code: cacheStoreAccess.store_code,
-              page: page,
-              per_page: this.perPageDetailPromoDiskon,
-            }
-          });
-
-          const resData = reqData.data;
-          this.$root.hideLoading();
-          return resData;
-        }catch(e){
-          console.log(e);
-          this.$root.hideLoading();
-        }
-      },
-      
-      updateDisplayedPagesDetailPromoDiskon() {
-        const halfDisplayedPages = Math.floor(this.totalDisplayedPagesDetailPromoDiskon / 2);
-
-        let startPage = Math.max(1, this.currentPageDetailPromoDiskon - halfDisplayedPages);
-        let endPage = Math.min(this.totalPageDetailPromoDiskon, startPage + this.totalDisplayedPagesDetailPromoDiskon - 1);
-
-        if (endPage - startPage + 1 < this.totalDisplayedPagesDetailPromoDiskon) {
-          startPage = Math.max(1, endPage - this.totalDisplayedPagesDetailPromoDiskon + 1);
-        }
-
-        this.displayedPagesDetailPromoDiskon = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
       },
 
       confirmationPayment: function(){
