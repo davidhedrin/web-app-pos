@@ -471,6 +471,25 @@ export default {
     convertToInteger(doubleValue) {
       return parseInt(doubleValue, 10);
     },
+    
+    sendEmailInvoice: async function(docNum, email = null){
+      try{
+        const request = await axios({
+          method: 'post',
+          url: this.API_ERP + '/pos/sendEmailInvoice',
+          data:{
+            email_to: email ?? null,
+            doc_num: docNum,
+            user_login: this.dataAuthToken.user_uuid
+          }
+        });
+
+        return request;
+      }catch(e){
+        console.log(e);
+        return null;
+      }
+    },
   }
 }
 </script>

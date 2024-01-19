@@ -348,7 +348,7 @@
               Find Member
               <span class="fas fa-search"></span>
             </button>
-            <button @click="memberOverview = null" class="btn btn-outline-secondary btn-sm me-1" type="button">
+            <button @click="memberOverview = null; switchBoxSendEamil = false" class="btn btn-outline-secondary btn-sm me-1" type="button">
               <span class="fas fa-redo-alt"></span>
             </button>
           </div>
@@ -755,7 +755,7 @@
                 <div class="d-flex justify-content-between fs--1 mb-2">
                   <p class="fs--1 m-0">
                     Member: {{ memberOverview ? memberOverview.nama : '' }}
-                    ({{ memberOverview ? $root.formatPrice(memberOverview.point) : '' }} Point)
+                    {{ memberOverview ? `(${$root.formatPrice(memberOverview.point)} Point)` : '-' }}
                   </p>
                   <span class="fs--1">{{ formattedTimeNow }}</span>
                 </div>
@@ -931,6 +931,13 @@
                     <option value="2">Jonatan Hudson</option>
                     <option value="3">Surya Hasan</option>
                   </select>
+                </div>
+
+                <div class="form-check form-switch mb-1 mt-1">
+                  <input v-model="switchBoxSendEamil" class="form-check-input" id="switchBoxSendEamil" type="checkbox" :disabled="memberOverview == null" />
+                  <label class="form-check-label mb-0" for="switchBoxSendEamil">
+                    Kirim invoice email (Optional)
+                  </label>
                 </div>
                 
                 <label class="form-label mb-0">Keterangan: </label>
@@ -1960,6 +1967,7 @@
         
         selectMethodPayment: '',
         keteranganTransaksi: '',
+        switchBoxSendEamil: false,
 
         selectedFilterBrand: null,
         inputSearchMember: '',
@@ -3994,17 +4002,25 @@
           if(storeTr.status == 201 || storeTr.status == 200){
             const dataStoreTr = storeTr.data.data;
 
-            if(this.memberOverview != null){
-              await this.fatchDataMember(this.currentPageMember);
-            }
-
-            if(this.selectedMetodeBayar.kode == this.master_code.metodeBayar.redeem){
-              this.generatePdfRedeem(dataStoreTr);
-            }else{
-              if(this.memberOverview != null){
-                this.memberOverview = this.dataAllMembers.find((m) => m.member_id === this.memberOverview.member_id);
+            try{
+              if(this.selectedMetodeBayar.kode == this.master_code.metodeBayar.redeem){
+                this.generatePdfRedeem(dataStoreTr);
+              }else{
+                if(this.memberOverview != null){
+                  this.memberOverview = this.dataAllMembers.find((m) => m.member_id === this.memberOverview.member_id);
+                }
+                this.generatePdfCheckout(dataStoreTr);
               }
-              this.generatePdfCheckout(dataStoreTr);
+            }catch(e){
+              console.log(e);
+            }
+            
+            if(this.switchBoxSendEamil == true && this.memberOverview != null){
+              try{
+                await this.$root.sendEmailInvoice(dataStoreTr.ducNum, this.memberOverview.email);
+              }catch(e){
+                console.log(e);
+              }
             }
             
             this.finishSuccessTransaction();

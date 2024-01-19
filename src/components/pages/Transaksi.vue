@@ -382,7 +382,7 @@
               </div> -->
               <div v-if="selectedTrView" class="text-end px-3 pb-2">
                 <!-- v-if="selectedTrView.memberId != null" selectedTrView.member.email -->
-                <button v-if="selectedTrView.memberId != null" @click="sendEmailInvoice(selectedTrView.ducNum, selectedTrView.memberEmail)" class="btn btn-secondary btn-sm me-2">Struk by Email <span class="fas fa-envelope-open-text"></span></button>
+                <button v-if="selectedTrView.memberId != null" @click="sendEmailInvoiceMember(selectedTrView.ducNum, selectedTrView.memberEmail)" class="btn btn-secondary btn-sm me-2">Struk by Email <span class="fas fa-envelope-open-text"></span></button>
                 <button class="btn btn-secondary btn-sm me-2">Struk by Print <span class="fas fa-print"></span></button>
                 <button class="btn btn-primary btn-sm" data-bs-dismiss="modal">Selesai</button>
               </div>
@@ -558,27 +558,21 @@
         return formattedDateTime;
       },
 
-      sendEmailInvoice: async function(docNum, email = null){
+      sendEmailInvoiceMember: async function(docNum, email = null){
         this.$root.showLoading();
         try{
-          const request = await axios({
-            method: 'post',
-            url: this.$root.API_ERP + '/pos/sendEmailInvoice',
-            data:{
-              email_to: email ?? null,
-              doc_num: docNum,
-              user_login: this.$root.dataAuthToken.user_uuid
+          if(email != null){
+            const request = await this.$root.sendEmailInvoice(docNum, email);
+  
+            if(request.status == 200 || request.status == 201){
+              $('#modalSendEamilFinishSuccess').modal('show');
             }
-          });
-
-          if(request.status == 201){
-            $('#modalSendEamilFinishSuccess').modal('show');
           }
         }catch(e){
           console.log(e);
         }
         this.$root.hideLoading();
-      },
+      }
     },
   }
 </script>
