@@ -47,7 +47,7 @@
                 <div class="col-4">
                   <a @click="validateGoto(pages.transaksi)" class="d-block hover-bg-200 px-1 py-2 rounded-3 text-center text-decoration-none" href="javascript:void(0)">
                     <div class="avatar"> <span class="fas fa-chart-line" style="font-size: 30px;"></span></div>
-                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Transaction</p>
+                    <p class="mb-0 fw-medium text-800 text-truncate fs--2">Report</p>
                   </a>
                 </div>
                 <div class="col-4">
