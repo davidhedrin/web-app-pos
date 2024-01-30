@@ -1805,7 +1805,7 @@
                     <p class="m-0 fs--1">No product added to Ticket</p>
                   </div>
 
-                  <div v-else class="scrollable-customize" style="min-height: 1vh; max-height: 60vh;">
+                  <div v-else class="scrollable-customize" style="min-height: 1vh; max-height: 55vh;">
                     <div v-for="(data, index) in listDataProductForCreateTicket" class="card mb-3">
                       <div class="bg-holder bg-card" style="background-image:url('assets/img/illustration/corner-4.png'); background-size: cover;"></div>
                       <div class="card-header position-relative p-2">
@@ -1855,7 +1855,7 @@
                   </div>
                 </div>
 
-                <div class="d-none d-md-block table-scrollable-wrapper" style="min-height: 1vh; max-height: 60vh;">
+                <div class="d-none d-md-block table-scrollable-wrapper" style="min-height: 1vh; max-height: 55vh;">
                   <table class="table table-scrollable table-sm">
                     <div v-if="!listDataProductForCreateTicket || listDataProductForCreateTicket.length === 0"></div>
                     <thead v-else>
@@ -1915,6 +1915,24 @@
                     </tbody>
                   </table>
                 </div>
+                
+                <div class="row pt-2 px-2">
+                  <div class="col-md-4 px-2">
+                    <div class="mb-1">
+                      <label class="form-label mb-0">Priority</label>
+                      <select v-model="selectPriorityOrderTicket" class="form-select bg-transparent">
+                        <option value="">Pilih priority</option>
+                        <option class="text-danger" value="1">Highest</option>
+                        <option class="text-warning" value="2">Middled</option>
+                        <option class="text-secondary" value="3">Lowest</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-8 px-2">
+                    <label class="form-label mb-0">Catatan:</label>
+                    <textarea v-model="descriptionOrderTicket" class="form-control" rows="1" placeholder="Tambahkan keterangan jika ada"></textarea>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1951,9 +1969,14 @@
               </ul>
             </nav>
           </div>
-          <div>
+
+          <div v-if="tabActivePillTicketOrder == listPillTicketOrder.listadd">
             <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal" aria-label="Close">Tutup</button>
-            <button class="btn btn-sm ms-2" :class="listDataProductForCreateTicket.length > 0 ? 'btn-success' : 'btn-secondary'" type="button" :disabled="listDataProductForCreateTicket.length == 0" @click="btnContinueCreateTicketOrder()">Selesai</button>
+            <button class="btn btn-sm ms-2" :class="listDataProductForCreateTicket.length > 0 ? 'btn-success' : 'btn-primary'" type="button" :disabled="listDataProductForCreateTicket.length == 0" @click="btnContinueCreateTicketOrder()">Buat Tiket</button>
+          </div>
+          <div v-else>
+            <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal" aria-label="Close">Tutup</button>
+            <button class="btn btn-sm btn-success ms-2" type="button" @click="tabActivePillTicketOrder = listPillTicketOrder.listadd">Lanjut</button>
           </div>
         </div>
       </div>
@@ -2624,6 +2647,8 @@ export default {
       },
       listDataProductDetailSelectTicket: [],
       dataShowBatchProductOrdetTicketToSelect: null,
+      selectPriorityOrderTicket: '',
+      descriptionOrderTicket: null,
       
       dataMasterOptionInfoCode: [],
       dataMasterOptionInfo: [],
@@ -3639,6 +3664,8 @@ export default {
       });
 
       this.listDataProductForCreateTicket = [];
+      this.selectPriorityOrderTicket = '';
+      this.descriptionOrderTicket = null;
     },
 
     btnContinueCreateTicketOrder: function(){
@@ -3664,7 +3691,9 @@ export default {
           member: this.memberOverview,
           products: dataProduct,
           access_store: storeActive.store_outlet,
-          user_login: this.$root.dataAuthToken
+          user_login: this.$root.dataAuthToken,
+          priority: this.selectPriorityOrderTicket.trim() != '' ? this.selectPriorityOrderTicket : null,
+          description: this.descriptionOrderTicket ? this.descriptionOrderTicket.trim() != '' ? this.descriptionOrderTicket : null : null,
         };
 
         const store = await axios({
@@ -3709,7 +3738,7 @@ export default {
 
         const reqPageTicket = await axios({
           method: 'get',
-          url: this.$root.API_ERP + '/pos/app/sales/getAllTicketPage/' + storeActive.store_code,
+          url: this.$root.API_ERP + '/pos/app/sales/getAllTicketPage',
           params: params
         });
 
@@ -3721,7 +3750,7 @@ export default {
           params.page = i;
           const store = await axios({
             method: 'get',
-            url: this.$root.API_ERP + '/pos/app/sales/getAllTicket/' + storeActive.store_code,
+            url: this.$root.API_ERP + '/pos/app/sales/getAllTicket',
             params: params
           });
 
