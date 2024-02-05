@@ -93,7 +93,7 @@
                       <div>
                         {{ data.product.itemName }}
                       </div>
-                      <span v-if="data.is_promo_product" class="badge rounded-pill p-1 px-2 fs--3 ms-1" :class="'bg-' + data.is_promo_product.master_promo_product.master_kode_promo_product.badge">
+                      <span v-if="data.is_promo_product" class="badge rounded-pill p-1 px-2 fs--2 ms-1" :class="'bg-' + data.is_promo_product.master_promo_product.master_kode_promo_product.badge">
                         {{ data.is_promo_product.master_promo_product.master_kode_promo_product.nama_promo }}
                       </span>
                     </div>
@@ -236,9 +236,9 @@
             </select> -->
           </div>
           <div class="col-md-3 px-1 py-2">
-            <form @submit.prevent="btnSearchSubmitProduct()">
+            <form @submit.prevent="inputSearchProduct.trim() != '' && fatchSearchDataProduct(true)">
               <div class="input-group">
-                <input v-model="inputSearchProduct" class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
+                <input v-model="inputSearchProduct" @input="inputSearchProduct.trim() == '' && refreshFatchDataProducts()" class="form-control search-input fuzzy-search" type="search" placeholder="Search...">
                 <button class="btn btn-primary card-link" type="submit" style="z-index: 1"><span class="fas fa-search"></span></button>
               </div>
             </form>
@@ -249,11 +249,11 @@
               <!-- <span class="fas fa-search-dollar"></span> -->
             </button>
             
-            <div v-if="dataAllProducts.length > 0" class="ms-2">
+            <!-- <div v-if="dataAllProducts.length > 0" class="ms-2">
               <button class="btn btn-outline-warning" type="button" @click="fatchAllDataProduct()">
                 Semua <span class="fas fa-cloud-download-alt"></span>
               </button>
-            </div>
+            </div> -->
           </div>
         </div>
         <div class="card-body position-relative p-0">
@@ -339,6 +339,11 @@
                     </div>
                   </div>
                 </div>
+              </div>
+              <div class="d-grid mt-2">
+                <button class="btn btn-primary" @click="isSearchFormProduct ? fatchSearchDataProduct() : fatchDynamicDataProduct(true)">
+                  Muat Lagi
+                </button>
               </div>
             </div>
           </div>
@@ -2508,6 +2513,18 @@ export default {
       loadingBlack: markRaw(LoadingBlack),
       currentTime: new Date(),
 
+      dataProductTempt1: [],
+      dataProductTempt2: [],
+
+      pagePromoProductScroll: 1,
+      pageProductScroll: 1,
+      pageSearchPromoProductScroll: 1,
+      pageSearchProductScroll: 1,
+
+      isPromoPagingFinish: false,
+      isSearchPromoPagingFinish: false,
+      isSearchFormProduct: false,
+
       memberFindOrRegis: true,
       dataAllProducts: [],
       currentPageProduct: 1,
@@ -2517,7 +2534,7 @@ export default {
       allMasterPromoProduct: [],
       dataAllPromoProduct: [],
       currentPagePromoProduct: 1,
-      perPagePromoProduct: 10,
+      perPagePromoProduct: 12,
       totalPagePromoProduct: 0,
       
       dataFindSubmitDataProduct: [],
@@ -2698,19 +2715,21 @@ export default {
     filteredProducts() {
       // console.log(this.dataAllProducts);
       const queryInput = this.inputSearchProduct.toLowerCase().trim();
-      const valueSeletedBrand = this.selectedFilterBrand ? this.selectedFilterBrand.optDtlCode.toLowerCase().trim() : null;
+      const valueSeletedBrand = this.selectedFilterBrand ? this.selectedFilterBrand.optDtlCode.toLowerCase().trim() : '';
       const hasTruecheckboxProducts = Object.values(this.checkboxProducts).some(value => value);
 
       return this.dataAllProducts.filter(product => {
         const checkProduct = product.promo_product_id ? product.for_product : product;
-        // const brandProduct = checkProduct.all_product_detail.find((detail) => detail.optionalCode == this.master_code.productOptInfo.brand_code);
+        const brandProduct = checkProduct.all_product_detail.find((detail) => detail.optionalCode == this.master_code.productOptInfo.brand_code);
 
-        let filterExpression = checkProduct.itemName.toLowerCase().includes(queryInput) || 
-        checkProduct.itemCode.toLowerCase().includes(queryInput) ||
-        checkProduct.barCode.toLowerCase().includes(queryInput);
-        if(valueSeletedBrand){
-          filterExpression = filterExpression && brandProduct.optDtlCode.toLowerCase().includes(valueSeletedBrand);
-        }
+        // let filterExpression = checkProduct.itemName.toLowerCase().includes(queryInput) || 
+        // checkProduct.itemCode.toLowerCase().includes(queryInput) ||
+        // checkProduct.barCode.toLowerCase().includes(queryInput);
+        // if(valueSeletedBrand){
+        //   filterExpression = filterExpression && brandProduct.optDtlCode.toLowerCase().includes(valueSeletedBrand);
+        // }
+
+        let filterExpression = brandProduct.optDtlCode.toLowerCase().includes(valueSeletedBrand);
 
         if(hasTruecheckboxProducts){ // Filter jika ada checkbox promo yang true
           if(product.promo_product_id){
@@ -2757,6 +2776,52 @@ export default {
             return filterExpression;
           }
         }
+
+        // if(hasTruecheckboxProducts){ // Filter jika ada checkbox promo yang true
+        //   if(product.promo_product_id){
+        //     if(this.checkboxProducts.bestSellerAll){ // Filter Checkbox Best Seller All
+        //       if(product.master_promo_product.kode_promo_product == this.master_code.kodePromo.best_seller_toko){
+        //         return filterExpression;
+        //       }
+        //     }
+        //     if(this.checkboxProducts.bestSellerToko){ // Filter Checkbox Best Seller Toko
+        //       if(product.master_promo_product.kode_promo_product == this.master_code.kodePromo.best_seller_all){
+        //         return filterExpression;
+        //       }
+        //     }
+        //     if(this.checkboxProducts.topThisMonth){ // Filter Checkbox Top This Month
+        //       if(product.master_promo_product.kode_promo_product == this.master_code.kodePromo.top_this_month){
+        //         return filterExpression;
+        //       }
+        //     }
+        //     if(this.checkboxProducts.promo){
+        //       if(product.master_promo_product.kode_promo_product == this.master_code.kodePromo.promo){ // Filter Checkbox Promo
+        //         return filterExpression;
+        //       }
+        //     }
+        //     if(this.checkboxProducts.flushOut){
+        //       if(product.master_promo_product.kode_promo_product == this.master_code.kodePromo.flush_out){ // Filter Checkbox Flushout
+        //         return filterExpression;
+        //       }
+        //     }
+        //     if(this.checkboxProducts.promoKaryawan){
+        //       if(product.master_promo_product.kode_promo_product == this.master_code.kodePromo.promo_karyawan){ // Filter Checkbox Promo Karyawan
+        //         return filterExpression;
+        //       }
+        //     }
+        //   }
+        // }else{
+        //   if(product.promo_product_id){
+        //     if (
+        //       (this.memberOverview != null && this.memberOverview.tipe_konsumen.slug == this.master_code.tipeKonsumen.karyawan) ||
+        //       product.master_promo_product.kode_promo_product != this.master_code.kodePromo.promo_karyawan
+        //     ) {
+        //       return filterExpression;
+        //     }
+        //   }else{
+        //     return filterExpression;
+        //   }
+        // }
       });
     },
     
@@ -2790,6 +2855,176 @@ export default {
   },
 
   methods: {
+    fatchDynamicDataProduct: async function(isLoading = false){
+      if(isLoading) this.$root.showLoading();
+      var getData = [];
+
+      if(this.isPromoPagingFinish){
+        getData = await this.fatchDataProductScroll(this.pageProductScroll);
+        if(getData.length > 0) this.pageProductScroll++;
+      }else{
+        getData = await this.fatchDataPromoProductScroll(this.pagePromoProductScroll);
+        
+        if(getData.length == 0){
+          this.isPromoPagingFinish = true;
+          getData = await this.fatchDataProductScroll(this.pageProductScroll);
+          if(getData.length > 0) this.pageProductScroll++;
+        }else{ 
+          if(getData.length < this.perPagePromoProduct){
+            const getTheData = await this.fatchDataProductScroll(this.pageProductScroll);
+            getData = getData.concat(getTheData);
+            this.isPromoPagingFinish = true;
+            if(getData.length > 0) this.pageProductScroll++;
+          }
+          this.pagePromoProductScroll++;
+        }
+      }
+
+      this.dataProductTempt1 = this.dataProductTempt1.concat(getData);
+      this.dataAllProducts = this.dataAllProducts.concat(getData);
+      if(isLoading) this.$root.hideLoading();
+    },
+
+    fatchDataPromoProductScroll: async function(page = 1){
+      try{
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+
+        var responseAllDataPromoDetail = [];
+        const getAllProductPromo = await axios({
+          method: 'get',
+          url: this.$root.API_ERP + '/pos/app/sales/getAllMasterPromoProductDetail',
+          params: {
+            page: page,
+            per_page: this.perPagePromoProduct,
+            store_outlet: cacheStoreAccess.store_outlet,
+            search: this.inputSearchProduct.trim(),
+          },
+        });
+        if(getAllProductPromo.status == 200){
+          const resDataAllProductPromo = getAllProductPromo.data;
+          resDataAllProductPromo.forEach(resDataProductPromo => {
+            const masterPromoProduct = resDataProductPromo.master_promo_product;
+            const masterPromo = resDataProductPromo.master_promo_product.master_promo;
+
+            const setObj = {
+              id: resDataProductPromo.id,
+              promo_product_id: resDataProductPromo.promo_product_id,
+              for_product_code: resDataProductPromo.for_product_code,
+              get_product_code: resDataProductPromo.get_product_code,
+              for_product_whs: resDataProductPromo.for_product_whs,
+              get_product_whs: resDataProductPromo.get_product_whs,
+              // for_product_price: resDataProductPromo.for_product_price,
+              // get_product_price: resDataProductPromo.get_product_price,
+              isActive: resDataProductPromo.isActive,
+              master_promo_product: resDataProductPromo.master_promo_product,
+              for_product: resDataProductPromo.for_product,
+              get_product: resDataProductPromo.get_product ?? null,
+            };
+            setObj.for_product.all_product_price = resDataProductPromo.for_product_price;
+            setObj.for_product.all_inventory_stok = resDataProductPromo.for_inventory_stok;
+            // setObj.for_product.all_inventory_batch = resDataProductPromo.for_inventory_batch;
+            setObj.for_product.all_product_diskon = resDataProductPromo.for_product_diskon;
+            setObj.for_product.all_product_detail = resDataProductPromo.for_product_detail;
+            
+            if(masterPromoProduct.tipe_promo == this.master_coll.tipePromo.bundle){
+              setObj.get_product.all_product_price = resDataProductPromo.get_product_price;
+              setObj.get_product.all_inventory_stok = resDataProductPromo.get_inventory_stok;
+              // setObj.get_product.all_inventory_batch = resDataProductPromo.get_inventory_batch;
+              setObj.get_product.all_product_diskon = resDataProductPromo.get_product_diskon;
+              // setObj.get_product.all_product_detail = resDataProductPromo.get_product_diskon;
+            }
+
+            responseAllDataPromoDetail.push(setObj);
+            // const startDate = new Date(masterPromo.start_date);
+            // const endDate = new Date(masterPromo.end_date);
+            // if(today >= startDate && today <= endDate){
+            // }
+          });
+        }
+
+        return responseAllDataPromoDetail;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    fatchDataProductScroll: async function(page = 1){
+      try{
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+
+        const getAllProduct = await axios({
+          method: 'get',
+          url: this.$root.API_ERP + '/pos/app/sales/getAllProduct',
+          params: {
+            page: page,
+            per_page: this.perPageProduct,
+            store_outlet: cacheStoreAccess.store_outlet,
+            search: this.inputSearchProduct.trim(),
+          },
+        });
+        const response = getAllProduct.data;
+        var getDataProduct = response.data;
+
+        return getDataProduct;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    
+    fatchSearchDataProduct: async function(isClearList = false){
+      this.$root.showLoading();
+      try{
+        if(isClearList) {
+          this.dataProductTempt2 = [];
+          this.pageSearchPromoProductScroll = 1;
+          this.pageSearchProductScroll = 1;
+          this.isSearchPromoPagingFinish = false;
+        }
+
+        this.isSearchFormProduct = true;
+        var getData = [];
+
+        if(this.isSearchPromoPagingFinish){
+          getData = await this.fatchDataProductScroll(this.pageSearchProductScroll);
+          if(getData.length > 0) this.pageSearchProductScroll++;
+        }else{
+          getData = await this.fatchDataPromoProductScroll(this.pageSearchPromoProductScroll);
+
+          if(getData.length == 0){
+            getData = await this.fatchDataProductScroll(this.pageSearchProductScroll);
+            this.isSearchPromoPagingFinish = true;
+            if(getData.length > 0) this.pageSearchProductScroll++;
+          }else{
+            if(getData.length < this.perPagePromoProduct){
+              const getTheData = await this.fatchDataProductScroll(this.pageSearchProductScroll);
+              getData = getData.concat(getTheData);
+              this.isSearchPromoPagingFinish = true;
+              if(getData.length > 0) this.pageSearchProductScroll++;
+            }
+            this.pageSearchPromoProductScroll++;
+          }
+        }
+
+        this.dataProductTempt2 = this.dataProductTempt2.concat(getData);
+        this.dataAllProducts = this.dataProductTempt2;
+      } catch (error) {
+        console.log(error);
+      }
+      this.$root.hideLoading();
+    },
+
+    refreshFatchDataProducts: function(){
+      this.$root.showLoading();
+      this.dataAllProducts = this.dataProductTempt1;
+
+      this.dataProductTempt2 = [];
+      this.pageSearchPromoProductScroll = 1;
+      this.pageSearchProductScroll = 1;
+      this.isSearchPromoPagingFinish = false;
+      this.isSearchFormProduct = false;
+      this.$root.hideLoading();
+    },
+
     loadAlldatas: async function(){
       this.$root.showLoading();
       const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
@@ -2836,8 +3071,8 @@ export default {
         this.dataMasterOptionInfoCode = dataMasterOptInfo.getAllMasterOptionInfoCode; //All Option Info Code
         this.dataMasterOptionInfo = dataMasterOptInfo.getAllMasterOptionInfo; //All Option Info
         
-        await this.fatchAllDataPromoProduct();
-        await this.fatchDataMember(this.currentPageMember);
+        await this.fatchDynamicDataProduct();
+        // await this.fatchAllDataPromoProduct();
       } catch (error) {
         console.log(error);
       }
