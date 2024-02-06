@@ -2545,6 +2545,7 @@ export default {
       dataAllProductsPromo: [],
       dataProductInList: [],
       dataProductListForStruk: [],
+      dataAllIsFreeProduct: [],
       dataAllGelars: [],
       dataAllKodeResellers: [],
       dataAllMasterSalesBy: [],
@@ -4351,6 +4352,8 @@ export default {
       this.discountPromoAdditional = 0;
       this.productSingleGWP = null;
 
+      this.dataAllIsFreeProduct = [];
+
       this.calculateAmoutPrice();
       $('#modalBatalConfirm').modal('hide');
       $('#modalConfirmPay').modal('hide');
@@ -5009,6 +5012,10 @@ export default {
         }
       }
 
+      this.dataAllIsFreeProduct = this.dataProductListForStruk.filter(x => {
+        return x.is_free_product;
+      });
+
       this.calculateTotalBayarPrice = this.calculateTotalBayarPrice - (this.totalDiskonPercentReseller + this.totalDiscountPromo + this.afterDiscountPromo + this.discountPromoAdditional);
       $('#modalConfirmPay').modal('show');
 
@@ -5197,6 +5204,8 @@ export default {
       
       this.selectedRowTicketOrder = null;
       this.listDataProductDetailSelectTicket = [];
+
+      this.dataAllIsFreeProduct = [];
 
       this.calculateAmoutPrice();
       $('#modalCheckoutConfirm').modal('hide');
@@ -5813,6 +5822,34 @@ export default {
           },
           {
             content: `-Rp ${this.$root.formatPrice(this.totalHematDiskon)}`,
+            styles: {
+              halign: 'right',
+              fontSize: sizeFont,
+              cellPadding: callPadding,
+            }
+          }
+        ]);
+      }
+
+      // Total Hemat Produk Free
+      if(this.dataAllIsFreeProduct.length > 0){
+        var totalQtyPromo = 0, totalValuePromoProduct = 0;
+        this.dataAllIsFreeProduct.forEach(item => {
+          totalQtyPromo += item.qty;
+          totalValuePromoProduct += parseInt(item.product.all_product_price[0].price) * item.qty;
+        });
+
+        dataBillindDetail.push([
+          {
+            content: `Hemat Product x${totalQtyPromo} Pcs`,
+            styles: {
+              halign: 'left',
+              fontSize: sizeFont,
+              cellPadding: callPadding,
+            }
+          },
+          {
+            content: `-Rp ${this.$root.formatPrice(totalValuePromoProduct)}`,
             styles: {
               halign: 'right',
               fontSize: sizeFont,
