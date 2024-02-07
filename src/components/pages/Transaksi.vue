@@ -48,7 +48,7 @@
         <div class="card-header">
           <h6>Tiket Booking <span class="badge badge-subtle-info rounded-pill ms-2">0.0%</span>
           </h6>
-          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">23.43k</div>
+          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">Rp 0</div>
           <a class="fw-semi-bold fs--1 text-nowrap" href="javascript:void(0)">
             Semua Tiket 
             <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
@@ -61,7 +61,7 @@
         <div class="card-header">
           <h6>Revenue <span class="badge badge-subtle-success rounded-pill ms-2">9.54%</span>
           </h6>
-          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">Rp 43.594</div>
+          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">Rp 0</div>
           <a class="fw-semi-bold fs--1 text-nowrap" href="javascript:void(0)">
             Statistics 
             <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
@@ -74,7 +74,7 @@
         <div class="card-header">
           <h6>Revenue <span class="badge badge-subtle-success rounded-pill ms-2">9.54%</span>
           </h6>
-          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">Rp 13.594</div>
+          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">Rp 0</div>
           <a class="fw-semi-bold fs--1 text-nowrap" href="javascript:void(0)">
             Statistics 
             <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
