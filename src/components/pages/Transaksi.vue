@@ -35,44 +35,52 @@
     <div class="col-6 col-md-3 col-lg-3">
       <div class="card overflow-hidden" style="min-width: 12rem">
         <div class="card-header">
-          <h6>Jumlah Transaksi</h6>
+          <h6>
+            Transaksi
+            <!-- <span class="badge badge-subtle-success rounded-pill ms-2">9.54%</span> -->
+          </h6>
           <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">
             {{ dataAllTransaction.length }}
           </div>
-          <span class="badge badge-subtle-warning rounded-pill fs--2">+ 2 Hari ini</span>
+          <span class="fw-semi-bold fs--1 text-nowrap">
+            {{ $root.formatDate(dateRangeValueTr[0]) }} - {{ $root.formatDate(dateRangeValueTr[1]) }}
+          </span>
         </div>
       </div>
     </div>
     <div class="col-6 col-md-3 col-lg-3">
       <div class="card overflow-hidden" style="min-width: 12rem">
         <div class="card-header">
-          <h6>Tiket Booking <span class="badge badge-subtle-info rounded-pill ms-2">0.0%</span>
+          <h6>Total Transaksi</h6>
+          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">
+            {{ dataTransactionReport ? dataTransactionReport.row_count : '-' }}
+          </div>
+          <span class="badge badge-subtle-warning rounded-pill fs--2">+ {{ dataTransactionReport ? dataTransactionReport.row_count_today : '0' }} Hari ini</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3 col-lg-3">
+      <div class="card overflow-hidden" style="min-width: 12rem">
+        <div class="card-header">
+          <h6>
+            Amount Transaksi
+            <!-- <span class="badge badge-subtle-info rounded-pill ms-2">0.0%</span> -->
           </h6>
-          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">Rp 0</div>
-          <a class="fw-semi-bold fs--1 text-nowrap" href="javascript:void(0)">
-            Semua Tiket 
-            <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
-          </a>
+          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">
+            Rp {{ dataTransactionReport ? $root.formatPrice(dataTransactionReport.total_value) : '-' }}
+          </div>
+          <span class="fw-semi-bold fs--1 text-nowrap">
+            Januari 2024
+          </span>
         </div>
       </div>
     </div>
     <div class="col-6 col-md-3 col-lg-3">
       <div class="card overflow-hidden" style="min-width: 12rem">
         <div class="card-header">
-          <h6>Revenue <span class="badge badge-subtle-success rounded-pill ms-2">9.54%</span>
-          </h6>
-          <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">Rp 0</div>
-          <a class="fw-semi-bold fs--1 text-nowrap" href="javascript:void(0)">
-            Statistics 
-            <span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
-          </a>
-        </div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3 col-lg-3">
-      <div class="card overflow-hidden" style="min-width: 12rem">
-        <div class="card-header">
-          <h6>Revenue <span class="badge badge-subtle-success rounded-pill ms-2">9.54%</span>
+          <h6>
+            Revenue
+            <!-- <span class="badge badge-subtle-success rounded-pill ms-2">9.54%</span> -->
           </h6>
           <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">Rp 0</div>
           <a class="fw-semi-bold fs--1 text-nowrap" href="javascript:void(0)">
@@ -111,8 +119,13 @@
           </select>
         </div> -->
       </div>
-      <div class="table-scrollable-wrapper mb-2" style="min-height: 49vh; max-height: 49vh;">
+
+      <!-- <div class="table-scrollable-wrapper mb-2" style="min-height: 49vh; max-height: 49vh;">
         <table class="table table-scrollable">
+        </table>
+      </div> -->
+      <div class="table-responsive scrollbar">
+        <table class="table table-hover overflow-hidden">
           <thead>
             <tr class="p-0">
               <th class="py-1 bg-white">#</th>
@@ -130,7 +143,7 @@
               <td colspan="8" class="text-center"><i>Tidak ada transaksi tanggal sekarang</i></td>
             </tr>
             <tr v-for="(trans, index) in dataAllTransaction" :key="trans.ducNum">
-              <td>{{ index + 1 }}</td>
+              <td>{{ (currentPageTr * 10 - 10) + index + 1 }}</td>
               <td>{{ trans.ducNum }}</td>
               <td>{{ trans.bonStruk }}</td>
               <td>{{ trans.sales_type.nama_sales }}</td>
@@ -428,9 +441,10 @@
         displayedPagesTr: [],
         totalDisplayedPagesTr: 3,
         currentPageTr: 1,
-        perPageTr: 7,
+        perPageTr: 10,
         totalPageTr: 0,
 
+        dataTransactionReport: null,
         dateRangeValueTr: [],
         selectedTrView: null,
       }
@@ -449,7 +463,19 @@
       loadAllData: async function(){
         this.$root.showLoading();
 
+        const check_uuid = localStorage.getItem(this.local_storage.is_dynamic);
         try{
+          const requset = await axios({
+            method: 'get',
+            url: this.$root.API_ERP + '/pos/app/transaksi/',
+            params: {
+              user_uuid: check_uuid,
+            }
+          });
+
+          const reqData = requset.data;
+          this.dataTransactionReport = reqData.dataTransactionReport;
+
           await this.fatchDataTransaction(this.currentPageTr);
         } catch (error) {
           console.log(error);
