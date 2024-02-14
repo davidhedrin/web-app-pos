@@ -107,7 +107,12 @@
                         {{ $root.formatPrice(data.is_promo_product.for_product.all_product_price[0].price) }}
                       </span>
                       <span v-if="data.is_promo_product.master_promo_product.tipe_promo == master_coll.tipePromo.percent">
-                        {{ $root.formatPrice(data.is_promo_product.for_product.all_product_price[0].price - (data.is_promo_product.for_product.all_product_price[0].price * (data.is_promo_product.master_promo_product.percent/100))) }}
+                        <span v-if="data.is_promo_product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                          {{ $root.formatPrice(data.is_promo_product.for_product.all_product_price[0].price - (data.is_promo_product.for_product.all_product_price[0].price * (data.is_promo_product.master_promo_product.percent/100))) }}
+                        </span>
+                        <span v-else-if="data.is_promo_product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                          {{ $root.formatPrice(data.is_promo_product.for_product.all_product_price[0].price - data.is_promo_product.master_promo_product.value_potongan) }}
+                        </span>
                       </span>
                     </span>
                     <span v-else>
@@ -127,7 +132,14 @@
                     </span>
                     <span v-if="data.is_promo_product">
                       <span v-if="data.is_promo_product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="badge bg-danger rounded-pill p-1 fs--2">
-                        -{{ data.is_promo_product.master_promo_product.percent }}%
+                        -
+                        <span v-if="data.is_promo_product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                          {{ data.is_promo_product.master_promo_product.percent }}%
+                        </span>
+                        <span v-else-if="data.is_promo_product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                          {{ $root.formatCurrencyK(parseInt(data.is_promo_product.master_promo_product.value_potongan)) }}
+                        </span>
+                        <!-- -{{ data.is_promo_product.master_promo_product.percent }}% -->
                       </span>
                     </span>
                     <span v-else>
@@ -291,7 +303,12 @@
                                 {{ product.master_promo_product.buy_item }} Get {{ product.master_promo_product.get_item }}
                               </span>
                               <span v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="badge bg-danger rounded-pill p-1 fs--3">
-                                -{{ product.master_promo_product.percent }}%
+                                <span v-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                                  {{ product.master_promo_product.percent }}%
+                                </span>
+                                <span v-else-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                                  {{ $root.formatCurrencyK(parseInt(product.master_promo_product.value_potongan)) }}
+                                </span>
                               </span>
                             </div>
                             <div v-else>
@@ -316,8 +333,15 @@
                         </button>
                         <div v-if="product.promo_product_id">
                           <strong class="fs-md-0 text-warning mb-0 text-center">
-                            Rp {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }}
-                            <del v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="text-secondary fs--1">
+                            Rp
+                            <span v-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                              {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }}
+                            </span>
+                            <span v-else-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                              {{ $root.formatPrice(product.for_product.all_product_price[0].price - product.master_promo_product.value_potongan) }}
+                            </span>
+
+                            <del v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="text-secondary fs--1 ms-1">
                               {{ $root.formatPrice(product.for_product.all_product_price[0].price) }}
                             </del>
                           </strong>
@@ -818,7 +842,13 @@
                               {{ product.master_promo_product.buy_item }} Get {{ product.master_promo_product.get_item }}
                             </span>
                             <span v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="badge bg-danger rounded-pill p-1 fs--3">
-                              -{{ product.master_promo_product.percent }}%
+                              <span v-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                                {{ product.master_promo_product.percent }}%
+                              </span>
+                              <span v-else-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                                {{ $root.formatCurrencyK(parseInt(product.master_promo_product.value_potongan)) }}
+                              </span>
+                              <!-- -{{ product.master_promo_product.percent }}% -->
                             </span>
                           </div>
                           <div v-else>
@@ -835,7 +865,14 @@
                               {{ $root.formatPrice($root.filterPriceProduct(product.for_product).price) }}
                             </span>
                             <span v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent">
-                              {{ $root.formatPrice($root.filterPriceProduct(product.for_product).price - ($root.filterPriceProduct(product.for_product).price * (product.master_promo_product.percent/100))) }}
+                              <span v-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                                {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }}
+                              </span>
+                              <span v-else-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                                {{ $root.formatPrice(product.for_product.all_product_price[0].price - product.master_promo_product.value_potongan) }}
+                              </span>
+
+                              <!-- {{ $root.formatPrice($root.filterPriceProduct(product.for_product).price - ($root.filterPriceProduct(product.for_product).price * (product.master_promo_product.percent/100))) }} -->
                             </span>
                           </span>
                           <span v-else>
@@ -1557,7 +1594,13 @@
                                     {{ product.master_promo_product.buy_item }} Get {{ product.master_promo_product.get_item }}
                                   </span>
                                   <span v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="badge bg-danger rounded-pill p-1 fs--3">
-                                    -{{ product.master_promo_product.percent }}%
+                                    <span v-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                                      {{ product.master_promo_product.percent }}%
+                                    </span>
+                                    <span v-else-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                                      {{ $root.formatCurrencyK(parseInt(product.master_promo_product.value_potongan)) }}
+                                    </span>
+                                    <!-- -{{ product.master_promo_product.percent }}% -->
                                   </span>
                                 </div>
                               </div>
@@ -1589,10 +1632,22 @@
                             </h5>
                             <div v-if="product.promo_product_id">
                               <strong class="fs-md-0 text-warning mb-0 text-center">
-                                Rp {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }}
-                                <del v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="text-secondary fs--1">
+                                Rp
+                                <span v-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                                  {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }}
+                                </span>
+                                <span v-else-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                                  {{ $root.formatPrice(product.for_product.all_product_price[0].price - product.master_promo_product.value_potongan) }}
+                                </span>
+
+                                <del v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="text-secondary fs--1 ms-1">
                                   {{ $root.formatPrice(product.for_product.all_product_price[0].price) }}
                                 </del>
+                                
+                                <!-- Rp {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }}
+                                <del v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="text-secondary fs--1">
+                                  {{ $root.formatPrice(product.for_product.all_product_price[0].price) }}
+                                </del> -->
                               </strong>
                             </div>
                           </div>
@@ -1638,7 +1693,14 @@
                                 {{ data.product.master_promo_product.buy_item }} Get {{ data.product.master_promo_product.get_item }}
                               </span>
                               <span v-if="data.product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="badge bg-danger rounded-pill fs--3">
-                                {{ data.product.master_promo_product.percent }}%
+                                <span v-if="data.product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                                  {{ data.product.master_promo_product.percent }}%
+                                </span>
+                                <span v-else-if="data.product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                                  {{ $root.formatCurrencyK(parseInt(data.product.master_promo_product.value_potongan)) }}
+                                </span>
+                                
+                                <!-- {{ data.product.master_promo_product.percent }}% -->
                               </span>
                             </span>
                             <h5 class="m-0">{{ data.is_promo_product ? data.product.for_product.itemName : data.product.itemName }}</h5>
@@ -1707,7 +1769,14 @@
                               {{ data.product.master_promo_product.buy_item }} Get {{ data.product.master_promo_product.get_item }}
                             </span>
                             <span v-if="data.product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="badge bg-danger rounded-pill fs--3">
-                              {{ data.product.master_promo_product.percent }}%
+                              <span v-if="data.product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                                {{ data.product.master_promo_product.percent }}%
+                              </span>
+                              <span v-else-if="data.product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                                {{ $root.formatCurrencyK(parseInt(data.product.master_promo_product.value_potongan)) }}
+                              </span>
+
+                              <!-- {{ data.product.master_promo_product.percent }}% -->
                             </span>
                           </div>
                           <div v-else>-</div>
@@ -2020,7 +2089,13 @@
                           {{ data.is_promo_product.master_promo_product.buy_item }} Get {{ data.is_promo_product.master_promo_product.get_item }}
                         </span>
                         <span v-if="data.is_promo_product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="badge bg-danger rounded-pill fs--3">
-                          -{{ data.is_promo_product.master_promo_product.percent }}%
+                          <span v-if="data.is_promo_product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                            {{ data.is_promo_product.master_promo_product.percent }}%
+                          </span>
+                          <span v-else-if="data.is_promo_product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                            {{ $root.formatCurrencyK(parseInt(data.is_promo_product.master_promo_product.value_potongan)) }}
+                          </span>
+                          <!-- -{{ data.is_promo_product.master_promo_product.percent }}% -->
                         </span>
                       </div>
                     </div>
@@ -2416,7 +2491,13 @@
           Buy {{ productShowDetail.master_promo_product.buy_item }} Get {{ productShowDetail.master_promo_product.get_item }}
         </span>
         <span v-if="productShowDetail.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="badge bg-danger rounded-pill px-2 fs--2">
-          -{{ productShowDetail.master_promo_product.percent }}%
+          <span v-if="productShowDetail.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+            {{ productShowDetail.master_promo_product.percent }}%
+          </span>
+          <span v-else-if="productShowDetail.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+            {{ $root.formatCurrencyK(parseInt(productShowDetail.master_promo_product.value_potongan)) }}
+          </span>
+          <!-- -{{ productShowDetail.master_promo_product.percent }}% -->
         </span>
         
         <span class="badge rounded-pill px-2 fs--2 ms-1" :class="'bg-' + productShowDetail.master_promo_product.master_kode_promo_product.badge">
@@ -2485,7 +2566,15 @@
           <del>Rp {{ $root.formatPrice(productShowDetail.for_product.all_product_price[0].price) }}</del>
         </span>
         <h5 v-if="productShowDetail.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="text-warning mb-0">
-          Rp {{ $root.formatPrice(productShowDetail.for_product.all_product_price[0].price - (productShowDetail.for_product.all_product_price[0].price * (productShowDetail.master_promo_product.percent/100))) }}
+          Rp 
+          <span v-if="productShowDetail.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+            {{ $root.formatPrice(productShowDetail.for_product.all_product_price[0].price - (productShowDetail.for_product.all_product_price[0].price * (productShowDetail.master_promo_product.percent/100))) }}
+          </span>
+          <span v-else-if="productShowDetail.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+            {{ $root.formatPrice(productShowDetail.for_product.all_product_price[0].price - productShowDetail.master_promo_product.value_potongan) }}
+          </span>
+
+          <!-- {{ $root.formatPrice(productShowDetail.for_product.all_product_price[0].price - (productShowDetail.for_product.all_product_price[0].price * (productShowDetail.master_promo_product.percent/100))) }} -->
         </h5>
       </div>
       <div v-else>
@@ -3444,7 +3533,11 @@ export default {
               formatHarga = parseInt(isPromoProduct.for_product.all_product_price[0].price);
             }
             if(isPromoProduct.master_promo_product.tipe_promo == this.master_coll.tipePromo.percent) {
-              formatHarga = parseInt(isPromoProduct.for_product.all_product_price[0].price - (isPromoProduct.for_product.all_product_price[0].price * (isPromoProduct.master_promo_product.percent/100)));
+              if(isPromoProduct.master_promo_product.tipe_potongan == this.master_code.tipe_potongan.percent){
+                formatHarga = parseInt(isPromoProduct.for_product.all_product_price[0].price - (isPromoProduct.for_product.all_product_price[0].price * (isPromoProduct.master_promo_product.percent/100)));
+              }else if(isPromoProduct.master_promo_product.tipe_potongan == this.master_code.tipe_potongan.value){
+                formatHarga = parseInt(isPromoProduct.for_product.all_product_price[0].price - isPromoProduct.master_promo_product.value_potongan);
+              }
             }
           }else{
             if(this.$root.filterDiskonProduct(getProduct).discCode == this.master_code.diskon.tanpa_diskon_code){
@@ -5700,12 +5793,22 @@ export default {
             ];
             bodyRinkasanProduct.push(objNameProduct);
             
-            const discValue = parseInt(promoProduct.master_promo_product.percent);
-            const priceProduct = promoProduct.for_product.all_product_price[0].price;
-            const discPrice = priceProduct - (priceProduct * (discValue/100));
+            var discValue;
+            var priceProduct = promoProduct.for_product.all_product_price[0].price;
+            var discPrice;
+            if(promoProduct.master_promo_product.tipe_potongan == this.master_code.tipe_potongan.percent){
+              discValue = parseInt(promoProduct.master_promo_product.percent);
+              discPrice = priceProduct - (priceProduct * (discValue/100));
+              discValue = `${discValue}%`;
+            }else if(promoProduct.master_promo_product.tipe_potongan == this.master_code.tipe_potongan.value){
+              discValue = parseInt(promoProduct.master_promo_product.value_potongan);
+              discPrice = priceProduct - discValue;
+              discValue = this.$root.formatPrice(discValue);
+            }
+
             const objDiskonInfo = [
               {
-                content: `Diskon ${discValue}%`,
+                content: `Diskon ${discValue}`,
                 styles: {
                   halign: 'left',
                   fontSize: sizeFont,
@@ -5876,139 +5979,6 @@ export default {
           bodyRinkasanProduct.push(objProdPromo);
         }
       });
-
-      // for (let i = 0; i < this.dataProductListForStruk.length; i++) {
-      //   const data = this.dataProductListForStruk[i];
-      //   const product = data.product;
-
-      //   if(data.is_promo_product){
-      //     const promoProduct = data.is_promo_product;
-      //     if(promoProduct.master_promo_product.tipe_promo == this.master_coll.tipePromo.percent){
-      //       const objNameProduct = [
-      //         {
-      //           content: product.itemNameShort,
-      //           colSpan: 4,
-      //           styles: {
-      //             halign: 'left',
-      //             fontSize: sizeFont,
-      //             cellPadding: [0.5, 0, 0, 0],
-      //           }
-      //         },
-      //       ];
-      //       bodyRinkasanProduct.push(objNameProduct);
-            
-      //       const discValue = parseInt(promoProduct.master_promo_product.percent);
-      //       const priceProduct = promoProduct.for_product.all_product_price[0].price;
-      //       const discPrice = priceProduct - (priceProduct * (discValue/100));
-      //       const objDiskonInfo = [
-      //         {
-      //           content: `Diskon ${discValue}%`,
-      //           styles: {
-      //             halign: 'left',
-      //             fontSize: sizeFont,
-      //             cellPadding: [0, 1.5, 0.5, 0],
-      //           }
-      //         },
-      //         {
-      //           content: data.qty,
-      //           styles: {
-      //             halign: 'center',
-      //             fontSize: sizeFont,
-      //             cellPadding: callPaddingProduct,
-      //           }
-      //         },
-      //         {
-      //           content: this.$root.formatPrice(discPrice),
-      //           styles: {
-      //             halign: 'left',
-      //             fontSize: sizeFont,
-      //             cellPadding: [0.5, 0, 0.5, 1],
-      //           }
-      //         },
-      //         {
-      //           content: this.$root.formatPrice(discPrice * data.qty),
-      //           styles: {
-      //             halign: 'right',
-      //             fontSize: sizeFont,
-      //             cellPadding: [0.5, 0, 0.5, 0.5],
-      //           }
-      //         }
-      //       ];
-      //       bodyRinkasanProduct.push(objDiskonInfo);
-
-      //       continue;
-      //     }
-      //   }
-        
-      //   let objProdPromo;
-      //   if(data.is_free_product){
-      //     objProdPromo = [
-      //       {
-      //         content: product.itemNameShort,
-      //         styles: {
-      //           halign: 'left',
-      //           fontSize: sizeFont,
-      //           cellPadding: [0.5, 1.5, 0.5, 0],
-      //         }
-      //       },
-      //       {
-      //         content: data.qty,
-      //         styles: {
-      //           halign: 'center',
-      //           fontSize: sizeFont,
-      //           cellPadding: callPaddingProduct,
-      //         }
-      //       },
-      //       {
-      //         content: 'FREE',
-      //         colSpan: 2,
-      //         styles: {
-      //           halign: 'right',
-      //           fontSize: sizeFont,
-      //           cellPadding: [0.5, 0, 0.5, 0.5],
-      //         }
-      //       }
-      //     ];
-      //   }else{
-      //     objProdPromo = [
-      //       {
-      //         content: product.itemNameShort,
-      //         styles: {
-      //           halign: 'left',
-      //           fontSize: sizeFont,
-      //           cellPadding: [0.5, 1.5, 0.5, 0],
-      //         }
-      //       },
-      //       {
-      //         content: data.qty,
-      //         styles: {
-      //           halign: 'center',
-      //           fontSize: sizeFont,
-      //           cellPadding: callPaddingProduct,
-      //         }
-      //       },
-      //       {
-      //         content: this.$root.formatPrice(product.all_product_price[0].price),
-      //         styles: {
-      //           halign: 'left',
-      //           fontSize: sizeFont,
-      //           cellPadding: [0.5, 0, 0.5, 1],
-      //         }
-      //       },
-      //       {
-      //         content: this.$root.formatPrice(product.all_product_price[0].price * data.qty),
-      //         styles: {
-      //           halign: 'right',
-      //           fontSize: sizeFont,
-      //           cellPadding: [0.5, 0, 0.5, 0.5],
-      //         }
-      //       }
-      //     ];
-      //   }
-      //   bodyRinkasanProduct.push(objProdPromo);
-      // }
-
-      // Ringkasan product
       
       autoTable(docStruk, {
         head: bodyRinkasanProduct,
@@ -6538,12 +6508,22 @@ export default {
             ];
             bodyRinkasanProduct.push(objNameProduct);
             
-            const discValue = parseInt(promoProduct.master_promo_product.percent);
-            const priceProduct = promoProduct.for_product.all_product_price[0].price;
-            const discPrice = priceProduct - (priceProduct * (discValue/100));
+            var discValue;
+            var priceProduct = promoProduct.for_product.all_product_price[0].price;
+            var discPrice;
+            if(promoProduct.master_promo_product.tipe_potongan == this.master_code.tipe_potongan.percent){
+              discValue = parseInt(promoProduct.master_promo_product.percent);
+              discPrice = priceProduct - (priceProduct * (discValue/100));
+              discValue = `${discValue}%`;
+            }else if(promoProduct.master_promo_product.tipe_potongan == this.master_code.tipe_potongan.value){
+              discValue = parseInt(promoProduct.master_promo_product.value_potongan);
+              discPrice = priceProduct - discValue;
+              discValue = this.$root.formatPrice(discValue);
+            }
+
             const objDiskonInfo = [
               {
-                content: `Diskon ${discValue}%`,
+                content: `Diskon ${discValue}`,
                 styles: {
                   halign: 'left',
                   fontSize: sizeFont,
@@ -6714,139 +6694,6 @@ export default {
           bodyRinkasanProduct.push(objProdPromo);
         }
       });
-
-      // for (let i = 0; i < this.dataProductListForStruk.length; i++) {
-      //   const data = this.dataProductListForStruk[i];
-      //   const product = data.product;
-
-      //   if(data.is_promo_product){
-      //     const promoProduct = data.is_promo_product;
-      //     if(promoProduct.master_promo_product.tipe_promo == this.master_coll.tipePromo.percent){
-      //       const objNameProduct = [
-      //         {
-      //           content: product.itemNameShort,
-      //           colSpan: 4,
-      //           styles: {
-      //             halign: 'left',
-      //             fontSize: sizeFont,
-      //             cellPadding: [0.5, 0, 0, 0],
-      //           }
-      //         },
-      //       ];
-      //       bodyRinkasanProduct.push(objNameProduct);
-            
-      //       const discValue = parseInt(promoProduct.master_promo_product.percent);
-      //       const priceProduct = promoProduct.for_product.all_product_price[0].price;
-      //       const discPrice = priceProduct - (priceProduct * (discValue/100));
-      //       const objDiskonInfo = [
-      //         {
-      //           content: `Diskon ${discValue}%`,
-      //           styles: {
-      //             halign: 'left',
-      //             fontSize: sizeFont,
-      //             cellPadding: [0, 1.5, 0.5, 0],
-      //           }
-      //         },
-      //         {
-      //           content: data.qty,
-      //           styles: {
-      //             halign: 'center',
-      //             fontSize: sizeFont,
-      //             cellPadding: callPaddingProduct,
-      //           }
-      //         },
-      //         {
-      //           content: this.$root.formatPrice(discPrice),
-      //           styles: {
-      //             halign: 'left',
-      //             fontSize: sizeFont,
-      //             cellPadding: [0.5, 0, 0.5, 1],
-      //           }
-      //         },
-      //         {
-      //           content: this.$root.formatPrice(discPrice * data.qty),
-      //           styles: {
-      //             halign: 'right',
-      //             fontSize: sizeFont,
-      //             cellPadding: [0.5, 0, 0.5, 0.5],
-      //           }
-      //         }
-      //       ];
-
-      //       bodyRinkasanProduct.push(objDiskonInfo);
-      //       continue;
-      //     }
-      //   }
-
-      //   let objProdPromo;
-      //   if(data.is_free_product){
-      //     objProdPromo = [
-      //       {
-      //         content: product.itemNameShort,
-      //         styles: {
-      //           halign: 'left',
-      //           fontSize: sizeFont,
-      //           cellPadding: [0.5, 1.5, 0.5, 0],
-      //         }
-      //       },
-      //       {
-      //         content: data.qty,
-      //         styles: {
-      //           halign: 'center',
-      //           fontSize: sizeFont,
-      //           cellPadding: callPaddingProduct,
-      //         }
-      //       },
-      //       {
-      //         content: 'FREE',
-      //         colSpan: 2,
-      //         styles: {
-      //           halign: 'right',
-      //           fontSize: sizeFont,
-      //           cellPadding: [0.5, 0, 0.5, 0.5],
-      //         }
-      //       }
-      //     ];
-      //   }else{
-      //     objProdPromo = [
-      //       {
-      //         content: product.itemNameShort,
-      //         styles: {
-      //           halign: 'left',
-      //           fontSize: sizeFont,
-      //           cellPadding: [0.5, 1.5, 0.5, 0],
-      //         }
-      //       },
-      //       {
-      //         content: data.qty,
-      //         styles: {
-      //           halign: 'center',
-      //           fontSize: sizeFont,
-      //           cellPadding: callPaddingProduct,
-      //         }
-      //       },
-      //       {
-      //         content: this.$root.formatPrice(product.all_product_price[0].price),
-      //         styles: {
-      //           halign: 'left',
-      //           fontSize: sizeFont,
-      //           cellPadding: [0.5, 0, 0.5, 1],
-      //         }
-      //       },
-      //       {
-      //         content: this.$root.formatPrice(product.all_product_price[0].price * data.qty),
-      //         styles: {
-      //           halign: 'right',
-      //           fontSize: sizeFont,
-      //           cellPadding: [0.5, 0, 0.5, 0.5],
-      //         }
-      //       }
-      //     ];
-      //   }
-      //   bodyRinkasanProduct.push(objProdPromo);
-      // }
-
-      // Ringkasan product
       
       autoTable(docStruk, {
         head: bodyRinkasanProduct,

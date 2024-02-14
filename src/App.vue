@@ -158,7 +158,10 @@ export default {
         this.updated_at_pesan = snap.data().updated_at;
         
         const current_page = sessionStorage.getItem(this.local_storage.current_page);
-        if(current_page && current_page != 'Login') this.addNotifFirebase(this.header_pesan, this.body_pesan);
+
+        if(this.selectedStoreAccess && this.body_pesan.includes(this.selectedStoreAccess.store_code)){
+          if(current_page && current_page != 'Login') this.addNotifFirebase(this.header_pesan, this.body_pesan);
+        }
       });
     },
 
@@ -490,6 +493,15 @@ export default {
         if(isNotif) this.showAlertFunction('warning', 'Email Notif!', 'Terjadi kesalahan!! Invoice email gagal dikirim.');
         console.log(e);
         return null;
+      }
+    },
+
+    formatCurrencyK(value) {
+      if (value >= 1000) {
+        const formattedValue = Math.floor(value / 1000);
+        return `${formattedValue}K`;
+      } else {
+        return value.toString();
       }
     },
   }
