@@ -693,6 +693,16 @@
                     dataTr102.approval_at == null
                   "
                 >
+                <div style="text-align: left">
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    @click="rejectTicket()"
+                  >
+                    Reject Ticket
+                  </button>
+                </div>
+
                   <!-- <button
                     type="button"
                     class="btn btn-success"
@@ -1824,6 +1834,12 @@ export default {
               <button data-id="${card.id}" class="btn btn-sm btn-info text-white" id="viewToTinUpdate" data-toggle="tooltip" title="View" ><i class="fa-solid fa-pen-to-square"></i> Approve</button>
               `
                   )
+                : card.docStatus == "X"
+                ? html(
+                    `
+              <button data-id="${card.id}" class="btn btn-sm btn-danger text-white" id="viewToTinUpdate" data-toggle="tooltip" title="View" ><i class="fa-solid fa-pen-to-square"></i> Reject</button>
+              `
+                  )
                 : html(
                     `
               <button data-id="${card.id}" class="btn btn-sm btn-success text-white" id="viewToTinUpdate" data-toggle="tooltip" title="View" ><i class="fa-solid fa-pen-to-square"></i> Done</button>
@@ -2039,6 +2055,69 @@ export default {
               Swal.fire(
                 "Update Success!",
                 "Ticket telah berhasil di approve, dan diteruskan ke Toko",
+                "success"
+              );
+              mythis.$root.hideLoading();
+              mythis.doSendNotifFirebase();
+              mythis.dataTr102.approval_at = new Date()
+                .toISOString()
+                .slice(0, 10);
+              mythis.close();
+              mythis.close21();
+              mythis.refreshTable();
+            })
+            .catch(function (error) {
+              mythis.$root.hideLoading();
+              if (error.response) {
+                //console.log(error.response.data);
+                Swal.fire("Failed!", error.response.data.message, "error");
+              } else if (error.request) {
+                console.log(error.request);
+              } else {
+                console.log("Error", error.message);
+              }
+            });
+          //////////////////////////////////////////////////////
+
+          //Swal.fire("Saved!", "", "success");
+        }
+      });
+    },
+
+    rejectTicket() {
+      var mythis = this;
+      Swal.fire({
+        title: "Confirm?",
+        text: "Apakah Anda ingin Reject Ticket ini?",
+        icon: "question",
+
+        //showDenyButton: true,
+        confirmButtonColor: "#ff0000",
+        showCancelButton: true,
+        confirmButtonText: "Reject",
+        denyButtonText: `Batal`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          //////////////////////////////////////////////////////
+          //////////////////////////////////////////////////////
+          mythis.$root.showLoading();
+          axios
+            .put(
+              mythis.$root.API_ERP +
+                "/wms/rejectTicket/" +
+                mythis.dataTr102.id,
+              {
+                data: mythis.dataTr102,
+                userid: mythis.userid,
+              }
+            )
+            .then((res) => {
+              //console.log(res);
+              //toast.success("Data telah berhasil di approve");
+              Swal.fire(
+                "Update Success!",
+                "Ticket telah berhasil di reject",
                 "success"
               );
               mythis.$root.hideLoading();

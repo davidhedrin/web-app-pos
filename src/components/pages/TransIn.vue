@@ -648,6 +648,77 @@
           </button>
         </template>
       </FormModal>
+
+      <!--------------------------------------------------------------------------------------->
+      <FormModal
+        :show="showModal88"
+        :style="showmodal88_zindex"
+        @close88="showModal88 = false"
+      >
+        <template #header>
+          <h3>TRANS IN - Batch Number and Expired Date</h3>
+        </template>
+        <template #body>
+          <div style="width: 90vw">
+            <h3>Total Qty: {{ acuanAddBatch_value }}</h3>
+            <!-- <pre>{{ acuanAddBatch }}</pre>
+            <pre>{{ idRincian }}</pre>
+            <pre>{{ dataTr302 }}</pre>
+            <pre>{{ dataRincianHeaderIDTR }}</pre> -->
+
+            <br />
+            <br />
+            <!-- <pre>{{ var_penerimaan_Actual_rev }} var_penerimaan_Actual_rev</pre>
+            <pre>{{ var_penerimaan_Actual }} var_penerimaan_Actual</pre>
+            <pre> {{ var_batch }}var_batch</pre>
+            <pre> {{ var_to_variant_fix }}var_to_variant_fix</pre>
+            <pre> {{ idRincianUpdate }}idRincianUpdate</pre> -->
+            <!-- <pre> {{ var_to_variant_fix }}var_to_variant_fix</pre> -->
+            <table
+              class="table table-bordered table-striped table-vcenter"
+              style="padding: 0; margin: 0; font-size: 13px"
+            >
+              <thead>
+                <tr>
+                  <td class="text-center"><strong>No</strong></td>
+                  <td class="text-center"><strong>Item Code</strong></td>
+                  <td class="text-center"><strong>Item Name</strong></td>
+                  <td class="text-center"><strong>Batch No</strong></td>
+                  <td class="text-center"><strong>Expired Date</strong></td>
+                  <!-- <td class="text-center"><strong>Qty Max</strong></td> -->
+                  <td class="text-center"><strong>Qty</strong></td>
+                  <td class="text-center"><strong>#</strong></td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(value, key) in var_to_variant_fix" :key="key">
+                  <td>{{ number_batch }}</td>
+                  <td>{{ value.itemCode }}</td>
+                  <td>{{ value.itemNameFull }}</td>
+                  <td>{{ value.batchNo }}</td>
+                  <td>{{ value.expiredDate1 }}</td>
+                  <!-- <td>{{ value.onHand }}</td> -->
+                  <td>{{ value.inputBatch }}</td>
+
+                  <td class="text-center"></td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <br />
+            <br />
+          </div>
+        </template>
+        <template #footer>
+          <button
+            class="modal-default-button btn btn-secondary btn-sm me-1"
+            @click="close88"
+          >
+            Close
+          </button>
+        </template>
+      </FormModal>
+      <!--------------------------------------------------------------------------------------->
     </Teleport>
   </Pages>
 </template>
@@ -755,6 +826,19 @@ export default {
       nomor_x: 1,
       html_pdf: "",
       flagDownloadPDF: 0,
+
+      uObject: "",
+
+      showModal88: false,
+      showmodal88_zindex: "z-index:1002",
+
+      acuanAddBatch: "",
+      acuanAddBatch_value: "",
+
+      var_to_variant: {},
+      var_to_variant_fix: {},
+
+      number_batch: 1,
     };
   },
   mounted() {
@@ -765,6 +849,61 @@ export default {
     this.$root.hideLoading();
   },
   methods: {
+    ///////////////////////////////////////////////////
+    modal88() {
+      this.showModal88 = true;
+    },
+    close88: function () {
+      this.var_to_variant_fix = {};
+      this.number_batch = 1;
+      this.showModal88 = false;
+    },
+    getBatchFromTI() {
+      var mythis = this;
+
+      mythis.$root.showLoading();
+      axios
+        .put(
+          mythis.$root.API_ERP +
+            "/wms/getBatchFromTI/" +
+            mythis.acuanAddBatch,
+          {
+            docEntry: mythis.idRincian,
+            userid: mythis.userid,
+            dataHeaderSave: mythis.dataRincianHeaderIDTR,
+          }
+        )
+        .then((res) => {
+          mythis.$root.hideLoading();
+          console.log(res);
+
+          var xxxx = res.data.data;
+          var n = 0;
+
+          mythis.acuanAddBatch_value = 0;
+          xxxx.forEach((val) => {
+            //mythis.var_batch[n] = val;
+            mythis.var_to_variant_fix[n] = val;
+            mythis.acuanAddBatch_value += val.inputBatch;
+            //mythis.var_batch[n].inputBatch = 0;
+
+            n++;
+          });
+        })
+        .catch(function (error) {
+          mythis.$root.hideLoading();
+          if (error.response) {
+            //console.log(error.response.data);
+            //mythis.insertModalSukses = false;
+            Swal.fire("Failed!", error.response.data.message, "error");
+          } else if (error.request) {
+            console.log(error.request);
+          } else {
+            console.log("Error", error.message);
+          }
+        });
+    },
+    ///////////////////////////////////////////////////
     padTo2Digits(num) {
       return num.toString().padStart(2, "0");
     },
@@ -1370,6 +1509,19 @@ export default {
     jqueryDelEdit() {
       const mythis = this;
 
+      $(document).on("click", "#input_batch", function () {
+        let id = $(this).data("id");
+
+        //alert(id);
+        //alert(mythis.var_penerimaan_Actual[id]);
+
+        mythis.acuanAddBatch = id;
+        //mythis.acuanAddBatch_value = mythis.var_penerimaan_Actual[id];
+        //mythis.acuanAddBatch_value = mythis.var_penerimaan_Actual_rev[id];
+        mythis.getBatchFromTI();
+        mythis.modal88();
+      });
+
       $(document).on("change", "input", function () {
         let id = $(this).data("id");
         let x_value = $("#txt_" + id).val();
@@ -1848,12 +2000,12 @@ export default {
             ),
           },
 
-          {
-            id: "onHand",
-            name: html(
-              '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>On Hand</b></div>'
-            ),
-          },
+          // {
+          //   id: "onHand",
+          //   name: html(
+          //     '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b>On Hand</b></div>'
+          //   ),
+          // },
 
           // {
           //   id: "batchNo",
@@ -1896,6 +2048,26 @@ export default {
           //     '<div style="border: 1px solid #ccc;padding: 5px;border-radius: 5px;text-align: center;"><b> Updated Date</b></div>'
           //   ),
           // },
+
+          {
+            id: "batch",
+            name: html(
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Input Batch</b></div>'
+            ),
+            formatter: (_, row) =>
+              html(
+                `
+                    <div id="input_batch_` +
+                  row.cells[0].data +
+                  "XXYYZZ" +
+                  row.cells[1].data +
+                  `" >
+                    <button
+                      id="input_batch"
+                  data-id="${row.cells[0].data}XXYYZZ${row.cells[1].data}" class="btn btn-sm btn-warning text-white" data-toggle="tooltip" title="View" > <i  class="fa fa-list" aria-hidden="true"></i></button>` +
+                  `</div>`
+              ),
+          },
         ],
         style: {
           container: {
@@ -1937,7 +2109,7 @@ export default {
 
               card.itemName,
 
-              card.onHand,
+              // card.onHand,
               //card.batchNo,
               //card.expiredDate1,
 
@@ -2171,7 +2343,7 @@ export default {
               // mythis.close2();
             })
             .catch(function (error) {
-              mythis.$root.loader = false;
+              mythis.$root.hideLoading();
               if (error.response) {
                 //console.log(error.response.data);
                 //mythis.insertModalSukses = false;
@@ -2230,7 +2402,7 @@ export default {
               mythis.refreshTable();
             })
             .catch(function (error) {
-              mythis.$root.loader = false;
+              mythis.$root.hideLoading();
               if (error.response) {
                 //console.log(error.response.data);
                 //mythis.insertModalSukses = false;

@@ -390,6 +390,14 @@
               />&nbsp;&nbsp;&nbsp;Status Qty Admin
               <br />
               <br />
+              <input
+                type="checkbox"
+                v-bind:value="1"
+                v-model="qty_besar_nol"
+              />&nbsp;&nbsp;&nbsp;Quantity > 0
+              <br />
+              <br />
+
 
               <!-- <button class="btn btn-sm btn-info" @click="exportToPDFConfirm()">
                 <i class="fas fa-file-pdf"></i> Download CC NON BATCH
@@ -400,7 +408,7 @@
                 class="btn btn-sm btn-info"
                 @click="exportToPDFConfirm_batch()"
               >
-                <i class="fas fa-file-pdf"></i> Download CC WITH BATCH
+                <i class="fas fa-file-pdf"></i> Download CC WITH BATCH FORM
               </button>
               <br />
               <br />
@@ -437,7 +445,7 @@
                         class="btn btn-success"
                         @click="confirmTicket()"
                       >
-                        Confirm SO
+                        Confirm CC
                       </button>
                     </template></template
                   >
@@ -618,6 +626,8 @@ export default {
       trSO_update: 0,
       html_non_batch: "",
       status_qty_admin: true,
+      
+      qty_besar_nol: true,
     };
   },
   mounted() {
@@ -1089,6 +1099,7 @@ export default {
             data: mythis.dataTr104,
             limit: limitx,
             offset: offsetx,
+            qty_besar_nol: mythis.qty_besar_nol,
           },
         });
 
@@ -1106,13 +1117,17 @@ export default {
 
           ///////////////////////////////////////////////////////////
           br_string = "";
-          if (br_pdf >= 20 && br_flag == 0) {
+          //if (br_pdf >= 20 && br_flag == 0) {
+          //if (br_pdf >= 35 && br_flag == 0) {
+          if (br_pdf >= 52 && br_flag == 0) {
             br_pdf = 0;
             br_flag = 1;
             br_string = 'class="newPage"';
             //mythis.html_pdf +='<tr id="newPage"><td colspan="8">&nbsp;</td></tr>';
           }
-          if (br_pdf >= 30 && br_flag == 1) {
+          //if (br_pdf >= 30 && br_flag == 1) {
+          //if (br_pdf >= 41 && br_flag == 1) {
+          if (br_pdf >= 60 && br_flag == 1) {
             //mythis.html_pdf +='<tr id="newPage"><td colspan="8">&nbsp;</td></tr>';
             br_pdf = 0;
             br_string = 'class="newPage"';
@@ -1122,9 +1137,16 @@ export default {
             //html += '<tr ><td colspan="8">&nbsp;</td></tr>';
             //html += '<tr ><td colspan="8">&nbsp;</td></tr>';
             html +=
+              '<tr style="font-size: 8px" ' +
+              br_string +
+              '><td colspan="6">&nbsp;<br/><br/><br/></td></tr><tr> <th class="borderx">No.</th><th class="borderx">Item Code</th><th class="borderx" width="40%">Item Name</th><th class="borderx">Batch No</th><th class="borderx">Exp Date</th><th class="borderx" style="text-align:right" >Admin Qty</th><th style="text-align:right" class="borderx">Actual Qty</th><th style="text-align:right" class="borderx">Variant</th></tr>';
+
+            /*
+               html +=
               "<tr " +
               br_string +
               '><td colspan="8">&nbsp;</td></tr><tr> <th class="borderx">No.</th><th class="borderx">Optional</th><th class="borderx">Optional Name</th><th class="borderx">Item Code</th><th class="borderx">Item Name</th><th class="borderx">Batch No</th><th class="borderx">Exp Date</th><th class="borderx" style="text-align:right" >Admin Qty</th><th style="text-align:right" class="borderx">Actual Qty</th><th style="text-align:right" class="borderx">Variant</th></tr>';
+              */
           }
           ///////////////////////////////////////////////////////////
 
@@ -1133,7 +1155,8 @@ export default {
             var borderyd2 = "";
 
             if (html_plus_flag != 0) {
-              var html_plus = '<tr><th colspan="10"><i>isian</i></th></tr>';
+              var html_plus =
+                '<tr style="font-size: 8px"><th colspan="8"><i>isian</i></th></tr>';
               br_pdf = br_pdf + 1;
             } else {
               var html_plus = "";
@@ -1146,6 +1169,43 @@ export default {
           }
 
           html +=
+            html_plus +
+            "<tr " +
+            borderyd +
+            "" +
+            'style="font-size: 8px"><th>' +
+            (resData.data[key].optionalname == "Jumlah Item"
+              ? ""
+              : resData.data[key].optionalname == "-"
+              ? ""
+              : nomor_x) +
+            "</th><th >" +
+            resData.data[key].itemCode +
+            "</th><th >" +
+            (resData.data[key].optionalname == "-"
+              ? resData.data[key].itemName
+              : resData.data[key].itemName) +
+            "</th><th >" +
+            resData.data[key].batchNo +
+            "</th><th >" +
+            resData.data[key].expiredDate +
+            '</th><th style="text-align:right">' +
+            (mythis.status_qty_admin == true
+              ? resData.data[key].adminQty1
+              : "-") +
+            '</th><th style="text-align:right">' +
+            (resData.data[key].optionalname == "Jumlah Item"
+              ? ""
+              : "___________") +
+            '</th><th style="text-align:right">' +
+            (resData.data[key].optionalname == "Jumlah Item"
+              ? ""
+              : "___________") +
+            "</th></tr>";
+
+          /*
+
+              html +=
             html_plus +
             "<tr " +
             borderyd +
@@ -1186,6 +1246,7 @@ export default {
               ? ""
               : "___________") +
             "</th></tr>";
+            */
 
           if (resData.data[key].optionalname != "-") {
             nomor_x++;
@@ -1370,7 +1431,7 @@ export default {
         this.tmp_getCboDiscCodeOptions_to +
         '</th> </tr> <tr> <th colspan="7" class="bordery"><br/></th></tr><tr> <th>Print Date</th> <th>: ' +
         this.formatDate(new Date()) +
-        ' </tr> </table> <br> <table id="tb-item" cellpadding="4" border="0"> <tr> <th class="borderx">No.</th><th class="borderx" width="12%">Optional</th><th class="borderx" width="12%">Optional Name</th><th class="borderx">Item Code</th><th class="borderx" width="30%">Item Name</th><th class="borderx">Batch No</th><th class="borderx">Exp Date</th><th class="borderx" style="text-align:right" >Admin Qty</th><th style="text-align:right" class="borderx">Actual Qty</th><th style="text-align:right" class="borderx">Variant</th></tr>' +
+        ' </tr> </table> <br> <table id="tb-item" cellpadding="2" border="0"> <tr style="font-size: 8px"> <th class="borderx">No.</th><th class="borderx">Item Code</th><th class="borderx"  width="40%">Item Name</th><th class="borderx">Batch No</th><th class="borderx">Exp Date</th><th class="borderx" style="text-align:right" >Admin Qty</th><th style="text-align:right" class="borderx">Actual Qty</th><th style="text-align:right" class="borderx">Variant</th></tr>' +
         data_x +
         '<tr> <th colspan="10" class="bordery"></th></tr> <tr> <th colspan="2" class="">Mengetahui,</th> <th style="text-align:right" colspan="2" class="">Menyetujui,</th> <th style="text-align:right" colspan="2" class="">&nbsp</th> </tr></table>';
 
@@ -1391,8 +1452,8 @@ export default {
           ".pdf",
         image: { type: "jpeg", quality: 1 },
         html2canvas: { dpi: 300, letterRendering: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-        //jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        // jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         pagebreak: { before: ".newPage" },
       };
 
