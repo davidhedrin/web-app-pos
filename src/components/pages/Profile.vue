@@ -51,12 +51,17 @@
               <button class="btn btn-falcon-primary btn-sm px-3" type="button" data-bs-toggle="modal" data-bs-target="#modalEditDataUser">
                 Edit <span class="far fa-edit ms-1"></span>
               </button>
-              <span v-if="isRequestApproveBtn">
+              <!-- <span v-if="isRequestApproveBtn">
                 <button v-if="isEnableBtnApprove" @click="sendRequestApprove()" class="btn btn-primary btn-sm px-3 ms-3" type="button">
                   Request Approve <span class="far fa-paper-plane ms-1"></span>
                 </button>
                 <button v-else class="btn btn-secondary btn-sm px-3 ms-3" type="button" disabled>
                   Request Approve <span class="far fa-paper-plane ms-1"></span>
+                </button>
+              </span> -->
+              <span v-if="!isRequestApproveBtn">
+                <button class="btn btn-secondary btn-sm px-3 ms-3" type="button" data-bs-toggle="modal" data-bs-target="#modalFormChangePassword">
+                  Reset Password 
                 </button>
               </span>
               <div class="border-bottom border-dashed my-4 d-lg-none"></div>
@@ -248,14 +253,124 @@
       </div>
     </div>
   </div>
+
+  <div class="modal fade" id="modalFormChangePassword" tabindex="0" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content position-relative">
+        <Form @submit="openModalConfirmChangePassword()" :validation-schema="validateFormPassword" v-slot="{ errors }">
+          <div class="modal-body p-0">
+            <div class="rounded-top-3 py-3 bg-body-tertiary text-center">
+              <h3 class="mb-1">Ganti Password</h3>
+            </div>
+            <div class="py-3 p-4">
+              <div class="mb-2">
+                <label class="form-label mb-0">Password Lama</label>
+                <div class="input-group mb-3">
+                  <Field v-model="dataResetPassword.oldPass" name="oldPass" class="form-control" :class="{'is-invalid' : errors.oldPass}" :type="toggleOldPass ? 'password' : 'text'" placeholder="Massukan password lama" />
+                  <span class="input-group-text px-2 cursor-pointer" @click="toggleOldPass = !toggleOldPass">
+                    <div v-if="toggleOldPass">
+                      <span class="far fa-eye"></span>
+                    </div>
+                    <div v-else>
+                      <span class="far fa-eye-slash"></span>
+                    </div>
+                  </span>
+                </div>
+                <div class="text-danger fs--2">{{ errors.oldPass }}</div>
+              </div>
+              <hr>
+              <div class="mb-2">
+                <label class="form-label mb-0">Password Baru</label>
+                <div class="input-group mb-3">
+                  <Field v-model="dataResetPassword.newPass" name="newPass" class="form-control" :class="{'is-invalid' : errors.newPass}" :type="toggleNewPass ? 'password' : 'text'" placeholder="Masukkan password baru" />
+                  <span class="input-group-text px-2 cursor-pointer" @click="toggleNewPass = !toggleNewPass">
+                    <div v-if="toggleNewPass">
+                      <span class="far fa-eye"></span>
+                    </div>
+                    <div v-else>
+                      <span class="far fa-eye-slash"></span>
+                    </div>
+                  </span>
+                </div>
+                <div class="text-danger fs--2">{{ errors.newPass }}</div>
+              </div>
+              <div class="mb-2">
+                <label class="form-label mb-0">Konfirmasi Password Baru</label>
+                <div class="input-group mb-3">
+                  <Field v-model="dataResetPassword.coNewPass" name="coNewPass" class="form-control" :class="{'is-invalid' : errors.coNewPass}" :type="toggleCoNewPass ? 'password' : 'text'" placeholder="Masukkan konfirmasi password baru" />
+                  <span class="input-group-text px-2 cursor-pointer" @click="toggleCoNewPass = !toggleCoNewPass">
+                    <div v-if="toggleCoNewPass">
+                      <span class="far fa-eye"></span>
+                    </div>
+                    <div v-else>
+                      <span class="far fa-eye-slash"></span>
+                    </div>
+                  </span>
+                </div>
+                <div class="text-danger fs--2">{{ errors.coNewPass }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">Batal</button>
+            <button class="btn btn-primary btn-sm" type="submit">Lanjutkan</button>
+          </div>
+        </Form>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="modalConfirmChangeNewPassword" tabindex="0" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px">
+      <div class="modal-content position-relative">
+        <div class="modal-body p-0 pb-2">
+          <div class="rounded-top-3 py-3 bg-body-tertiary text-center">
+            <h4 class="mb-1" id="modalExampleDemoLabel">Konfirmasi Password</h4>
+          </div>
+          <div class="py-2 text-center">
+            <div class="d-flex justify-content-center mb-2">
+              <img src="@/assets/img/icons/Gif/warning-icon-2.gif" height="60" alt="">
+            </div>
+            <h5 class="m-0 px-1">
+              Konfirmasi Merubah Password
+            </h5>
+            <p class="m-0 px-3">
+              Lanjutkan untuk mengubah password lama. Otomatis mengeluarkan untuk Relogin.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">Batal</button>
+          <button class="btn btn-success btn-sm" type="button" @click="confirmChangePassword()">Konfirmasi</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
   import axios from "axios";
+  import { Form, Field } from 'vee-validate';
+  import * as Yup from 'yup';
 
   export default {
     name: 'ProfilePage',
+    components: {
+      Form,
+      Field
+    },
     data(){
+      const validateFormPassword = Yup.object().shape ({
+        oldPass: Yup.string().required('Masukkan password lama')
+        .min(6, 'Password lama minimal 6 karakter'),
+        newPass: Yup.string().required('Masukkan password baru')
+        .min(6, 'Password baru minimal 6 karakter')
+        .oneOf([Yup.ref('coNewPass')], 'Password baru dan konformasi password harus sama'),
+        coNewPass: Yup.string().required('Masukkan konfirmasi password lama')
+        .min(6, 'Password baru minimal 6 karakter')
+        .oneOf([Yup.ref('newPass')], 'Password baru dan konformasi password harus sama'),
+      });
+
       return{
         local_storage: this.$root.local_storage,
 
@@ -276,6 +391,17 @@
           password: null,
           konfirmasi_password: null,
         },
+
+        validateFormPassword,
+        dataResetPassword: {
+          oldPass: null,
+          newPass: null,
+          coNewPass: null,
+        },
+
+        toggleOldPass: true,
+        toggleNewPass: true,
+        toggleCoNewPass: true,
       }
     },
 
@@ -405,6 +531,43 @@
 
       confirmAndCheckProfileSSO: function(){
         window.location.reload();
+      },
+
+      openModalConfirmChangePassword: function(){
+        $('#modalConfirmChangeNewPassword').modal('show');
+      },
+
+      confirmChangePassword: async function(){
+        $('#modalConfirmChangeNewPassword').modal('hide');
+        this.$root.showLoading();
+        const datas = {
+          user_id: this.dataUserRegister.id,
+          oldPass: this.dataResetPassword.oldPass,
+          newPass: this.dataResetPassword.newPass,
+          coNewPass: this.dataResetPassword.coNewPass,
+        };
+
+        try{
+          const request = await axios({
+            method: 'put',
+            url: this.$root.API_ERP + '/pos/resetPasswordCurrentUser',
+            data: datas
+          });
+
+          this.$root.hideLoading();
+          const reqData = request.data;
+          this.$root.clearSessionLocalStorege();
+          window.location.reload();
+          // this.$root.showAlertFunction('success', 'Reset Password!', 'Ubah password terlah berhasil, Silahkan login kembali');
+        }catch(e){
+          if(e.response.data.status == 101){
+            this.$root.showAlertFunction('warning', 'Reset Password!', `Reset Password Gagal! ${e.response.data.message}.`);
+          }else{
+            this.$root.showAlertFunction('warning', 'Reset Password!', 'Terjadi kesalahan! Coba beberapa saat lagi atau hubungi Administrator.');
+          }
+          this.$root.hideLoading();
+          console.log(e);
+        }
       }
     },
   }
