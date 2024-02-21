@@ -781,6 +781,7 @@ export default {
       showModal: false,
       showmodal_zindex: "z-index:1030",
       grid2: new Grid(),
+      grid4: new Grid(),
       dataTr103: {},
 
       showModal11: false,
@@ -1883,7 +1884,7 @@ export default {
       //////////////////////////////
       //////////////////////////////
       this.grid4.updateConfig({
-        search: true,
+        // search: true,
         pagination: {
           limit: 20,
         },
