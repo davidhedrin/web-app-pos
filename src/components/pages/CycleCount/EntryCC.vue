@@ -986,15 +986,17 @@ export default {
       Object.keys(mythis.var_SO_awal_batch).forEach(async function (key) {
         n += parseInt(mythis.var_SO_awal_batch[key].stockOpnameQty);
 
-        var cc = mythis.var_SO_awal_batch[key].batch;
-        var output2 = doublex.hasOwnProperty(cc);
-        console.log(cc);
-        console.log(output2);
-        if (output2 == true) {
-          double_batch = 1;
+        if (mythis.var_SO_awal_batch[key].batch != "000000") {
+          var cc = mythis.var_SO_awal_batch[key].batch;
+          var output2 = doublex.hasOwnProperty(cc);
+          console.log(cc);
+          console.log(output2);
+          if (output2 == true) {
+            double_batch = 1;
+          }
+  
+          doublex[cc] = 1;
         }
-
-        doublex[cc] = 1;
       });
 
       console.log("a");
