@@ -351,6 +351,8 @@ export default {
 
       limit_x: 100,
       nomor_x: 1,
+
+      uObject: "",
     };
   },
   mounted() {

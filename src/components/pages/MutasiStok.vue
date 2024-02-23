@@ -49,6 +49,7 @@
               v-model="tmp_storeCode"
               @update:modelValue="mySelectEvent()"
               :clearable="false"
+              disabled
             ></v-select>
           </div>
         </div>
@@ -107,15 +108,15 @@
           <select v-model="picked" class="form-select" aria-label="Default select example">
             <option value="" selected>Select View</option>
             <option value="unit">Unit</option>
-            <option value="value">Value</option>
-            <option value="unit_value">Unit Value</option>
+            <option value="unit_value">Value Parice</option>
+            <option value="value_cost">Value Cost</option>
           </select>
           <!-- <div>
             <input type="radio" value="unit" v-model="picked" />
             <span> Unit</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input type="radio" value="value" v-model="picked" />
-            <span> Value</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <input type="radio" value="unit_value" v-model="picked" />
+            <span> Value</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="radio" value="value_cost" v-model="picked" />
             <span> Unit Value</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div> -->
         </div>
@@ -123,9 +124,22 @@
           <button class="btn btn-primary" type="button" @click="prosesDataMutasi()">
             Process <span class="fas fa-search"></span>
           </button>
+        </div>
+        <div class="col-md-12 mb-2">
           <button v-if="flagDownloadPDF == 1" class="btn btn-info ms-3" type="button" @click="exportToPDF()">
-            Download <span class="fas fa-file-pdf"></span>
+            Download PDF<span class="fas fa-file-pdf"></span>
           </button>
+          <download-excel
+            class="btn btn-default"
+            :data="json_data"
+            :fields="json_fields"
+            :worksheet="nama_sheetnya"
+            :name="nama_excelnya"
+          >
+            <button class="btn btn-sm btn-success">
+              <i class="fas fa-file-excel"></i> Download Excel
+            </button>
+          </download-excel>
         </div>
       </div>
 
@@ -292,9 +306,10 @@ import $ from "jquery";
 import Swal from "sweetalert2";
 
 import html2pdf from "html2pdf.js";
+import JsonExcel from "vue-json-excel3";
 
 export default {
-  components: { Pages, FormInput, Button, FormModal },
+  components: { Pages, FormInput, Button, FormModal, downloadExcel: JsonExcel },
   props: {
     params: {
       default: null,
@@ -373,6 +388,43 @@ export default {
 
       limit_x: 100,
       nomor_x: 1,
+
+      uObject: "",
+
+      data_x_tabel: [],
+      data_x_excel: [],
+      nama_excelnya: "Mutasi_Stock",
+      nama_sheetnya: "Mutasi_Stock",
+
+      json_data: [],
+      json_meta: [
+        [
+          {
+            key: "charset",
+            value: "utf-8",
+          },
+        ],
+      ],
+
+      json_fields: {
+        Nomor: "nomor",
+        "Item Code": "itemcode",
+        "Item Name": "itemname",
+        "Stock Awal": "awalqty",
+        "Gudang 15": "beliqty",
+        "T.In": "tinqty",
+        "In SO": "inso",
+        "In Lain": "inlain",
+        "Out POS": "posqty",
+        "Out POS Promo": "posqty_promo",
+        "Out POS NonPromo": "posqty_nonpromo",
+        "T.Out": "toutqty",
+        "SO Out": "soout",
+        "Out Lain": "outlain",
+        "IN Total": "intotal",
+        "Out Total": "outtotal",
+        "Stock Akhir": "akhirqty",
+      },
     };
   },
   mounted() {
@@ -391,6 +443,119 @@ export default {
     this.$root.hideLoading();
   },
   methods: {
+    async getDataStokMutation_excel() {
+      var mythis = this;
+      mythis.$root.showLoading();
+
+      var storeCode = mythis.todo.storeCode;
+      var whsCode = mythis.todo.whsCode;
+      var optCode = mythis.todo.optCode;
+      var optDetail = mythis.todo.optDetail;
+      var priceCode = mythis.todo.priceCode;
+      var viewx = mythis.picked;
+
+      var tanggal =
+        mythis.todo.tahun + "-" + mythis.todo.bulan + "-" + mythis.todo.lastday;
+
+      mythis.nomor_x = 1;
+      var br_pdf = 0;
+      var br_flag = 0;
+      var br_string = "";
+
+      var html = "";
+      var nn = 0;
+      var count = 1;
+      var limitx = mythis.limit_x;
+      var offsetx = 0;
+
+      var baris = 0;
+
+      while (count > 0) {
+        offsetx = limitx * nn;
+
+        /*
+&storeCode=${storeCode}&whsCode=${whsCode}&tglCutOff=${tanggal}&priceCode=${priceCode}&optCode=${optCode}&optDetail=${optDetail}&viewx=${viewx}`
+
+
+        */
+        const reqData = await axios({
+          method: "get",
+          url:
+            this.$root.API_ERP +
+            "/wms/mutasiStokRincian/" +
+            "?limit=" +
+            limitx +
+            "&offset=" +
+            offsetx +
+            "&storeCode=" +
+            storeCode +
+            "&whsCode=" +
+            whsCode +
+            "&tglCutOff=" +
+            tanggal +
+            "&priceCode=" +
+            priceCode +
+            "&optCode=" +
+            optCode +
+            "&optDetail=" +
+            optDetail +
+            "&viewx=" +
+            viewx +
+            "",
+        });
+
+        const resData = reqData.data;
+        mythis.x_nomor_baris = parseInt(resData.nomorBaris);
+        mythis.x_count = parseInt(resData.count);
+
+        if (resData.results.length > 0) {
+          Object.keys(resData.results).forEach(function (key) {
+            const countries_x = {
+              nomor: baris + 1,
+              itemcode: resData.results[key].itemcode,
+              itemname: resData.results[key].itemname,
+              awalqty: resData.results[key].awalqty,
+              beliqty: resData.results[key].beliqty,
+              tinqty: resData.results[key].tinqty,
+              inso: resData.results[key].inso,
+              inlain: resData.results[key].inlain,
+              posqty: resData.results[key].posqty,
+              posqty_promo: resData.results[key].posqty_promo,
+              posqty_nonpromo: resData.results[key].posqty_nonpromo,
+              toutqty: resData.results[key].toutqty,
+              soout: resData.results[key].soout,
+              outlain: resData.results[key].outlain,
+              intotal: resData.results[key].intotal,
+              outtotal: resData.results[key].outtotal,
+              akhirqty: resData.results[key].akhirqty,
+            };
+            mythis.data_x_excel[baris] = countries_x;
+            baris = baris + 1;
+          });
+        }
+
+        nn = nn + 1;
+        //console.log("MASUKK A");
+        // console.log("aaa " + mythis.x_count + "<" + mythis.x_nomor_baris);
+        if (mythis.x_count < mythis.x_nomor_baris) {
+          count = 0;
+          //console.log("MASUKK B");
+        }
+        if (nn >= 30) {
+          count = 0;
+        }
+      }
+      
+      mythis.$root.hideLoading();
+
+      mythis.json_data = mythis.data_x_excel;
+      var a = new Date().toLocaleString("en-GB");
+      mythis.nama_excelnya = "Mutasi_Stock_" + a + ".xls";
+      mythis.nama_sheetnya = "Mutasi_Stock_" + a + ".xls";
+
+      return html;
+    },
+
     async getDataStokMutation() {
       var mythis = this;
 
@@ -498,11 +663,19 @@ export default {
               '</th><th style="text-align:right">' +
               resData.results[key].tinqty.toLocaleString("en-US") +
               '</th><th style="text-align:right">' +
+              resData.results[key].inso.toLocaleString("en-US") +
+              '</th><th style="text-align:right">' +
               resData.results[key].inlain.toLocaleString("en-US") +
               '</th><th style="text-align:right">' +
               resData.results[key].posqty.toLocaleString("en-US") +
               '</th><th style="text-align:right">' +
+              resData.results[key].posqty_promo.toLocaleString("en-US") +
+              '</th><th style="text-align:right">' +
+              resData.results[key].posqty_nonpromo.toLocaleString("en-US") +
+              '</th><th style="text-align:right">' +
               resData.results[key].toutqty.toLocaleString("en-US") +
+              '</th><th style="text-align:right">' +
+              resData.results[key].soout.toLocaleString("en-US") +
               '</th><th style="text-align:right">' +
               resData.results[key].outlain.toLocaleString("en-US") +
               '</th><th style="text-align:right">' +
@@ -710,14 +883,18 @@ export default {
       var tanggal =
         mythis.todo.tahun + "-" + mythis.todo.bulan + "-" + mythis.todo.lastday;
 
-      if (mythis.picked == "unit" || mythis.picked == "value") {
+      if (
+        mythis.picked == "unit" ||
+        mythis.picked == "value" ||
+        mythis.picked == "value_cost"
+      ) {
         var data_x = await this.getDataStokMutation();
         var judul =
-          ' <tr> <th class="borderx">No.</th><th class="borderx">Item Code</th><th class="borderx">Item Name</th><th class="borderx" style="text-align:right">Qty Awal</th><th class="borderx" style="text-align:right">Qty Beli</th><th style="text-align:right" class="borderx">T.In</th><th style="text-align:right" class="borderx">In Lain</th><th style="text-align:right" class="borderx">Pos Qty</th><th style="text-align:right" class="borderx">Qty Out</th><th style="text-align:right" class="borderx">Out Lain</th><th style="text-align:right" class="borderx">In Total</th><th style="text-align:right" class="borderx">Out Total</th><th style="text-align:right" class="borderx">Qty Akhir</th></tr>';
+          ' <tr> <th class="borderx">No.</th><th class="borderx">Item Code</th><th class="borderx">Item Name</th><th class="borderx" style="text-align:right">Qty Awal</th><th class="borderx" style="text-align:right">In Gudang15</th><th style="text-align:right" class="borderx">T.In</th><th style="text-align:right" class="borderx">In SO</th><th style="text-align:right" class="borderx">In Lain</th><th style="text-align:right" class="borderx">Out POS</th><th style="text-align:right" class="borderx">Out POS Promo</th><th style="text-align:right" class="borderx">Out POS NonPromo</th><th style="text-align:right" class="borderx">T.Out</th><th style="text-align:right" class="borderx">Out SO</th><th style="text-align:right" class="borderx">Out Lain</th><th style="text-align:right" class="borderx">In Total</th><th style="text-align:right" class="borderx">Out Total</th><th style="text-align:right" class="borderx">Qty Akhir</th></tr>';
       } else {
         var data_x = await this.getDataStokMutation_unit_value();
         var judul =
-          '<tr> <th class="borderx">No.</th><th class="borderx">Item Code</th><th class="borderx">Item Name</th><th class="borderx" style="text-align:right">Qty Awal</th><th class="borderx" style="text-align:right">Qty Beli</th><th style="text-align:right" class="borderx">T.In</th><th style="text-align:right" class="borderx">In Lain</th><th style="text-align:right" class="borderx">Pos Qty</th><th style="text-align:right" class="borderx">Qty Out</th><th style="text-align:right" class="borderx">Out Lain</th><th style="text-align:right" class="borderx">In Total</th><th style="text-align:right" class="borderx">Out Total</th><th style="text-align:right" class="borderx">Qty Akhir</th><th class="borderx" style="text-align:right">Qty Awal Val</th><th class="borderx" style="text-align:right">Qty Beli Val</th><th style="text-align:right" class="borderx">T.In Val</th><th style="text-align:right" class="borderx">In Lain Val</th><th style="text-align:right" class="borderx">Pos Qty Val</th><th style="text-align:right" class="borderx">Qty Out Val</th><th style="text-align:right" class="borderx">Out Lain Val</th><th style="text-align:right" class="borderx">In Total Val</th><th style="text-align:right" class="borderx">Out Total Val</th><th style="text-align:right" class="borderx">Qty Akhir Val</th></tr>';
+          '<tr> <th class="borderx">No.</th><th class="borderx">Item Code</th><th class="borderx">Item Name</th><th class="borderx" style="text-align:right">Qty Awal</th><th class="borderx" style="text-align:right">In Gudang15</th><th style="text-align:right" class="borderx">T.In</th><th style="text-align:right" class="borderx">In Lain</th><th style="text-align:right" class="borderx">Pos Qty</th><th style="text-align:right" class="borderx">Qty Out</th><th style="text-align:right" class="borderx">Out Lain</th><th style="text-align:right" class="borderx">In Total</th><th style="text-align:right" class="borderx">Out Total</th><th style="text-align:right" class="borderx">Qty Akhir</th><th class="borderx" style="text-align:right">Qty Awal Val</th><th class="borderx" style="text-align:right">In Gudang15 Val</th><th style="text-align:right" class="borderx">T.In Val</th><th style="text-align:right" class="borderx">In Lain Val</th><th style="text-align:right" class="borderx">Pos Qty Val</th><th style="text-align:right" class="borderx">Qty Out Val</th><th style="text-align:right" class="borderx">Out Lain Val</th><th style="text-align:right" class="borderx">In Total Val</th><th style="text-align:right" class="borderx">Out Total Val</th><th style="text-align:right" class="borderx">Qty Akhir Val</th></tr>';
       }
 
       var xxx =
@@ -744,7 +921,7 @@ export default {
         ' </tr> </table>  <table id="tb-item" cellpadding="4" border="0">' +
         judul +
         data_x +
-        '<tr> <th colspan="13" class="bordery"></th></tr> </table>';
+        '<tr> <th colspan="17" class="bordery"></th></tr> </table>';
 
       //'<tr> <th colspan="2" class="bordery">Mengetahui,</th> <th style="text-align:right" colspan="2" class="">Menyetujui,</th> <th style="text-align:right" colspan="2" class="">&nbsp</th> </tr>
 
@@ -862,7 +1039,7 @@ export default {
           {
             id: "beliqty",
             name: html(
-              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Qty Beli</b></div>'
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>In Gudang15</b></div>'
             ),
           },
 
@@ -896,7 +1073,7 @@ export default {
           {
             id: "toutqty",
             name: html(
-              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Qty Out</b></div>'
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>T.Out</b></div>'
             ),
           },
 
@@ -944,7 +1121,7 @@ export default {
           {
             id: "beliqtyval",
             name: html(
-              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Qty Beli Value</b></div>'
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>In Gudang15 Value</b></div>'
             ),
           },
 
@@ -1175,7 +1352,7 @@ export default {
           {
             id: "beliqty",
             name: html(
-              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Qty Beli</b></div>'
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>In Gudang15</b></div>'
             ),
           },
 
@@ -1203,13 +1380,25 @@ export default {
           {
             id: "posqty",
             name: html(
-              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Pos</b></div>'
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Total Out POS</b></div>'
+            ),
+          },
+          {
+            id: "posqty_promo",
+            name: html(
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Out POS Promo</b></div>'
+            ),
+          },
+          {
+            id: "posqty_nonpromo",
+            name: html(
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Out POS NonPromo</b></div>'
             ),
           },
           {
             id: "toutqty",
             name: html(
-              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Qty Out</b></div>'
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>T.Out</b></div>'
             ),
           },
 
@@ -1280,6 +1469,8 @@ export default {
               card.inso.toLocaleString("en-US"),
               card.inlain.toLocaleString("en-US"),
               card.posqty.toLocaleString("en-US"),
+              card.posqty_promo.toLocaleString("en-US"),
+              card.posqty_nonpromo.toLocaleString("en-US"),
               card.toutqty.toLocaleString("en-US"),
               card.soout.toLocaleString("en-US"),
               card.outlain.toLocaleString("en-US"),
@@ -1307,7 +1498,7 @@ export default {
 
       mythis.flagDownloadPDF = 1;
     },
-    prosesDataMutasi() {
+    async prosesDataMutasi() {
       var mythis = this;
 
       if (this.todo.storeCode == "" || this.todo.storeCode == undefined) {
@@ -1377,8 +1568,13 @@ export default {
 
       mythis.todo.bulan = String(mythis.todo.bulan).padStart(2, "0");
 
-      if (mythis.picked == "unit" || mythis.picked == "value") {
+      if (
+        mythis.picked == "unit" ||
+        mythis.picked == "value" ||
+        mythis.picked == "value_cost"
+      ) {
         mythis.getTable();
+        var yyy = await mythis.getDataStokMutation_excel();
       } else {
         mythis.getTable_unit_value();
       }
@@ -1391,8 +1587,18 @@ export default {
       axios
         .get(this.$root.API_ERP + "/wms/getCbooptDetail" + "?id=" + id)
         .then((res) => {
-          mythis.optDetailOptions = res.data.data;
+          //mythis.optDetailOptions = res.data.data;
           //console.log(res.data.data);
+
+          const newFirstElement = {
+            code: "all",
+            label: "All Product",
+          };
+
+          const newArray = [newFirstElement].concat(res.data.data);
+
+          mythis.optDetailOptions = newArray;
+
           mythis.$root.hideLoading();
         });
     },
@@ -1665,7 +1871,12 @@ export default {
         .get(this.$root.API_ERP + "/wms/getCbostoreCode")
         .then((res) => {
           mythis.storeCodeOptions = res.data.data;
-          //console.log(res.data.data);
+          
+          const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
+          this.tmp_storeCode = res.data.data.find(x => x.code == cacheStoreAccess.store_code);
+          
+          this.todo.storeCode = this.tmp_storeCode.code;
+          this.todo.storeCodeName = this.tmp_storeCode.label;
           mythis.$root.hideLoading();
         });
     },
