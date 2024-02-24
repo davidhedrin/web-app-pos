@@ -117,10 +117,10 @@
                     </span>
                     <span v-else>
                       <span v-if="$root.filterDiskonProduct(data.product).discCode == master_code.diskon.tanpa_diskon_code">
-                        {{ $root.formatPrice($root.filterPriceProduct(data.product).price) }}
+                        {{ $root.formatPrice(data.product.all_product_price[0].price) }}
                       </span>
                       <span v-else>
-                        {{ $root.formatPrice($root.filterPriceProduct(data.product).price - ($root.filterPriceProduct(data.product).price * ($root.filterDiskonProduct(data.product).discount/100))) }}
+                        {{ $root.formatPrice(data.product.all_product_price[0].price - (data.product.all_product_price[0].price * ($root.filterDiskonProduct(data.product).discount/100))) }}
                       </span>
                     </span>
                   </td>
@@ -334,28 +334,33 @@
                         <div v-if="product.promo_product_id">
                           <strong class="fs-md-0 text-warning mb-0 text-center">
                             Rp
-                            <span v-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
-                              {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }}
-                            </span>
-                            <span v-else-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
-                              {{ $root.formatPrice(product.for_product.all_product_price[0].price - product.master_promo_product.value_potongan) }}
-                            </span>
-
-                            <del v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="text-secondary fs--1 ms-1">
+                            <span v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.bundle">
                               {{ $root.formatPrice(product.for_product.all_product_price[0].price) }}
-                            </del>
+                            </span>
+                            <span v-else-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent">
+                              <span v-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                                {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }}
+                              </span>
+                              <span v-else-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                                {{ $root.formatPrice(product.for_product.all_product_price[0].price - product.master_promo_product.value_potongan) }}
+                              </span>
+  
+                              <del class="text-secondary fs--1 ms-1">
+                                {{ $root.formatPrice(product.for_product.all_product_price[0].price) }}
+                              </del>
+                            </span>
                           </strong>
                         </div>
                         <div v-else>
                           <div v-if="$root.filterDiskonProduct(product).discCode == master_code.diskon.tanpa_diskon_code">
                             <strong class="fs-md-0 text-warning mb-0 text-center">
-                              Rp {{ $root.formatPrice($root.filterPriceProduct(product).price) }}
+                              Rp {{ $root.formatPrice(product.all_product_price[0].price) }}
                             </strong>
                           </div>
                           <div v-else>
                             <strong class="fs-md-0 text-warning mb-0 text-center">
-                              Rp {{ $root.formatPrice($root.filterPriceProduct(product).price - ($root.filterPriceProduct(product).price * ($root.filterDiskonProduct(product).discount/100))) }}
-                              <del class="text-secondary fs--1">{{ $root.formatPrice($root.filterPriceProduct(product).price) }}</del>
+                              Rp {{ $root.formatPrice(product.all_product_price[0].price - (product.all_product_price[0].price * ($root.filterDiskonProduct(product).discount/100))) }}
+                              <del class="text-secondary fs--1">{{ $root.formatPrice(product.all_product_price[0].price) }}</del>
                             </strong>
                           </div>
                         </div>
@@ -862,7 +867,7 @@
                           Rp
                           <span v-if="product.master_promo_id">
                             <span v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.bundle">
-                              {{ $root.formatPrice($root.filterPriceProduct(product.for_product).price) }}
+                              {{ $root.formatPrice(product.for_product.all_product_price[0].price) }}
                             </span>
                             <span v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent">
                               <span v-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
@@ -872,15 +877,15 @@
                                 {{ $root.formatPrice(product.for_product.all_product_price[0].price - product.master_promo_product.value_potongan) }}
                               </span>
 
-                              <!-- {{ $root.formatPrice($root.filterPriceProduct(product.for_product).price - ($root.filterPriceProduct(product.for_product).price * (product.master_promo_product.percent/100))) }} -->
+                              <!-- {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }} -->
                             </span>
                           </span>
                           <span v-else>
                             <span v-if="$root.filterDiskonProduct(product).discCode == master_code.diskon.tanpa_diskon_code">
-                              {{ $root.formatPrice($root.filterPriceProduct(product).price) }}
+                              {{ $root.formatPrice(product.all_product_price[0].price) }}
                             </span>
                             <span v-else>
-                              {{ $root.formatPrice($root.filterPriceProduct(product).price - ($root.filterPriceProduct(product).price * ($root.filterDiskonProduct(product).discount/100))) }}
+                              {{ $root.formatPrice(product.all_product_price[0].price - (product.all_product_price[0].price * ($root.filterDiskonProduct(product).discount/100))) }}
                             </span>
                           </span>
                         </td>
@@ -1137,7 +1142,7 @@
                           </div>
                         </h5>
                         <strong class="fs-md-0 text-warning mb-0 text-center">
-                          Rp {{ $root.formatPrice($root.filterPriceProduct(product).price) }}
+                          Rp {{ $root.formatPrice(product.all_product_price[0].price) }}
                         </strong>
                       </div>
                     </div>
@@ -1543,13 +1548,13 @@
                             <div>
                               <div v-if="$root.filterDiskonProduct(product).discCode == master_code.diskon.tanpa_diskon_code">
                                 <strong class="fs-md-0 text-warning mb-0 text-center">
-                                  Rp {{ $root.formatPrice($root.filterPriceProduct(product).price) }}
+                                  Rp {{ $root.formatPrice(product.all_product_price[0].price) }}
                                 </strong>
                               </div>
                               <div v-else>
                                 <strong class="fs-md-0 text-warning mb-0 text-center">
-                                  Rp {{ $root.formatPrice($root.filterPriceProduct(product).price - ($root.filterPriceProduct(product).price * ($root.filterDiskonProduct(product).discount/100))) }}
-                                  <del class="text-secondary fs--1">{{ $root.formatPrice($root.filterPriceProduct(product).price) }}</del>
+                                  Rp {{ $root.formatPrice(product.all_product_price[0].price - (product.all_product_price[0].price * ($root.filterDiskonProduct(product).discount/100))) }}
+                                  <del class="text-secondary fs--1">{{ $root.formatPrice(product.all_product_price[0].price) }}</del>
                                 </strong>
                               </div>
                             </div>
@@ -1633,16 +1638,21 @@
                             <div v-if="product.promo_product_id">
                               <strong class="fs-md-0 text-warning mb-0 text-center">
                                 Rp
-                                <span v-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
-                                  {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }}
-                                </span>
-                                <span v-else-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
-                                  {{ $root.formatPrice(product.for_product.all_product_price[0].price - product.master_promo_product.value_potongan) }}
-                                </span>
-
-                                <del v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="text-secondary fs--1 ms-1">
+                                <span v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.bundle">
                                   {{ $root.formatPrice(product.for_product.all_product_price[0].price) }}
-                                </del>
+                                </span>
+                                <span v-else-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent">
+                                  <span v-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.percent">
+                                    {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }}
+                                  </span>
+                                  <span v-else-if="product.master_promo_product.tipe_potongan == master_code.tipe_potongan.value">
+                                    {{ $root.formatPrice(product.for_product.all_product_price[0].price - product.master_promo_product.value_potongan) }}
+                                  </span>
+  
+                                  <del v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="text-secondary fs--1 ms-1">
+                                    {{ $root.formatPrice(product.for_product.all_product_price[0].price) }}
+                                  </del>
+                                </span>
                                 
                                 <!-- Rp {{ $root.formatPrice(product.for_product.all_product_price[0].price - (product.for_product.all_product_price[0].price * (product.master_promo_product.percent/100))) }}
                                 <del v-if="product.master_promo_product.tipe_promo == master_coll.tipePromo.percent" class="text-secondary fs--1">
@@ -2588,7 +2598,7 @@
         </div>
         <div v-else>
           <h5 class="text-warning mb-0">
-            Rp {{ $root.formatPrice($root.filterPriceProduct(productShowDetail).price) }}
+            Rp {{ $root.formatPrice(productShowDetail.all_product_price[0].price) }}
           </h5>
         </div>
       </div>
@@ -3605,14 +3615,22 @@ export default {
       product.all_inventory_stok = [];
       product.all_inventory_stok.push(findSelectInventory);
 
-      const productObj = {
-        product: product,
-        qty: 1,
-        batch: batch,
-        is_promo_product: null,
-        is_free_product: true,
-      };
-      this.dataProductInList.push(productObj);
+      const existingProduct = this.dataProductInList.find((p) => { 
+        return !p.is_promo_product && p.is_free_product  && p.product.itemCode === product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim()
+      });
+      
+      if (existingProduct) {
+        existingProduct.qty += 1;
+      } else {
+        const productObj = {
+          product: product,
+          qty: 1,
+          batch: batch,
+          is_promo_product: null,
+          is_free_product: true,
+        };
+        this.dataProductInList.push(productObj);
+      }
 
       this.inputSearchFreeProduct = '';
       this.allDataFindProductFree = [];
@@ -3732,7 +3750,9 @@ export default {
             console.log(error);
           }
         }else{ // Jika product reguler
-          existingProduct = this.dataProductInList.find((p) => !p.is_promo_product && p.product.itemCode === product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim());
+          existingProduct = this.dataProductInList.find((p) => { 
+            return !p.is_promo_product && !p.is_free_product  && p.product.itemCode === product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim()
+          });
         }
 
         if (existingProduct) {
