@@ -960,10 +960,10 @@ export default {
       var_to_variant_fix: {},
 
       showModal88: false,
-      showmodal88_zindex: "z-index:1002",
+      showmodal88_zindex: "z-index:1031",
 
       showModal99: false,
-      showmodal99_zindex: "z-index:1003",
+      showmodal99_zindex: "z-index:1031",
 
       acuanAddBatch: "",
       acuanAddBatch_value: "",

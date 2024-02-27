@@ -830,7 +830,7 @@ export default {
       uObject: "",
 
       showModal88: false,
-      showmodal88_zindex: "z-index:1002",
+      showmodal88_zindex: "z-index:1031",
 
       acuanAddBatch: "",
       acuanAddBatch_value: "",
