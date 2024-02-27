@@ -1782,7 +1782,7 @@ export default {
         server: {
           url:
             this.$root.API_ERP +
-            "/wms/pagingRincianTOUpdate/" +
+            "/wms/pagingRincianTOUpdate_rev/" +
             this.idRincianUpdate,
           then: (data) =>
             data.results.map((card) => [
