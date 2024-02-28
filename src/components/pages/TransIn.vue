@@ -1666,7 +1666,7 @@ export default {
         fixedHeader: true,
         height: "10",
         pagination: {
-          limit: 20,
+          limit: 50,
           server: {
             url: (prev, page, limit) =>
               `${prev}${prev.includes("?") ? "&" : "?"}limit=${limit}&offset=${

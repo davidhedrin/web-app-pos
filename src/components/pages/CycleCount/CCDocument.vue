@@ -711,7 +711,7 @@ export default {
       var mythis = this;
 
       mythis.$root.showLoading();
-      var limitx = 500;
+      var limitx = 100;
       var count = 1;
       var key_split = 1;
       var a = mythis.tabel_ticket_so.length / limitx;
@@ -852,7 +852,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 500;
+      var limitx = 100;
       var offsetx = 0;
       var baris = 0;
 
@@ -1075,7 +1075,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 500;
+      var limitx = 100;
       var offsetx = 0;
       var baris = 0;
 
@@ -1274,7 +1274,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 500;
+      var limitx = 100;
       var offsetx = 0;
       var baris = 0;
 

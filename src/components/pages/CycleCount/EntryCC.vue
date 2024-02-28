@@ -1173,7 +1173,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 500;
+      var limitx = 100;
       var offsetx = 0;
       var baris = 0;
 
@@ -1774,7 +1774,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 500;
+      var limitx = 100;
       var offsetx = 0;
       var baris = 0;
 
@@ -2195,7 +2195,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 500;
+      var limitx = 100;
       var offsetx = 0;
       var baris = 0;
 
@@ -2331,7 +2331,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 500;
+      var limitx = 100;
       var offsetx = 0;
       var baris = 0;
 
