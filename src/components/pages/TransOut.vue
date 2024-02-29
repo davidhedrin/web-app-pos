@@ -1239,6 +1239,7 @@ export default {
     },
     tambah_batch() {
       var mythis = this;
+      mythis.var_batch = {};
       mythis.$root.showLoading();
       axios
         .get(

@@ -70,7 +70,7 @@
             </h3>
 
             <br />
-            <button
+            <button v-if="dataTr104.docStatus == 'O'"
               id="tambah_batch"
               class="btn btn-sm btn-success text-white"
               @click="tambah_batch"
@@ -202,6 +202,7 @@
                       event.keyCode == 69 ? false : true"
                       style="width: 6em"
                       min="0"
+                      :disabled="dataTr104.docStatus == 'C'"
                     />
                   </td>
                   <td class="text-center">
@@ -234,7 +235,7 @@
             <br />
             <br />
             <br />
-            <div class="text-center">
+            <div class="text-center" v-if="dataTr104.docStatus == 'O'">
               <button
                 type="button"
                 class="btn btn-success"
