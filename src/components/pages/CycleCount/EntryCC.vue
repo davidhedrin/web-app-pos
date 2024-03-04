@@ -837,7 +837,7 @@ export default {
       x_nomor_baris: 0,
       x_count: 0,
 
-      limit_x: 100,
+      limit_x: 50,
       nomor_x: 1,
       html_pdf: "",
       flagDownloadPDF: 0,
@@ -1174,7 +1174,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 100;
+      var limitx = 50;
       var offsetx = 0;
       var baris = 0;
 
@@ -1372,7 +1372,7 @@ export default {
       var mythis = this;
       //kz
       mythis.$root.showLoading();
-      var limitx = 100;
+      var limitx = 50;
       var count = 1;
       var key_split = 1;
       //var a = mythis.var_SO_awal.length / limitx;
@@ -1507,7 +1507,7 @@ export default {
       var mythis = this;
       //kz
       mythis.$root.showLoading();
-      var limitx = 100;
+      var limitx = 50;
       var count = 1;
       var key_split = 1;
       //var a = mythis.var_SO_awal.length / limitx;
@@ -1775,7 +1775,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 100;
+      var limitx = 50;
       var offsetx = 0;
       var baris = 0;
 
@@ -2196,7 +2196,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 100;
+      var limitx = 50;
       var offsetx = 0;
       var baris = 0;
 
@@ -2332,7 +2332,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 100;
+      var limitx = 50;
       var offsetx = 0;
       var baris = 0;
 
