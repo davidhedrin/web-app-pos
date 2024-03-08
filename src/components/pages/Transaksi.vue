@@ -159,6 +159,11 @@
                 </button>
               </td>
             </tr>
+            <tr>
+              <td class="text-end" colspan="8">
+                Total Amount: <span class="text-warning">Rp {{ $root.formatPrice(totalAmountTrasactionRange) }}</span>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -491,6 +496,7 @@
         currentPageTr: 1,
         perPageTr: 10,
         totalPageTr: 0,
+        totalAmountTrasactionRange: 0,
 
         dataTransactionReport: null,
         dateRangeValueTr: [],
@@ -553,6 +559,7 @@
           this.currentPageTr = response.current_page;
           this.totalPageTr = response.last_page;
           this.dataAllTransaction = response.data;
+          this.totalAmountTrasactionRange = response.data.reduce((total, data) => total + parseInt(data.paymentAmount), 0);
 
           this.updateDisplayedPagesTr();
         } catch (error) {
