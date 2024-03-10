@@ -40,7 +40,7 @@
             <!-- <span class="badge badge-subtle-success rounded-pill ms-2">9.54%</span> -->
           </h6>
           <div class="display-4 fs-3 mb-1 fw-normal font-sans-serif">
-            {{ dataAllTransaction.length }}
+            {{ totalTransactionRow }}
           </div>
           <span class="fw-semi-bold fs--1 text-nowrap">
             {{ $root.formatDate(dateRangeValueTr[0]) }} - {{ $root.formatDate(dateRangeValueTr[1]) }}
@@ -496,6 +496,8 @@
         currentPageTr: 1,
         perPageTr: 10,
         totalPageTr: 0,
+
+        totalTransactionRow: 0,
         totalAmountTrasactionRange: 0,
 
         dataTransactionReport: null,
@@ -555,11 +557,14 @@
             },
           });
 
-          const response = getAllDataTr.data;
+          const response = getAllDataTr.data.data;
           this.currentPageTr = response.current_page;
           this.totalPageTr = response.last_page;
           this.dataAllTransaction = response.data;
-          this.totalAmountTrasactionRange = response.data.reduce((total, data) => total + parseInt(data.paymentAmount), 0);
+
+          const dataTr = getAllDataTr.data.report_data[0];
+          this.totalTransactionRow = dataTr.total_row_trans ? parseInt(dataTr.total_row_trans) : 0;
+          this.totalAmountTrasactionRange = dataTr.total_amount_trans ? parseInt(dataTr.total_amount_trans) : 0;
 
           this.updateDisplayedPagesTr();
         } catch (error) {
