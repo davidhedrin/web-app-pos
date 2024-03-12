@@ -35,11 +35,11 @@
     <div>
       <!------------------------>
 
-      <div style="text-align: right">
+      <!-- <div style="text-align: right">
         <button type="button" class="btn btn-success" @click="clickNew()">
           NEW
         </button>
-      </div>
+      </div> -->
       <div class="block-content">
         <div id="wrapper2"></div>
         <div id="box"></div>
