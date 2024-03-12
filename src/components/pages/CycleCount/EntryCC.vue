@@ -93,7 +93,7 @@
                   <td class="text-center"><strong>Batch No</strong></td>
                   <td class="text-center"><strong>Expired Date</strong></td>
                   <td class="text-center"><strong>Admin Qty</strong></td>
-                  <td class="text-center"><strong>SO Qty</strong></td>
+                  <td class="text-center"><strong>CC Qty</strong></td>
                   <td class="text-center"><strong>#</strong></td>
                 </tr>
               </thead>
@@ -143,6 +143,9 @@
                           value[0] + 'AABBCC' + value[4] + 'AABBCC' + value[6]
                         ].batch == '000000'
                       "
+                      :readonly="
+                        dataTr104.docStatus == 'C' || value[11] == 'batchAwal'
+                      "
                     />
                   </td>
                   <td>
@@ -159,6 +162,9 @@
                         var_SO_awal_batch[
                           value[0] + 'AABBCC' + value[4] + 'AABBCC' + value[6]
                         ].batch == '000000'
+                      "
+                      :readonly="
+                        dataTr104.docStatus == 'C' || value[11] == 'batchAwal'
                       "
                     />
                   </td>
@@ -554,7 +560,7 @@
                   <tbody>
                     <tr>
                       <td class="text-left">
-                        <strong>SO Criteria</strong>
+                        <strong>CC Criteria</strong>
                       </td>
                       <td class="text-left">&nbsp;</td>
                       <td class="text-success text-left">&nbsp;</td>
@@ -906,7 +912,13 @@ export default {
       total_b: 0,
       total_c: 0,
 
+      page_tabel_current: 1,
+      txt_input_current: "",
+
       var_warna_item: "",
+      limit_x_tabel_cc: 20,
+
+      status_confirm: false,
     };
   },
   mounted() {
@@ -920,6 +932,96 @@ export default {
     this.$root.hideLoading();
   },
   methods: {
+    ///////////////////////////////////////////////////
+    async pengecekan_isian_batch() {
+      //////////////////////////////////////////////////////
+      var mythis = this;
+
+      await Swal.fire({
+        title: "Pengecekan Inputan CC",
+        html: "Mohon tunggu, proses pengecekan penginputan CC sedang berlangsung untuk memastikan inputan Batch sesuai.",
+        icon: "info",
+        allowEscapeKey: false,
+        allowOutsideClick: false,
+        timerProgressBar: true,
+        didOpen: async () => {
+          //here it will open the in progress box
+          Swal.showLoading();
+
+          //await mythis.sleep(3000);
+
+          ///////////////////////////////////////////////////////////////////////
+          ///////////////////////////////////////////////////////////////////////
+
+          var total_baris_data = 0;
+          Object.entries(mythis.var_SO_awal).forEach((entry) => {
+            total_baris_data++;
+          });
+
+          total_baris_data = total_baris_data - 1;
+          let total_halaman = Math.ceil(
+            parseInt(total_baris_data) / parseInt(mythis.limit_x_tabel_cc)
+          );
+
+          console.log(total_baris_data);
+          //console.log(mythis.var_SO_awal);
+          console.log(mythis.limit_x_tabel_cc);
+          console.log("cek isian " + total_halaman);
+          for (let i = 1; i <= total_halaman; i++) {
+            console.log("-------------------------------- halaman " + i);
+            await mythis.sleep(3000);
+            $("button[title='Page " + i + "']").click();
+            await mythis.sleep(3000);
+            //////////////////////////////////////////////////////
+            var beda = 0;
+            var a = 0;
+            var variant_beda = 0;
+            mythis.tabel_ticket_so.forEach((value) => {
+              //kasino
+              //variant_3080XXYYZZBE0613000281S
+              var a = "txt_" + value[0] + "XXYYZZ" + value[4];
+              var b = "qtyBatch_" + value[0] + "XXYYZZ" + value[4];
+              var c = "variant_" + value[0] + "XXYYZZ" + value[4];
+
+              let x_value = $("#" + a).val();
+              let x_value2 = $("#" + b).val();
+              let x_value3 = $("#" + c).val();
+
+              if (x_value == undefined) {
+                return;
+              }
+              console.log(x_value + "!=" + x_value2 + "!=" + x_value3);
+              if (parseInt(x_value) != parseInt(x_value2)) {
+                beda = 1;
+
+                console.log(
+                  "beda " + x_value + "!=" + x_value2 + "!=" + x_value3
+                );
+
+                $("#" + b).css("background-color", "#ff0303");
+              } else {
+                $("#" + b).css("background-color", "#ffffff");
+              }
+
+              if (parseInt(x_value3) != 0) {
+                variant_beda = 1;
+              }
+            });
+
+            if (beda == 1) {
+              Swal.close();
+              return "kotor";
+            }
+            //////////////////////////////////////////////////////
+          }
+          Swal.close();
+          return "bersih";
+
+          ///////////////////////////////////////////////////////////////////////
+        },
+      });
+      //////////////////////////////////////////////////////
+    },
     ///////////////////////////////////////////////////
     async kalkulasiTotal() {
       var mythis = this;
@@ -987,6 +1089,8 @@ export default {
       Object.keys(mythis.var_SO_awal_batch).forEach(async function (key) {
         n += parseInt(mythis.var_SO_awal_batch[key].stockOpnameQty);
 
+        //dimatikan 20240308 untuk batch bisa menginput double
+        /*
         if (mythis.var_SO_awal_batch[key].batch != "000000") {
           var cc = mythis.var_SO_awal_batch[key].batch;
           var output2 = doublex.hasOwnProperty(cc);
@@ -995,9 +1099,10 @@ export default {
           if (output2 == true) {
             double_batch = 1;
           }
-  
+
           doublex[cc] = 1;
         }
+        */
       });
 
       console.log("a");
@@ -1087,9 +1192,22 @@ export default {
             }
           });
           mythis.var_warna_item = "";
-          mythis.$root.hideLoading();
+          
           mythis.close88();
+          //$(".gridjs-currentPage").text("2");
           mythis.getDataSOTable();
+
+          await mythis.sleep(3000);
+
+          $("button[title='Page " + mythis.page_tabel_current + "']").click(); //kasinokz otomatis ke halaman terakhir
+          //$("button[title='Page 2']").click(); //kasinokz otomatis ke halaman terakhir
+
+          await mythis.sleep(3000);
+
+          $("#" + mythis.txt_input_current).focus();
+          $("#" + mythis.txt_input_current).css("background-color", "#C4FFCE");
+
+          mythis.$root.hideLoading();
         }
       });
     },
@@ -1227,6 +1345,7 @@ export default {
             resData.data[key].adminQty1,
             resData.data[key].stockOpnameQty,
             resData.data[key].varianceQty,
+            resData.data[key].batchAwal,
           ];
 
           mythis.var_so_d2[baris] = countries;
@@ -1304,9 +1423,9 @@ export default {
     ///////////////////////////////////////////////////
     ///////////////////////////////////////////////////
     ///////////////////////////////////////////////////
-    confirmTicket() {
+    async confirmTicket() {
       var mythis = this;
-      Swal.fire({
+      await Swal.fire({
         title: "Confirm?",
         text: "Apakah Anda ingin mengkonfirmasi CC ini? dan tidak bisa mengulang CC Entry?",
         icon: "question",
@@ -1315,11 +1434,14 @@ export default {
         showCancelButton: true,
         confirmButtonText: "Confirm",
         denyButtonText: `Batal`,
-      }).then((result) => {
+      }).then(async (result) => {
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
           //////////////////////////////////////////////////////
-          mythis.saveData();
+          mythis.status_confirm = true;
+          var statusx = await mythis.saveData_confirm_new();
+          if (statusx == false) return false;
+          //mythis.saveData();
           //////////////////////////////////////////////////////
           mythis.$root.showLoading();
           axios
@@ -1343,7 +1465,7 @@ export default {
               mythis.$root.hideLoading();
               mythis.dataTr104.docStatus = "O";
               mythis.close();
-              mythis.close21();
+              // mythis.close21();
               mythis.refreshTable();
             })
             .catch(function (error) {
@@ -1371,7 +1493,7 @@ export default {
     async postSplitDataSO_batch() {
       var mythis = this;
       //kz
-      mythis.$root.showLoading();
+      //mythis.$root.showLoading();
       var limitx = 50;
       var count = 1;
       var key_split = 1;
@@ -1490,18 +1612,18 @@ export default {
         }
 
         //await mythis.sleep(2000);
-        mythis.$root.hideLoading();
+        //mythis.$root.hideLoading();
 
         // count++;
       } catch (error) {
         console.log(error);
-        mythis.$root.hideLoading();
+        //mythis.$root.hideLoading();
         //Swal.fire("Failed!", error.response.data.message, "error");
         Swal.fire("Failed!", error.response.data.message, "error");
         return false;
       }
       console.log(mythis.tabel_ticket_so_split_all);
-      mythis.$root.hideLoading();
+      //mythis.$root.hideLoading();
     },
     async postSplitDataSO() {
       var mythis = this;
@@ -1663,7 +1785,7 @@ export default {
         mythis.dataTr104.id == undefined
       ) {
         mythis.close();
-        mythis.close21();
+        // mythis.close21();
       }
     },
 
@@ -1676,6 +1798,88 @@ export default {
 
       return true;
     },
+
+    async saveData_confirm_new() {
+      var mythis = this;
+
+      if (mythis.status_confirm == true) {
+        await mythis.pengecekan_isian_batch();
+      }
+
+      var a = 0;
+      var variant_beda = 0;
+      // if (mythis.isEmpty(mythis.tabel_ticket_so_final_batch)) {
+      //   Swal.fire(
+      //     "Failed!",
+      //     "Tidak ada perubahan pada Batch, silakan input dahulu",
+      //     "error"
+      //   );
+      //   return false;
+      // }
+
+      console.log(mythis.var_SO_awal);
+      console.log(mythis.tabel_ticket_so_final_batch);
+      console.log(mythis.var_so_variant);
+      console.log(mythis.var_so_variant_fix);
+
+      var beda = 0;
+      mythis.tabel_ticket_so.forEach((value) => {
+        //kasino
+        //variant_3080XXYYZZBE0613000281S
+        var a = "txt_" + value[0] + "XXYYZZ" + value[4];
+        var b = "qtyBatch_" + value[0] + "XXYYZZ" + value[4];
+        var c = "variant_" + value[0] + "XXYYZZ" + value[4];
+
+        let x_value = $("#" + a).val();
+        let x_value2 = $("#" + b).val();
+        let x_value3 = $("#" + c).val();
+
+        if (x_value == undefined) {
+          return;
+        }
+        console.log(x_value + "!=" + x_value2 + "!=" + x_value3);
+        if (parseInt(x_value) != parseInt(x_value2)) {
+          beda = 1;
+
+          console.log("beda " + x_value + "!=" + x_value2 + "!=" + x_value3);
+
+          $("#" + b).css("background-color", "#ff0303");
+        } else {
+          $("#" + b).css("background-color", "#ffffff");
+        }
+
+        if (parseInt(x_value3) != 0) {
+          variant_beda = 1;
+        }
+      });
+
+      // if (variant_beda == 0) {
+      //   Swal.fire(
+      //     "Failed!",
+      //     "Tidak ada perubahan pada Batch, silakan input dahulu",
+      //     "error"
+      //   );
+      //   return false;
+      // }
+
+      if (beda == 1) {
+        Swal.fire(
+          "Failed!",
+          "Ada perbedaan antara Total Qty CC dengan Total Qty Batch, silakan periksa kembali",
+          "error"
+        );
+        return false;
+      }
+
+      // alert("AAA");
+      // return false;
+
+      mythis.$root.showLoading();
+
+      //////////////////////////////////////////////////////
+      mythis.postSplitDataSO();
+    },
+
     saveData() {
       var mythis = this;
       var a = 0;
@@ -1841,7 +2045,7 @@ export default {
 
             mythis.var_SO_awal_qty_batch[
               resData.data[key].id + "XXYYZZ" + resData.data[key].itemCode
-            ] = resData.data[key].stockOpnameQty1;
+            ] = resData.data[key].batchQty1;
 
             mythis.var_so_variant[
               resData.data[key].id + "XXYYZZ" + resData.data[key].itemCode
@@ -1904,7 +2108,10 @@ export default {
       this.grid4.updateConfig({
         // search: true,
         pagination: {
-          limit: 20,
+          limit: mythis.limit_x_tabel_cc,
+          buttonsCount: 100,
+          nextButton: false,
+          prevButton: false,
         },
         columns: [
           {
@@ -1965,7 +2172,7 @@ export default {
           {
             id: "stockopnameqty",
             name: html(
-              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>SO Qty</b></div>'
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>CC Qty</b></div>'
             ),
             formatter: (_, row) =>
               row.cells[3].data == "Jumlah Item"
@@ -3106,6 +3313,7 @@ export default {
     },
     close88: function () {
       this.showModal88 = false;
+      $("button[title='Page " + this.page_tabel_current + "']").click(); //kasinokz otomatis ke halaman terakhir
     },
     clickReffNo() {
       this.modal11();
@@ -3285,6 +3493,25 @@ export default {
       $(document).on("click", "#input_batch", function () {
         let id = $(this).data("id");
         //alert(id);
+        //console.log(mythis.var_SO_awal);
+
+        mythis.status_confirm = false;
+        mythis.txt_input_current = "txt_" + id;
+
+        let numberx = 0;
+        Object.keys(mythis.var_SO_awal).forEach(function (key) {
+          numberx++;
+          //console.log(mythis.var_SO_awal[key]);
+          if (key == id) {
+            //alert(numberx);
+            let a_n_x = Math.ceil(
+              parseInt(numberx) / parseInt(mythis.limit_x_tabel_cc)
+            );
+            mythis.page_tabel_current = a_n_x;
+            console.log("Halamann " + a_n_x);
+            return;
+          }
+        });
 
         mythis.key_total_sum_batch_awal = id;
         mythis.getDataCCTableRincian_D2(id);
@@ -3566,6 +3793,13 @@ export default {
           },
 
           {
+            id: "type",
+            name: html(
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Type</b></div>'
+            ),
+          },
+
+          {
             id: "storeCodeFrm",
             name: html(
               '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>SO Store</b></div>'
@@ -3659,6 +3893,7 @@ export default {
 
               card.docStatus,
               card.docNum,
+              card.optionalName + " - " + card.optDtlName,
               card.storeCodeFrm,
               //card.storeCodeTo,
               card.docDate1,

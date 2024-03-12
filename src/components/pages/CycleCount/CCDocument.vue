@@ -35,11 +35,11 @@
     <div>
       <!------------------------>
 
-      <!-- <div style="text-align: right">
+      <div style="text-align: right">
         <button type="button" class="btn btn-success" @click="clickNew()">
           NEW
         </button>
-      </div> -->
+      </div>
       <div class="block-content">
         <div id="wrapper2"></div>
         <div id="box"></div>
@@ -94,7 +94,7 @@
         @close="showModal = false"
       >
         <template #header>
-          <h3>CYCLE COUNT (CC) Form</h3>
+          <h3>Cycle Count (CC) Form</h3>
         </template>
         <template #body>
           <div style="width: 90vw">
@@ -398,7 +398,6 @@
               <br />
               <br />
 
-
               <!-- <button class="btn btn-sm btn-info" @click="exportToPDFConfirm()">
                 <i class="fas fa-file-pdf"></i> Download CC NON BATCH
               </button>
@@ -627,7 +626,7 @@ export default {
       trSO_update: 0,
       html_non_batch: "",
       status_qty_admin: true,
-      
+
       qty_besar_nol: true,
     };
   },
@@ -711,7 +710,7 @@ export default {
       var mythis = this;
 
       mythis.$root.showLoading();
-      var limitx = 100;
+      var limitx = 50;
       var count = 1;
       var key_split = 1;
       var a = mythis.tabel_ticket_so.length / limitx;
@@ -852,7 +851,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 100;
+      var limitx = 50;
       var offsetx = 0;
       var baris = 0;
 
@@ -878,32 +877,40 @@ export default {
           },
         });
 
+        console.log("aaaaaaaaaaaaaaaa");
         console.log(reqData);
+        console.log("aaaaaaaaaaaaaaaa");
 
         const resData = reqData.data;
         console.log(resData.data.length);
         if (resData.data.length == 0) {
           count = 0;
+          //return;
+        } else {
+          console.log(resData.data);
+          Object.keys(resData.data).forEach(function (key) {
+            const countries = [
+              baris + 1,
+              resData.data[key].optional,
+              resData.data[key].optionalname,
+              resData.data[key].itemcode,
+              resData.data[key].itemname,
+              resData.data[key].batchno,
+              resData.data[key].expireddate,
+              resData.data[key].adminqty,
+              resData.data[key].stockopnameqty,
+              resData.data[key].varianceqty,
+            ];
+
+            mythis.tabel_ticket_so[baris] = countries;
+
+            if (resData.data[key].optionalname == "Jumlah Item") {
+              return;
+            }
+
+            baris = baris + 1;
+          });
         }
-
-        Object.keys(resData.data).forEach(function (key) {
-          const countries = [
-            baris + 1,
-            resData.data[key].optional,
-            resData.data[key].optionalname,
-            resData.data[key].itemcode,
-            resData.data[key].itemname,
-            resData.data[key].batchno,
-            resData.data[key].expireddate,
-            resData.data[key].adminqty,
-            resData.data[key].stockopnameqty,
-            resData.data[key].varianceqty,
-          ];
-
-          mythis.tabel_ticket_so[baris] = countries;
-
-          baris = baris + 1;
-        });
 
         ///////////////////////////////////////////////////////////////////
         // if (resData.data.length > 0) {
@@ -941,6 +948,10 @@ export default {
     },
     getDataSOTable() {
       var mythis = this;
+
+      console.log("CCCCCCCCCCCCCCCCCCCCCCCCC");
+      console.log(mythis.tabel_ticket_so);
+      console.log("CCCCCCCCCCCCCCCCCCCCCCCCC");
 
       //return false;
 
@@ -1075,7 +1086,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 100;
+      var limitx = 50;
       var offsetx = 0;
       var baris = 0;
 
@@ -1274,7 +1285,7 @@ export default {
       mythis.$root.showLoading();
       var nn = 0;
       var count = 1;
-      var limitx = 100;
+      var limitx = 50;
       var offsetx = 0;
       var baris = 0;
 
@@ -1453,7 +1464,7 @@ export default {
           ".pdf",
         image: { type: "jpeg", quality: 1 },
         html2canvas: { dpi: 300, letterRendering: true },
-        // jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+        //jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         pagebreak: { before: ".newPage" },
       };
@@ -2139,9 +2150,9 @@ export default {
     refreshTable() {
       var mythis = this;
       //////////////////////////////
-      $("#wrapper2").remove();
-      var e = $('<div id="wrapper2"></div>');
-      $("#box").append(e);
+      // $("#wrapper2").remove();
+      // var e = $('<div id="wrapper2"></div>');
+      // $("#box").append(e);
       this.getTable();
       //////////////////////////////
     },
@@ -2424,6 +2435,13 @@ export default {
           },
 
           {
+            id: "type",
+            name: html(
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Type</b></div>'
+            ),
+          },
+
+          {
             id: "storeCodeFrm",
             name: html(
               '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>SO Store</b></div>'
@@ -2517,6 +2535,7 @@ export default {
 
               card.docStatus,
               card.docNum,
+              card.optionalName + " - " + card.optDtlName,
               card.storeCodeFrm,
               //card.storeCodeTo,
               card.docDate1,
@@ -2587,6 +2606,13 @@ export default {
             id: "docNum",
             name: html(
               '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Doc Number</b></div>'
+            ),
+          },
+
+          {
+            id: "Type",
+            name: html(
+              '<div style="padding: 5px;border-radius: 5px;text-align: center;"><b>Type</b></div>'
             ),
           },
 
@@ -2668,6 +2694,7 @@ export default {
               card.id,
               "",
               card.docNum,
+              card.optionalName + " - " + card.optDtlName,
               card.docDate1,
               card.docStatus,
               card.storeCodeFrm,
