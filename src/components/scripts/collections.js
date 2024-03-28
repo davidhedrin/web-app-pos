@@ -104,6 +104,11 @@ export const master_code = {
   tipe_potongan: {
     percent: '1',
     value: '2',
+  },
+
+  buyGet: {
+    buy: 'buy',
+    get: 'get',
   }
 }
 
