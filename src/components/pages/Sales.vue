@@ -3264,6 +3264,7 @@ export default {
       calculateTotalBayarPrice: 0,
       tempValueInputMoreMetode: 0,
       totalPcsItemOrder: 0,
+      totalPcsItemOrderFinish: 0,
       totalPriceRingkasanProduct: 0,
       totalHematDiskon: 0,
       totalHematProduct: 0,
@@ -5863,6 +5864,7 @@ export default {
       this.totalDiscountPromo = 0;
       this.afterDiscountPromo = 0;
       this.discountPromoAdditional = 0;
+      this.totalPcsItemOrderFinish = 0;
       this.productSingleGWP = null;
 
       this.dataAllIsFreeProduct = [];
@@ -6606,6 +6608,14 @@ export default {
     checkoutBtn: async function(){
       try{
         this.$root.showLoading();
+        
+        let qtyPcs = 0;
+        this.dataProductListForStruk.forEach(item => {
+          qtyPcs += parseInt(item.qty);
+        });
+        if(!isNaN(qtyPcs) || qtyPcs > 0){
+          this.totalPcsItemOrderFinish = qtyPcs;
+        }
 
         // Check plafon if member karyawan metode karyawan
         const findMetodeBayar = this.dataAllMetodeBayar.find((metode) => metode.id === this.selectMethodPayment);
@@ -6657,7 +6667,7 @@ export default {
           salesBy: this.selectSalesBy,
           salesByWaName: this.selectedBscWa != null ? this.selectedBscWa.trim() != '' ? this.selectedBscWa : null : null,
 
-          totalQty: this.totalPcsItemOrder > 0 ? parseInt(this.totalPcsItemOrder) : null,
+          totalQty: this.totalPcsItemOrderFinish > 0 ? parseInt(this.totalPcsItemOrderFinish) : null,
 
           subTotalAmount: this.totalPriceRingkasanProduct > 0 ? parseInt(this.totalPriceRingkasanProduct) : null,
           totalDicountAmount: this.totalHematDiskon > 0 ? parseInt(this.totalHematDiskon) : null,
@@ -6764,12 +6774,14 @@ export default {
       this.totalDiscountPromo = 0;
       this.afterDiscountPromo = 0;
       this.discountPromoAdditional = 0;
+      this.totalPcsItemOrderFinish = 0;
       
       this.selectedRowTicketOrder = null;
       this.listDataProductDetailSelectTicket = [];
 
       this.dataAllIsFreeProduct = [];
 
+      this.calculatePcsItemOrderList();
       this.calculateAmoutPrice();
       $('#modalCheckoutConfirm').modal('hide');
       $('#modalConfirmPay').modal('hide');
@@ -7262,7 +7274,7 @@ export default {
       docStruk.line(startLine, lineY2, endLine, lineY2);
 
       // Total Ringkasan Product
-      const textTotalBayarProduct = `Total Bayar Produk: ${this.totalPcsItemOrder} pcs`;
+      const textTotalBayarProduct = `Total Bayar Produk: ${this.totalPcsItemOrderFinish} pcs`;
       autoTable(docStruk, {
         head: [
           [
@@ -7385,9 +7397,11 @@ export default {
 
       // Diskon percent active promo
       if(this.selectedActivePromo != null){
+        const pareIntPercent = parseInt(this.selectedActivePromo.percent);
+        const contentPromoName = this.selectedActivePromo.nama_promo.toUpperCase() + (this.selectedActivePromo.percent && pareIntPercent > 0 ? ` (${pareIntPercent} %)` : '');
         dataBillindDetail.push([
           {
-            content: `${this.selectedActivePromo.nama_promo.toUpperCase()} (${this.selectedActivePromo.percent} %)`,
+            content: contentPromoName,
             styles: {
               halign: 'left',
               fontSize: sizeFont,
@@ -8063,7 +8077,7 @@ export default {
       docStruk.line(startLine, lineY3, endLine, lineY3);
       
       // Total Ringkasan Product
-      const textTotalBayarProduct = `Total Bayar Produk: ${this.totalPcsItemOrder} pcs`;
+      const textTotalBayarProduct = `Total Bayar Produk: ${this.totalPcsItemOrderFinish} pcs`;
       autoTable(docStruk, {
         head: [
           [
@@ -8092,9 +8106,11 @@ export default {
       var bodyBillingDetail = [];
       // Diskon percent active promo
       if(this.selectedActivePromo != null){
+        const pareIntPercent = parseInt(this.selectedActivePromo.percent);
+        const contentPromoName = this.selectedActivePromo.nama_promo.toUpperCase() + (this.selectedActivePromo.percent && pareIntPercent > 0 ? ` (${pareIntPercent} %)` : '');
         bodyBillingDetail.push([
           {
-              content: `${this.selectedActivePromo.nama_promo.toUpperCase()} (${this.selectedActivePromo.percent} %)`,
+              content: contentPromoName,
               styles: {
                 halign: 'left',
                 fontSize: sizeFont,
