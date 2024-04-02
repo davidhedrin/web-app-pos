@@ -11367,6 +11367,10 @@ fieldset:disabled .tox .tox-dialog__footer .tox-button--secondary,
   width: 25% !important
 }
 
+.w-30 {
+    width: 30% !important
+}
+
 .w-50 {
   width: 50% !important
 }
