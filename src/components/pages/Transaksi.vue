@@ -207,6 +207,9 @@
           <strong>
             Total Amount: <span class="text-warning">Rp {{ $root.formatPrice(totalAmountTrasactionRange) }}</span>
           </strong>
+          <p class="m-0 fs--1">
+            <i>Total HET: Rp {{ $root.formatPrice(totalAmountTrasactionHet) }}</i>
+          </p>
         </div>
       </div>
 
@@ -650,6 +653,7 @@
 
         totalTransactionRow: 0,
         totalAmountTrasactionRange: 0,
+        totalAmountTrasactionHet: 0,
 
         dataTransactionReport: null,
         dateRangeValueTr: [],
@@ -853,6 +857,7 @@
           const dataTr = getAllDataTr.data.report_data[0];
           this.totalTransactionRow = dataTr.total_row_trans ? parseInt(dataTr.total_row_trans) : 0;
           this.totalAmountTrasactionRange = dataTr.total_amount_trans ? parseInt(dataTr.total_amount_trans) : 0;
+          this.totalAmountTrasactionHet = dataTr.total_amout_het ? parseInt(dataTr.total_amout_het) : 0;
 
           this.updateDisplayedPagesTr();
         } catch (error) {
