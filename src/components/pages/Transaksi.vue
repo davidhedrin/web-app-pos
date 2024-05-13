@@ -572,6 +572,9 @@
                     <strong>
                       Total Amount: <span class="text-warning">Rp {{ $root.formatPrice(totalAmountTrasactionRangeTrSA) }}</span>
                     </strong>
+                    <p class="m-0 fs--1">
+                      <i>Total HET: Rp {{ $root.formatPrice(totalAmountTrasactionHetTrSA) }}</i>
+                    </p>
                   </div>
                 </div>
 
@@ -674,6 +677,7 @@
         filterSelectedReportSearch: '',
         selectBAReportSearchTrSA: '',
         totalAmountTrasactionRangeTrSA: 0,
+        totalAmountTrasactionHetTrSA: 0,
       }
     },
 
@@ -802,12 +806,16 @@
             let z = reqData.find(y => y.payment_type === x.slug);
             if (z) {
               x.total_amont = parseInt(z.total_payment);
+              x.total_het = parseInt(z.total_het);
             }else{
               x.total_amont = 0;
+              x.total_het = 0;
             }
             return x;
           });
+
           this.totalAmountTrasactionRangeTrSA = parseInt(this.allPaymentMethodTrSA.reduce((total, tr) => total + tr.total_amont, 0));
+          this.totalAmountTrasactionHetTrSA = parseInt(this.allPaymentMethodTrSA.reduce((total, tr) => total + tr.total_het, 0));
         } catch (error) {
           console.log(error);
         }
