@@ -63,14 +63,14 @@
       <div class="card overflow-hidden" style="min-width: 12rem">
         <div class="card-header">
           <h6>
-            Your Amount
+            {{ dataTransactionReport ? dataTransactionReport.amount_tr_month_now : '-' }}
             <!-- <span class="badge badge-subtle-info rounded-pill ms-2">0.0%</span> -->
           </h6>
           <div class="display-4 fs-1 mb-1 fw-semi-bold font-sans-serif">
             Rp {{ dataTransactionReport ? dataTransactionReport.total_value ? $root.formatPrice(dataTransactionReport.total_value) : '0' : '0' }}
           </div>
           <span class="fw-semi-bold fs--1 text-nowrap">
-            {{ dataTransactionReport ? dataTransactionReport.amount_tr_month_now : '-' }}
+            Total HET: Rp {{ dataTransactionReport ? dataTransactionReport.total_value ? $root.formatPrice(dataTransactionReport.total_value_het) : '0' : '0' }}
           </span>
         </div>
       </div>
