@@ -4778,6 +4778,11 @@ export default {
 
     clickAddToListFreeProduct: async function(product, batch){
       try{
+        if(parseInt(batch.onHand) < 1){
+          this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
+          return;
+        };
+
         if(product.all_inventory_batch === 0){
           return false;
         }
@@ -4790,9 +4795,9 @@ export default {
           return !p.is_promo_product && p.is_free_product  && p.product.itemCode === product.itemCode && p.batch.batchNo.trim() === batch.batchNo.trim() && p.batch.expiredDate === batch.expiredDate
         });
         
-        if(parseInt(batch.onHand) < 1){
-          await this.waitForConfirmationNoQtyBatch();
-        }
+        // if(parseInt(batch.onHand) < 1){
+        //   await this.waitForConfirmationNoQtyBatch();
+        // }
   
         if (existingProduct) {
           existingProduct.qty += 1;
@@ -4812,10 +4817,6 @@ export default {
         this.allDataFindProductFree = [];
         this.calculatePcsItemOrderList();
         $('#modalFindProductFree').modal('hide');
-        // if(parseInt(batch.onHand) > 0){
-        // }else{
-        //   this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
-        // }
       }catch(e){
         console.log(e);
       }
@@ -4911,8 +4912,11 @@ export default {
 
     addProductToList: async function(product, batch, qty = 1){
       try{
-        // console.log(product);
-        // return false;
+        if(parseInt(batch.onHand) < 1){
+          this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
+          return;
+        };
+
         if(qty > 0){
           let existingProduct = null;
   
@@ -4936,9 +4940,9 @@ export default {
             });
           }
   
-          if(parseInt(batch.onHand) < 1){
-            await this.waitForConfirmationNoQtyBatch();
-          }
+          // if(parseInt(batch.onHand) < 1){
+          //   await this.waitForConfirmationNoQtyBatch();
+          // }
 
           if (existingProduct) {
             existingProduct.qty += qty;
@@ -4950,10 +4954,6 @@ export default {
               is_promo_product: product.promo_product_id ? product : null,
             };
             this.dataProductInList.push(productObj);
-            // if(parseInt(batch.onHand) > 0){
-            // }else{
-            //   this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
-            // }
           }
           
           this.qtyProductShowDetail = 1;
@@ -6147,13 +6147,18 @@ export default {
 
     clickAddToListSingleGwpProduct: async function(product, batch){
       try{
+        if(parseInt(batch.onHand) < 1){
+          this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
+          return;
+        };
+
         if(product.all_inventory_batch === 0){
           return false;
         }
         
-        if(parseInt(batch.onHand) < 1){
-          await this.waitForConfirmationNoQtyBatch();
-        }
+        // if(parseInt(batch.onHand) < 1){
+        //   await this.waitForConfirmationNoQtyBatch();
+        // }
   
         const productObj = {
           product: product,
@@ -6168,10 +6173,6 @@ export default {
         this.confirmationPayment();
         $('#modalProductSingleGwp').modal('hide');
         $('#modalShowActivePromoDiskon').modal('hide');
-        // if(parseInt(batch.onHand) > 0){
-        // }else{
-        //   this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
-        // }
       }catch(e){
         console.log(e);
       }
@@ -6385,6 +6386,11 @@ export default {
 
     selectBatchProductMinValGwp: async function(product, batch, qty = 1){
       try{
+        if(parseInt(batch.onHand) < 1){
+          this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
+          return;
+        };
+
         if(product.all_inventory_batch === 0){
           return false;
         }
@@ -6411,9 +6417,9 @@ export default {
           }
         }
         
-        if(parseInt(batch.onHand) < 1){
-          await this.waitForConfirmationNoQtyBatch();
-        }
+        // if(parseInt(batch.onHand) < 1){
+        //   await this.waitForConfirmationNoQtyBatch();
+        // }
   
         const findInList = this.selectedAllPromoMinValGwp.find((x) => x.product.itemCode == product.itemCode);
         if(findInList){
@@ -6433,10 +6439,6 @@ export default {
   
         $('#modalShowBatchProductMinValGwp').modal('hide');
         this.productSelectBatchMinValGwp = null;
-        // if(parseInt(batch.onHand) > 0){
-        // }else{
-        //   this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
-        // }
       }catch(e){
         console.log(e);
       }
