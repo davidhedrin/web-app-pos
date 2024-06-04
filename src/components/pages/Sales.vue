@@ -2801,11 +2801,11 @@
                           </a>
                         </span> -->
                         <div class="input-group">
-                          <input v-model="batch.inputVal" class="form-control form-control-sm hide-input-btn px-1" type="number" min="0" readonly>
+                          <input v-model="batch.inputVal" @input="onInputSelectBatchProductListOrderTicket(dataShowBatchProductOrdetTicketToSelect, batch, $event.target.value)" class="form-control form-control-sm hide-input-btn px-1" type="number" min="0">
                           <button class="btn btn-primary btn-sm input-group-text px-2" type="button" @click="addSelectBatchProductListOrderTicket(dataShowBatchProductOrdetTicketToSelect, batch, true)">
                             <span class="fas fa-plus"></span>
                           </button>
-                          <button class="btn btn-secondary btn-sm input-group-text px-2" type="button" @click="addSelectBatchProductListOrderTicket(dataShowBatchProductOrdetTicketToSelect, batch, false)">
+                          <button class="btn btn-secondary btn-sm input-group-text px-2" type="button"  @click="addSelectBatchProductListOrderTicket(dataShowBatchProductOrdetTicketToSelect, batch, false)">
                             <span class="fas fa-minus"></span>
                           </button>
                         </div>
@@ -2840,7 +2840,7 @@
                           </a>
                         </span> -->
                         <div class="input-group">
-                          <input v-model="batch.inputVal" class="form-control form-control-sm hide-input-btn px-1" type="number" min="0" readonly>
+                          <input v-model="batch.inputVal" @input="onInputSelectBatchProductListOrderTicket(dataShowBatchProductOrdetTicketToSelect, batch, $event.target.value)" class="form-control form-control-sm hide-input-btn px-1" type="number" min="0">
                           <button class="btn btn-primary btn-sm input-group-text px-2" type="button" @click="addSelectBatchProductListOrderTicket(dataShowBatchProductOrdetTicketToSelect, batch, true)">
                             <span class="fas fa-plus"></span>
                           </button>
@@ -5592,22 +5592,25 @@ export default {
           const groupedData = {};
           dataProduct.forEach((data) => {
             const member_id = data.member_id;
-            const findExistingTicket = this.dataFilterAllTicket.find((x) => x.member_id == member_id);
+            const userBa = data.userId;
+            const keyTicket = `${member_id}-${userBa}`;
+
+            const findExistingTicket = this.dataFilterAllTicket.find((x) => x.member_id == member_id && x.user.user_uuid == userBa);
             if(findExistingTicket){
               findExistingTicket.no_ticket.push({
                 no_ticket: data.no_ticket,
                 ticket_id: data.id
               });
             }else{
-              if (!groupedData[member_id]) {
-                groupedData[member_id] = {
+              if (!groupedData[keyTicket]) {
+                groupedData[keyTicket] = {
                   member_id: member_id,
                   member: data.member,
                   user: data.user,
                   no_ticket: [],
                 };
               }
-              groupedData[member_id].no_ticket.push({
+              groupedData[keyTicket].no_ticket.push({
                 no_ticket: data.no_ticket,
                 ticket_id: data.id
               });
@@ -5950,8 +5953,8 @@ export default {
       $('#modalShowBatchProductOrderListTicket').modal('show');
     },
 
-    addSelectBatchProductListOrderTicket: function(data, batch, incsDecs, qty = 1){
-      const findIndexData = this.listDataProductDetailSelectTicket.findIndex((x) => x == data);
+    addSelectBatchProductListOrderTicket: function(data, batch, incsDecs, qtyVal = 1){
+      const qty = parseInt(qtyVal);
       const findIfExist = data.selectBatch.find((x) => x.batch.id == batch.id);
 
       if(incsDecs == true){
@@ -5964,14 +5967,15 @@ export default {
         //   await this.waitForConfirmationNoQtyBatch();
         // }
         
-        batch.inputVal += qty;
         if(findIfExist){
           if(parseInt(batch.onHand) <= findIfExist.qty){
+            findIfExist.qty = findIfExist.qty;
+            batch.inputVal = findIfExist.qty;
             this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
             return;
           };
   
-          findIfExist.qty += qty;
+          findIfExist.qty = parseInt(findIfExist.qty) + qty;
         }else{
           // batch.isSelected = true;
           const batchNew = {
@@ -5979,19 +5983,76 @@ export default {
             qty: qty
           }
           data.selectBatch.push(batchNew);
-          $('#modalListProductTicketSelected').find(`#cardProductOrderTicket_${findIndexData}`).removeClass('border-red');
         }
+        const valueInpulVal = isNaN(parseInt(batch.inputVal)) ? 0 : parseInt(batch.inputVal);
+        batch.inputVal = valueInpulVal + qty;
       }else{
         if(findIfExist){
           const indexIfExist = data.selectBatch.findIndex((x) => x.batch.id == batch.id);
           if(findIfExist.qty > 1){
-            findIfExist.qty -= qty;
-            batch.inputVal -= qty;
+            findIfExist.qty = parseInt(findIfExist.qty) - qty;
+            batch.inputVal = parseInt(batch.inputVal) - qty;
           }else{
             data.selectBatch.splice(indexIfExist, 1);
             batch.inputVal = 0;
           }
         }
+      }
+    },
+
+    onInputSelectBatchProductListOrderTicket: function(data, batch, qtyVal = 1){
+      if(qtyVal.trim().charAt(0) === '0') {
+        batch.inputVal = 0;
+        return;
+      }
+
+      const qty = parseInt(qtyVal);
+      const findIfExist = data.selectBatch.find((x) => x.batch.id == batch.id);
+
+      if(qtyVal && qty > 0){
+        if(parseInt(batch.onHand) < 1){
+          this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
+          return;
+        };
+        
+        // if(parseInt(batch.onHand) < 1){
+        //   await this.waitForConfirmationNoQtyBatch();
+        // }
+
+        if(findIfExist){
+          if(parseInt(batch.onHand) < qty){
+            findIfExist.qty = findIfExist.qty;
+            batch.inputVal = findIfExist.qty;
+            this.$root.showAlertFunction('warning', 'Stok Invalid!', 'Gagal menambahkan stok tidak cukup.');
+            return;
+          };
+  
+          findIfExist.qty = qty;
+          batch.inputVal = qty;
+        }else{
+          // batch.isSelected = true;
+          const batchNew = {
+            batch: batch,
+            qty: qty
+          }
+          data.selectBatch.push(batchNew);
+        }
+        batch.inputVal = qty;
+      }else{
+        if(findIfExist) findIfExist.qty = 0;
+        const indexIfExist = data.selectBatch.findIndex((x) => x.batch.id == batch.id);
+        // batch.inputVal = 0;
+        data.selectBatch.splice(indexIfExist, 1);
+
+        // if(findIfExist){
+        //   if(findIfExist.qty > 1){
+        //     findIfExist.qty -= qty;
+        //     batch.inputVal -= qty;
+        //   }else{
+        //     data.selectBatch.splice(indexIfExist, 1);
+        //     batch.inputVal = 0;
+        //   }
+        // }
       }
     },
 
