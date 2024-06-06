@@ -704,6 +704,7 @@
       loadAllData: async function(){
         this.$root.showLoading();
 
+        const cacheStoreAccess = JSON.parse(localStorage.getItem(this.local_storage.access_store));
         const check_uuid = localStorage.getItem(this.local_storage.is_dynamic);
         try{
           const requset = await axios({
@@ -711,6 +712,7 @@
             url: this.$root.API_ERP + '/pos/app/transaksi/',
             params: {
               user_uuid: check_uuid,
+              store_code: cacheStoreAccess.store_outlet.storeCode
             }
           });
 
